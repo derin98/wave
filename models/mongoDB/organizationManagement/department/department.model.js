@@ -1,19 +1,15 @@
 const mongoose = require("mongoose");
 
-const businessUnitSchema = new mongoose.Schema({
+const departmentSchema = new mongoose.Schema({
+
     name: {
         type: String,
         required: true,
-        unique: true
     },
-    shortName: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    userCount: {
-        type: Number,
-        default: 0
+    businessUnit: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "BusinessUnit",
+        required: true
     },
     isEnabled: {
         type: Boolean,
@@ -22,10 +18,6 @@ const businessUnitSchema = new mongoose.Schema({
     isDeleted: {
         type: Boolean,
         default: false
-    },
-    departments: {
-        type: [mongoose.SchemaTypes.ObjectId],
-        ref: "Department"
     },
     createdAt: {
         type: Date,
@@ -52,4 +44,4 @@ const businessUnitSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model("BusinessUnit", businessUnitSchema, "businessUnits");
+module.exports = mongoose.model("Department", departmentSchema, "departments");
