@@ -2,7 +2,7 @@ const BusinessUnit = require("../../../../models/mongoDB/organizationManagement/
 const mongoose = require("mongoose");
 
 async function createBusinessUnit(businessUnitObject) {
-    return await BusinessUnit.create(businessUnitObject);
+    return BusinessUnit.create(businessUnitObject);
 }
 
 async function getAllBusinessUnits(query, sort, order, page, limit, skip) {
@@ -96,10 +96,10 @@ const checkExistingBusinessUnit = async (id) => {
 };
 
 const returnInvalidBusinessUnitIds = async (ids) => {
-    let invalidBusinessUnitIds = [];
-    invalidBusinessUnitIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
-    if (invalidBusinessUnitIds.length !== 0) {
+    let invalidBusinessUnitIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
+
+    if (invalidBusinessUnitIds.length > 0) {
         return invalidBusinessUnitIds;
     }
 

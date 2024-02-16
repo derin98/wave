@@ -1,5 +1,5 @@
 /**
- * This is the controller for the organizationManagement resource
+ * This is the controller for the BusinessUnit resource
  */
 
 const businessUnitReqObjExtractor = require("../../../utils/objectHandlers/reqObjExtractors/organizationManagement/businessUnit/businessUnit.reqObjExtractor");
@@ -20,7 +20,7 @@ exports.createBusinessUnit = async (req, res) => {
 
         return apiResponseHandler.successResponse(res, message, businessUnit, 201);
     } catch (err) {
-        console.log("Some error happened while creating organizationManagement", err.message);
+        console.log("Some error happened while creating businessUnit", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500);
     }
 };
@@ -61,7 +61,7 @@ exports.getBusinessUnit = async (req, res) => {
 
         return apiResponseHandler.successResponse(res, message, businessUnit, 200);
     } catch (err) {
-        console.log("Some error happened while fetching organizationManagement", err.message);
+        console.log("Some error happened while fetching businessUnit", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500);
     }
 }
@@ -73,13 +73,13 @@ exports.getBusinessUnit = async (req, res) => {
 
 exports.enableBusinessUnit = async (req, res) => {
     try {
-        const businessUnit = await businessUnitService.enableBusinessUnit(req.params.id);
+        await businessUnitService.enableBusinessUnit(req.params.id);
 
         const message = "BusinessUnit enabled successfully";
 
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
-        console.log("Some error happened while enabling organizationManagement", err.message);
+        console.log("Some error happened while enabling businessUnit", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500);
     }
 }
@@ -91,13 +91,13 @@ exports.enableBusinessUnit = async (req, res) => {
 
 exports.disableBusinessUnit = async (req, res) => {
     try {
-        const businessUnit = await businessUnitService.disableBusinessUnit(req.params.id);
+        await businessUnitService.disableBusinessUnit(req.params.id);
 
         const message = "BusinessUnit disabled successfully";
 
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
-        console.log("Some error happened while disabling organizationManagement", err.message);
+        console.log("Some error happened while disabling businessUnit", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500);
     }
     }
@@ -109,7 +109,7 @@ exports.disableBusinessUnit = async (req, res) => {
 
     exports.enableBusinessUnits = async (req, res) => {
         try {
-            const businessUnits = await businessUnitService.enableBusinessUnits(req.body.ids);
+            await businessUnitService.enableBusinessUnits(req.body.ids);
 
             const message = "BusinessUnits enabled successfully";
 
@@ -127,7 +127,7 @@ exports.disableBusinessUnit = async (req, res) => {
 
     exports.disableBusinessUnits = async (req, res) => {
         try {
-            const businessUnits = await businessUnitService.disableBusinessUnits(req.body.ids);
+            await businessUnitService.disableBusinessUnits(req.body.ids);
 
             const message = "BusinessUnits disabled successfully";
 
@@ -146,13 +146,13 @@ exports.disableBusinessUnit = async (req, res) => {
 
     exports.deleteBusinessUnit = async (req, res) => {
         try {
-            const businessUnit = await businessUnitService.deleteBusinessUnit(req.params.id);
+            await businessUnitService.deleteBusinessUnit(req.params.id);
 
             const message = "BusinessUnit deleted successfully";
 
             return apiResponseHandler.successResponse(res, message, null, 200);
         } catch (err) {
-            console.log("Some error happened while deleting organizationManagement", err.message);
+            console.log("Some error happened while deleting businessUnit", err.message);
             return apiResponseHandler.errorResponse(res, "Some internal server error", 500);
         }
     }
@@ -164,7 +164,7 @@ exports.disableBusinessUnit = async (req, res) => {
 
     exports.deleteBusinessUnits = async (req, res) => {
         try {
-            const businessUnits = await businessUnitService.deleteBusinessUnits(req.body.ids);
+            await businessUnitService.deleteBusinessUnits(req.body.ids);
 
             const message = "BusinessUnits deleted successfully";
 
@@ -184,13 +184,13 @@ exports.disableBusinessUnit = async (req, res) => {
         try {
             const businessUnitObject = businessUnitReqObjExtractor.updateBusinessUnitObject(req);
 
-            const businessUnit = await businessUnitService.updateBusinessUnit(req.params.id, businessUnitObject);
+            await businessUnitService.updateBusinessUnit(req.params.id, businessUnitObject);
 
             const message = "BusinessUnit updated successfully";
 
             return apiResponseHandler.successResponse(res, message, null, 200);
         } catch (err) {
-            console.log("Some error happened while updating organizationManagement", err.message);
+            console.log("Some error happened while updating businessUnit", err.message);
             return apiResponseHandler.errorResponse(res, "Some internal server error", 500);
         }
     }

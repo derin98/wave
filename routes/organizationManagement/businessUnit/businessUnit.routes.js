@@ -1,5 +1,5 @@
 const businessUnitController = require('../../../controllers/organizationManagement/businessUnit/businessUnit.controller');
-const { verifyBusinessUnitRequest, verifyMongoId, authJwt } = require("../../../middlewares");
+const { verifyBusinessUnitRequest, authJwt } = require("../../../middlewares");
 
 module.exports = function (app) {
 
@@ -24,6 +24,6 @@ module.exports = function (app) {
     app.put("/api/v1/businessUnits/:id", [ verifyBusinessUnitRequest.validateUpdateBusinessUnitRequestBody, verifyBusinessUnitRequest.validateBusinessUnitId], businessUnitController.updateBusinessUnit);
 //     app.get("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin], const businessUnitController.findById);
 //
-//     app.put("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin, verifyBusinessUnitRequestBody.validateCreateBusinessUnitRequestBody], constbusinessUnitController.update);
+//     app.put("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin, verifyBusinessUnitRequestBody.validateCreateBusinessUnitRequestBody], const businessUnitController.update);
 //
 }

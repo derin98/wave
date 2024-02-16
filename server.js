@@ -56,9 +56,9 @@ async function init() {
     try {
 
         user = await User.create({
-            name: "Derin",
+            name: "admin",
             userId: "admin", // It should be atleat 16, else will throw error
-            email: "98.derin@gmail.com",  // If we don't pass this, it will throw the error
+            email: "admin@admin.com",  // If we don't pass this, it will throw the error
             userType: "ADMIN",
             password :bcrypt.hashSync("derinb", 8) //this field should be hidden from the end userManagement
 
@@ -76,6 +76,7 @@ async function init() {
 /**
  * importing the routes
  */
+require('./routes/organizationManagement/department/department.routes')(app);
 require('./routes/organizationManagement/businessUnit/businessUnit.routes')(app);
 require('./routes/userManagement/auth/auth.routes')(app);
 require('./routes/userManagement/user/user.routes')(app);

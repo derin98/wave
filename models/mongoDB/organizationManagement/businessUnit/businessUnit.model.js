@@ -23,7 +23,7 @@ const businessUnitSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    departments: {
+    departmentIds: {
         type: [mongoose.SchemaTypes.ObjectId],
         ref: "Department"
     },
@@ -43,12 +43,12 @@ const businessUnitSchema = new mongoose.Schema({
     createdBy: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
-        required: true,
+        // required: true,
     },
     updatedBy: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
-        required: true,
+        // required: true,
     }
 })
 

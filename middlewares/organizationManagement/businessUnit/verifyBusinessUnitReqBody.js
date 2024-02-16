@@ -1,5 +1,5 @@
 /**
- * This file will contain the middlewares for valdiating the organizationManagement request body
+ * This file will contain the middlewares for valdiating the business unit request body
  */
 const BusinessUnitDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations');
 const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseHandler.js");
@@ -164,7 +164,7 @@ validateBusinessUnitIds = async (req, res, next) => {
             res,
             "Failed! BusinessUnits do not exist",
             400,
-            {invalidIds: invalidBusinessUnitIds}
+            {invalidBusinessUnitIds}
         );
     }
     next();

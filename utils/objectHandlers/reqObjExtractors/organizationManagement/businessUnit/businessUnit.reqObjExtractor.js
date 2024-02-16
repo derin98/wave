@@ -3,7 +3,8 @@ exports.createBusinessUnitObject = (req) => {
         name: req.body.name,
         shortName: req.body.shortName,
         isEnabled: req.body.isEnabled ? req.body.isEnabled : true,
-        createdBy: req.userId
+        createdBy: req.userId,
+        updatedBy: req.userId
     };
 };
 
