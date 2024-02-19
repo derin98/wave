@@ -1,23 +1,23 @@
 /**
- * This file will contain the middlewares for valdiating the department request body
+ * This file will contain the middlewares for valdiating the userType request body
  */
-const DepartmentDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/department/department.dbOperations');
-const BusinessUnitDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations');
+const UserTypeDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/userType/userType.dbOperations');
 const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseHandler.js");
+const BusinessUnitDbOperations = require("../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations");
 
 
-validateCreateDepartmentRequestBody = async (req, res, next) => {
+validateCreateUserTypeRequestBody = async (req, res, next) => {
     // Validate request
     if (!req.body.name || typeof req.body.name !== 'string') {
         return apiResponseHandler.errorResponse(
             res,
-            "Department name must be a non-empty string",
+            "UserType name must be a non-empty string",
             400,
             null
         );
     }
 
-    const businessUnitId = req.isAdmin ? req.body.businessUnitId : req.businessUnitId ? req.businessUnitId : "";
+    const businessUnitId = req.businessUnitId ? req.businessUnitId : req.body.businessUnitId;
 
     if (!businessUnitId) {
         return apiResponseHandler.errorResponse(
@@ -40,11 +40,11 @@ validateCreateDepartmentRequestBody = async (req, res, next) => {
     }
 
     // Check if the provided name already exists in the database
-    const existingNameDepartment = await DepartmentDbOperations.checkExistingNameForBusinessUnit(req.body.name, businessUnitId);
-    if (existingNameDepartment) {
+    const existingNameUserType = await UserTypeDbOperations.checkExistingNameForBusinessUnit(req.body.name, businessUnitId);
+    if (existingNameUserType) {
         return apiResponseHandler.errorResponse(
             res,
-            "Failed! Department name already exists for the business unit",
+            "Failed! UserType name already exists for the business unit",
             400,
             null
         );
@@ -54,7 +54,7 @@ validateCreateDepartmentRequestBody = async (req, res, next) => {
         if (typeof req.body.isEnabled !== 'boolean') {
             return apiResponseHandler.errorResponse(
                 res,
-                "Failed! Department isEnabled should be a boolean",
+                "Failed! UserType isEnabled should be a boolean",
                 400,
                 null
             );
@@ -63,7 +63,7 @@ validateCreateDepartmentRequestBody = async (req, res, next) => {
     next();
 }
 
-validateUpdateDepartmentRequestBody = async (req, res, next) => {
+validateUpdateUserTypeRequestBody = async (req, res, next) => {
     // Validate request
     if (req.body.name){
         if (typeof req.body.name !== 'string') {
@@ -75,7 +75,7 @@ validateUpdateDepartmentRequestBody = async (req, res, next) => {
             );
         }
 
-        const businessUnitId = req.isAdmin ? req.body.businessUnitId : req.businessUnitId ? req.businessUnitId : "";
+        const businessUnitId = req.businessUnitId ? req.businessUnitId : req.body.businessUnitId;
 
         if (!businessUnitId) {
             return apiResponseHandler.errorResponse(
@@ -97,11 +97,11 @@ validateUpdateDepartmentRequestBody = async (req, res, next) => {
             );
         }
 
-        const existingNameDepartment = await DepartmentDbOperations.checkExistingNameForBusinessUnit(req.body.name, businessUnitId);
-        if (existingNameDepartment) {
+        const existingNameUserType = await UserTypeDbOperations.checkExistingNameForBusinessUnit(req.body.name, businessUnitId);
+        if (existingNameUserType) {
             return apiResponseHandler.errorResponse(
                 res,
-                "Failed! Department name already exists for the business unit",
+                "Failed! UserType name already exists for the business unit",
                 400,
                 null
             );
@@ -120,58 +120,34 @@ validateUpdateDepartmentRequestBody = async (req, res, next) => {
     next();
 }
 
-validateDepartmentId = async (req, res, next) => {
+validateUserTypeId = async (req, res, next) => {
     if (!req.params.id || typeof req.params.id !== 'string') {
         return apiResponseHandler.errorResponse(
             res,
-            "Department id must be a non-empty string",
+            "UserType id must be a non-empty string",
             400,
             null
         );
     }
-
-    const businessUnitId = req.isAdmin ? req.body.businessUnitId : req.businessUnitId ? req.businessUnitId : "";
-
-    if(!req.isAdmin){
-        if (!businessUnitId) {
-            return apiResponseHandler.errorResponse(
-                res,
-                "BusinessUnit Id must be a non-empty string",
-                400,
-                null
-            );
-        }
-
-        // Check if the provided business unit exists in the database
-        const existingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(businessUnitId);
-        if (!existingBusinessUnit) {
-            return apiResponseHandler.errorResponse(
-                res,
-                "Failed! BusinessUnit does not exist",
-                400,
-                null
-            );
-        }
-    }
-    let checkExistingDepartment = await DepartmentDbOperations.checkExistingDepartmentId(req.params.id, businessUnitId);
-    if (checkExistingDepartment) {
+    let checkExistingUserType = await UserTypeDbOperations.checkExistingUserTypeId(req.params.id);
+    if (checkExistingUserType) {
         next();
     } else {
         return apiResponseHandler.errorResponse(
             res,
-            "Failed! Department does not exist",
+            "Failed! UserType does not exist",
             400,
             null
         );
     }
 }
 
-validateDepartmentIds = async (req, res, next) => {
+validateUserTypeIds = async (req, res, next) => {
 
     if (!req.body.ids || !Array.isArray(req.body.ids) || req.body.ids.length === 0) {
         return apiResponseHandler.errorResponse(
             res,
-            "Department ids must be a non-empty array of strings",
+            "UserType ids must be a non-empty array of strings",
             400,
             null
         );
@@ -180,34 +156,31 @@ validateDepartmentIds = async (req, res, next) => {
         if (typeof req.body.ids[i] !== 'string') {
             return apiResponseHandler.errorResponse(
                 res,
-                "Department ids must be a non-empty array of strings",
+                "UserType ids must be a non-empty array of strings",
                 400,
                 null
             );
         }
     }
-
-   
-
-    let invalidDepartmentIds = await DepartmentDbOperations.returnInvalidDepartmentIds(req.body.ids, businessUnitId);
-    if (invalidDepartmentIds.length > 0) {
+    let invalidUserTypeIds = await UserTypeDbOperations.returnInvalidUserTypeIds(req.body.ids);
+    if (invalidUserTypeIds.length > 0) {
         return apiResponseHandler.errorResponse(
             res,
-            "Failed! Invalid Department ids",
+            "Failed! Invalid UserType ids",
             400,
-            { invalidDepartmentIds }
+            { invalidUserTypeIds }
         );
     }
     next();
 }
 
-const verifyDepartmentReqBody = {
-    validateCreateDepartmentRequestBody: validateCreateDepartmentRequestBody,
-    validateUpdateDepartmentRequestBody: validateUpdateDepartmentRequestBody,
-    validateDepartmentId: validateDepartmentId,
-    validateDepartmentIds: validateDepartmentIds
+const verifyUserTypeReqBody = {
+    validateCreateUserTypeRequestBody: validateCreateUserTypeRequestBody,
+    validateUpdateUserTypeRequestBody: validateUpdateUserTypeRequestBody,
+    validateUserTypeId: validateUserTypeId,
+    validateUserTypeIds: validateUserTypeIds
 };
 
 
-module.exports = verifyDepartmentReqBody
+module.exports = verifyUserTypeReqBody
 

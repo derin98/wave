@@ -1,19 +1,19 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const businessUnitSchema = new mongoose.Schema({
+const userTypeSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        unique: true
     },
-    shortName: {
-        type: String,
-        required: true,
-        unique: true
+    businessUnitId: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "BusinessUnit",
+        required: true
     },
-    userCount: {
-        type: Number,
-        default: 0
+    departmentId: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "Department",
+        required: true
     },
     isEnabled: {
         type: Boolean,
@@ -48,4 +48,10 @@ const businessUnitSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model("BusinessUnit", businessUnitSchema, "businessUnits");
+
+const UserType = mongoose.model('UserType', userTypeSchema, "userTypes");
+
+module.exports = UserType;
+
+
+

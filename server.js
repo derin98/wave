@@ -49,14 +49,16 @@ async function init() {
     var user = await User.findOne({ userId: "admin" });
 
     if (user) {
-        console.log("Admin userManagement already present");
+        console.log("Admin user already present");
         return;
     }
 
     try {
 
         user = await User.create({
-            name: "admin",
+            firstName: "admin",
+            lastName: "crion",
+            name: "admin crion",
             userId: "admin", // It should be atleat 16, else will throw error
             email: "admin@admin.com",  // If we don't pass this, it will throw the error
             userType: "ADMIN",
@@ -76,6 +78,7 @@ async function init() {
 /**
  * importing the routes
  */
+require('./routes/organizationManagement/userType/userType.routes')(app);
 require('./routes/organizationManagement/department/department.routes')(app);
 require('./routes/organizationManagement/businessUnit/businessUnit.routes')(app);
 require('./routes/userManagement/auth/auth.routes')(app);

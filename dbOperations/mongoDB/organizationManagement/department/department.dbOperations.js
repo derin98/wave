@@ -64,12 +64,19 @@ async function updateDepartment(query, updateObject) {
     return Department.updateOne(query, { $set: updateObject });
 }
 
-async function checkExistingDepartment(id) {
-    return Department.exists({ _id: mongoose.Types.ObjectId(id) });
-}
+async function checkExistingDepartmentId(id) {
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return false;
+    }
+
+    const existingDepartment = await Department.findOne({_id: id, isDeleted: false});
+    return existingDepartment !== null;
+};
 
 async function checkExistingNameForBusinessUnit(name, businessUnitId) {
-    return Department.exists({ name, businessUnitId, isDeleted: false});
+    const existingNameDepartment = await Department.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }, businessUnitId, isDeleted: false});
+    return existingNameDepartment !== null;
 }
 
 const returnInvalidDepartmentIds = async (ids) => {
@@ -104,7 +111,7 @@ module.exports = {
     deleteDepartment,
     deleteDepartments,
     updateDepartment,
-    checkExistingDepartment,
+    checkExistingDepartmentId,
     checkExistingNameForBusinessUnit,
     returnInvalidDepartmentIds
 };

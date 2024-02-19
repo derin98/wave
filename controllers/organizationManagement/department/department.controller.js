@@ -69,7 +69,7 @@ exports.enableDepartment = async (req, res) => {
     try {
         const department = await departmentService.enableDepartment(req.params.id);
         const message = "Department enabled successfully";
-        return apiResponseHandler.successResponse(res, message, department, 200);
+        return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while enabling department", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
@@ -87,7 +87,7 @@ exports.disableDepartment = async (req, res) => {
     try {
         const department = await departmentService.disableDepartment(req.params.id);
         const message = "Department disabled successfully";
-        return apiResponseHandler.successResponse(res, message, department, 200);
+        return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while disabling department", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
@@ -102,9 +102,9 @@ exports.disableDepartment = async (req, res) => {
 
 exports.enableDepartments = async (req, res) => {
     try {
-        const department = await departmentService.enableDepartments(req.body.ids);
+        await departmentService.enableDepartments(req.body.ids);
         const message = "Departments enabled successfully";
-        return apiResponseHandler.successResponse(res, message, department, 200);
+        return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while enabling departments", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
@@ -120,9 +120,9 @@ exports.enableDepartments = async (req, res) => {
 
 exports.disableDepartments = async (req, res) => {
     try {
-        const department = await departmentService.disableDepartments(req.body.ids);
+        await departmentService.disableDepartments(req.body.ids);
         const message = "Departments disabled successfully";
-        return apiResponseHandler.successResponse(res, message, department, 200);
+        return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while disabling departments", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
@@ -137,9 +137,9 @@ exports.disableDepartments = async (req, res) => {
 
 exports.deleteDepartment = async (req, res) => {
     try {
-        const department = await departmentService.deleteDepartment(req.params.id);
+        await departmentService.deleteDepartment(req.params.id);
         const message = "Department deleted successfully";
-        return apiResponseHandler.successResponse(res, message, department, 200);
+        return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while deleting department", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
@@ -153,9 +153,9 @@ exports.deleteDepartment = async (req, res) => {
 
 exports.deleteDepartments = async (req, res) => {
     try {
-        const department = await departmentService.deleteDepartments(req.body.ids);
+        await departmentService.deleteDepartments(req.body.ids);
         const message = "Departments deleted successfully";
-        return apiResponseHandler.successResponse(res, message, department, 200);
+        return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while deleting departments", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
@@ -172,7 +172,7 @@ exports.updateDepartment = async (req, res) => {
         const departmentReqObj = departmentReqObjExtractor.updateDepartmentObject(req);
         const department = await departmentService.updateDepartment(req.params.id, departmentReqObj);
         const message = "Department updated successfully";
-        return apiResponseHandler.successResponse(res, message, department, 200);
+        return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while updating department", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
