@@ -9,17 +9,17 @@ async function getAllDepartments(query, sort, order, page, limit, skip) {
     if (limit > 0) {
         return Department.find(query)
             .select('name _id')  // Include _id in the select clause for exclusion
-            .sort({ [sort]: order })
+            .sort({[sort]: order})
             .skip(skip)
             .limit(limit)
             .lean()
-            .then(results => results.map(({ _id, ...rest }) => ({ ...rest, id: _id })));
+            .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
     } else {
         return Department.find(query)
             .select('name _id')  // Include _id in the select clause for exclusion
-            .sort({ [sort]: order })
+            .sort({[sort]: order})
             .lean()
-            .then(results => results.map(({ _id, ...rest }) => ({ ...rest, id: _id })));
+            .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
     }
 }
 
@@ -30,56 +30,66 @@ async function countDepartments(query) {
 async function getDepartment(query) {
     const result = await Department.findOne(query).select('name _id').lean();
     if (result) {
-        const { _id, ...rest } = result;
-        return { ...rest, id: _id };
+        const {_id, ...rest} = result;
+        return {...rest, id: _id};
     }
     return null;
 }
 
 async function enableDepartment(query) {
-    return Department.updateOne(query, { $set: { isEnabled: true } });
+    return Department.updateOne(query, {$set: {isEnabled: true}});
 }
 
 async function enableDepartments(query) {
-    return Department.updateMany(query, {   $set: { isEnabled: true } });
+    return Department.updateMany(query, {$set: {isEnabled: true}});
 }
 
 async function disableDepartment(query) {
-    return Department.updateOne(query, { $set: { isEnabled: false } });
+    return Department.updateOne(query, {$set: {isEnabled: false}});
 }
 
 async function disableDepartments(query) {
-    return Department.updateMany(query, { $set: { isEnabled: false } });
+    return Department.updateMany(query, {$set: {isEnabled: false}});
 }
 
 async function deleteDepartment(query) {
-    return Department.updateOne(query, { $set: { isDeleted: true } });
+    return Department.updateOne(query, {$set: {isDeleted: true}});
 }
 
 async function deleteDepartments(query) {
-    return Department.updateMany(query, {   $set: { isDeleted: true } });
+    return Department.updateMany(query, {$set: {isDeleted: true}});
 }
 
 async function updateDepartment(query, updateObject) {
-    return Department.updateOne(query, { $set: updateObject });
+    return Department.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingDepartmentId(id) {
+async function checkExistingDepartmentId(id, businessUnitId) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
     }
-
-    const existingDepartment = await Department.findOne({_id: id, isDeleted: false});
+    const query = {_id: id, isDeleted: false}
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
+    const existingDepartment = await Department.findOne(query);
     return existingDepartment !== null;
-};
+}
 
 async function checkExistingNameForBusinessUnit(name, businessUnitId) {
-    const existingNameDepartment = await Department.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }, businessUnitId, isDeleted: false});
+    const query = {
+        name: {$regex: new RegExp(`^${name}$`, 'i')},
+        isDeleted: false
+    };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
+    const existingNameDepartment = await Department.findOne(query);
     return existingNameDepartment !== null;
 }
 
-const returnInvalidDepartmentIds = async (ids) => {
+const returnInvalidDepartmentIds = async (ids, businessUnitId) => {
 
     let invalidDepartmentIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
@@ -87,10 +97,14 @@ const returnInvalidDepartmentIds = async (ids) => {
         return invalidDepartmentIds;
     }
 
-    const existingDepartments = await Department.find({
-        _id: { $in: ids },
+    const query = {
+        _id: {$in: ids},
         isDeleted: false
-    }).select('_id');
+    };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
+    const existingDepartments = await Department.find(query).select('_id');
 
     const existingDepartmentIds = existingDepartments.map(department => department._id.toString());
 

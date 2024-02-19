@@ -94,8 +94,8 @@ exports.signin = async (req, res)=> {
         });
       }
       console.log(user.userId)
-      var token = jwt.sign({ id: user.userId }, config.secret, {
-        expiresIn: 120 // 2 minutes
+      var token = jwt.sign({ id: user._id, isSuperAdmin: user.isSuperAdmin, businessUnitId: user.businessUnitId }, config.secret, {
+        expiresIn: 60*60 // 1 hour
       });
 
       res.status(200).send({

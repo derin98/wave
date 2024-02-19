@@ -94,6 +94,7 @@ const checkExistingBusinessUnit = async (id) => {
     }
 
     const existingBusinessUnit = await BusinessUnit.findOne({_id: id, isDeleted: false});
+    console.log("existingBusinessUnit", existingBusinessUnit)
     return existingBusinessUnit !== null;
 };
 

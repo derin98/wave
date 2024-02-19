@@ -2,7 +2,6 @@
  * This file will contain the middlewares for valdiating the department request body
  */
 const DepartmentDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/department/department.dbOperations');
-const BusinessUnitDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations');
 const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseHandler.js");
 
 
@@ -17,30 +16,8 @@ validateCreateDepartmentRequestBody = async (req, res, next) => {
         );
     }
 
-    const businessUnitId = req.isAdmin ? req.body.businessUnitId : req.businessUnitId ? req.businessUnitId : "";
-
-    if (!businessUnitId) {
-        return apiResponseHandler.errorResponse(
-            res,
-            "BusinessUnit Id must be a non-empty string",
-            400,
-            null
-        );
-    }
-
-    // Check if the provided business unit exists in the database
-    const existingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(businessUnitId);
-    if (!existingBusinessUnit) {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! BusinessUnit does not exist",
-            400,
-            null
-        );
-    }
-
     // Check if the provided name already exists in the database
-    const existingNameDepartment = await DepartmentDbOperations.checkExistingNameForBusinessUnit(req.body.name, businessUnitId);
+    const existingNameDepartment = await DepartmentDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnitId);
     if (existingNameDepartment) {
         return apiResponseHandler.errorResponse(
             res,
@@ -75,29 +52,7 @@ validateUpdateDepartmentRequestBody = async (req, res, next) => {
             );
         }
 
-        const businessUnitId = req.isAdmin ? req.body.businessUnitId : req.businessUnitId ? req.businessUnitId : "";
-
-        if (!businessUnitId) {
-            return apiResponseHandler.errorResponse(
-                res,
-                "BusinessUnit Id must be a non-empty string",
-                400,
-                null
-            );
-        }
-
-        // Check if the provided business unit exists in the database
-        const existingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(businessUnitId);
-        if (!existingBusinessUnit) {
-            return apiResponseHandler.errorResponse(
-                res,
-                "Failed! BusinessUnit does not exist",
-                400,
-                null
-            );
-        }
-
-        const existingNameDepartment = await DepartmentDbOperations.checkExistingNameForBusinessUnit(req.body.name, businessUnitId);
+        const existingNameDepartment = await DepartmentDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnitId);
         if (existingNameDepartment) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -130,30 +85,7 @@ validateDepartmentId = async (req, res, next) => {
         );
     }
 
-    const businessUnitId = req.isAdmin ? req.body.businessUnitId : req.businessUnitId ? req.businessUnitId : "";
-
-    if(!req.isAdmin){
-        if (!businessUnitId) {
-            return apiResponseHandler.errorResponse(
-                res,
-                "BusinessUnit Id must be a non-empty string",
-                400,
-                null
-            );
-        }
-
-        // Check if the provided business unit exists in the database
-        const existingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(businessUnitId);
-        if (!existingBusinessUnit) {
-            return apiResponseHandler.errorResponse(
-                res,
-                "Failed! BusinessUnit does not exist",
-                400,
-                null
-            );
-        }
-    }
-    let checkExistingDepartment = await DepartmentDbOperations.checkExistingDepartmentId(req.params.id, businessUnitId);
+    let checkExistingDepartment = await DepartmentDbOperations.checkExistingDepartmentId(req.params.id, req.businessUnitId);
     if (checkExistingDepartment) {
         next();
     } else {
@@ -187,9 +119,7 @@ validateDepartmentIds = async (req, res, next) => {
         }
     }
 
-   
-
-    let invalidDepartmentIds = await DepartmentDbOperations.returnInvalidDepartmentIds(req.body.ids, businessUnitId);
+    let invalidDepartmentIds = await DepartmentDbOperations.returnInvalidDepartmentIds(req.body.ids, req.businessUnitId);
     if (invalidDepartmentIds.length > 0) {
         return apiResponseHandler.errorResponse(
             res,

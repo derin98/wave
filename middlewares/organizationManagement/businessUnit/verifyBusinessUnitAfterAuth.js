@@ -6,11 +6,10 @@ const BusinessUnitDbOperations = require('../../../dbOperations/mongoDB/organiza
 const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseHandler.js");
 
 
-const getBusinessUnitId = async (req, res, next) => {
+const verifyBusinessUnitId = async (req, res, next) => {
     // Validate request
-
-    req.businessUnitId = req.isAdmin ? req.params.businessUnitId : req.businessUnitId ? req.businessUnitId : "";
-    if (!req.isAdmin) {
+    req.businessUnitId = req.isSuperAdmin ? req.query.businessUnitId : req.businessUnitId ? req.businessUnitId : undefined;
+    if (!req.isSuperAdmin) {
         if (!req.businessUnitId) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -20,7 +19,7 @@ const getBusinessUnitId = async (req, res, next) => {
             );
         }
     }
-    if(req.businessUnitId !== ""){
+    if(req.isSuperAdmin === false){
         const existingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(req.businessUnitId);
         if (!existingBusinessUnit) {
             return apiResponseHandler.errorResponse(
@@ -31,10 +30,23 @@ const getBusinessUnitId = async (req, res, next) => {
             );
         }
     }
+    else if(req.businessUnitId !== undefined && req.isSuperAdmin === true){
+        const existingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(req.businessUnitId);
+        if (!existingBusinessUnit) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! BusinessUnit does not exist",
+                400,
+                null
+            );
+        }
+
+    }
     next();
 }
 
 
-const verifyBusinessUnitId = {
-    getBusinessUnitId: getBusinessUnitId
-}
+const verifyBusinessUnitAfterAuth = {
+    verifyBusinessUnitId: verifyBusinessUnitId
+};
+module.exports = verifyBusinessUnitAfterAuth;

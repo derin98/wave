@@ -17,9 +17,7 @@ validateCreateUserTypeRequestBody = async (req, res, next) => {
         );
     }
 
-    const businessUnitId = req.businessUnitId ? req.businessUnitId : req.body.businessUnitId;
-
-    if (!businessUnitId) {
+    if (!req.businessUnitId) {
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit Id must be a non-empty string",
@@ -27,20 +25,8 @@ validateCreateUserTypeRequestBody = async (req, res, next) => {
             null
         );
     }
-
-    // Check if the provided business unit exists in the database
-    const existingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(businessUnitId);
-    if (!existingBusinessUnit) {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! BusinessUnit does not exist",
-            400,
-            null
-        );
-    }
-
     // Check if the provided name already exists in the database
-    const existingNameUserType = await UserTypeDbOperations.checkExistingNameForBusinessUnit(req.body.name, businessUnitId);
+    const existingNameUserType = await UserTypeDbOperations.checkExistingNameForDepartment(req.body.name, req.params.id, req.businessUnitId);
     if (existingNameUserType) {
         return apiResponseHandler.errorResponse(
             res,
@@ -69,35 +55,13 @@ validateUpdateUserTypeRequestBody = async (req, res, next) => {
         if (typeof req.body.name !== 'string') {
             return apiResponseHandler.errorResponse(
                 res,
-                "BusinessUnit name must be a non-empty string",
+                "UserType name must be a non-empty string",
                 400,
                 null
             );
         }
 
-        const businessUnitId = req.businessUnitId ? req.businessUnitId : req.body.businessUnitId;
-
-        if (!businessUnitId) {
-            return apiResponseHandler.errorResponse(
-                res,
-                "BusinessUnit Id must be a non-empty string",
-                400,
-                null
-            );
-        }
-
-        // Check if the provided business unit exists in the database
-        const existingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(businessUnitId);
-        if (!existingBusinessUnit) {
-            return apiResponseHandler.errorResponse(
-                res,
-                "Failed! BusinessUnit does not exist",
-                400,
-                null
-            );
-        }
-
-        const existingNameUserType = await UserTypeDbOperations.checkExistingNameForBusinessUnit(req.body.name, businessUnitId);
+        const existingNameUserType = await UserTypeDbOperations.checkExistingNameForDepartment(req.body.name, req.params.id, req.businessUnitId);
         if (existingNameUserType) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -110,7 +74,7 @@ validateUpdateUserTypeRequestBody = async (req, res, next) => {
             if (typeof req.body.isEnabled !== 'boolean') {
                 return apiResponseHandler.errorResponse(
                     res,
-                    "Failed! BusinessUnit isEnabled should be a boolean",
+                    "Failed! UserType isEnabled should be a boolean",
                     400,
                     null
                 );
@@ -129,7 +93,7 @@ validateUserTypeId = async (req, res, next) => {
             null
         );
     }
-    let checkExistingUserType = await UserTypeDbOperations.checkExistingUserTypeId(req.params.id);
+    let checkExistingUserType = await UserTypeDbOperations.checkExistingUserTypeId(req.params.id, req.businessUnitId);
     if (checkExistingUserType) {
         next();
     } else {
@@ -162,7 +126,7 @@ validateUserTypeIds = async (req, res, next) => {
             );
         }
     }
-    let invalidUserTypeIds = await UserTypeDbOperations.returnInvalidUserTypeIds(req.body.ids);
+    let invalidUserTypeIds = await UserTypeDbOperations.returnInvalidUserTypeIds(req.body.ids, req.businessUnitId);
     if (invalidUserTypeIds.length > 0) {
         return apiResponseHandler.errorResponse(
             res,

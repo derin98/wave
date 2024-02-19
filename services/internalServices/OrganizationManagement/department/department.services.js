@@ -11,8 +11,12 @@ async function createDepartment(departmentObject) {
 async function getAllDepartments(req) {
     let query = {
         isEnabled: true,
-        isDeleted: false
+        isDeleted: false,
     };
+    if(req.businessUnitId) {
+        query.businessUnitId = req.businessUnitId;
+    }
+    console.log("query", query)
     if (req.query.name) {
         query.name = {$regex: req.query.name, $options: 'i'};
     }
@@ -35,73 +39,97 @@ async function getAllDepartments(req) {
     return paginationHandler.paginationResObj(page, totalPages, countDepartments, departments);
 }
 
-async function getDepartment(id) {
+async function getDepartment(id, businessUnitId) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
     return await DepartmentOperations.getDepartment(query);
 }
 
-async function enableDepartment(id) {
+async function enableDepartment(id, businessUnitId) {
     let query = {
         _id: id,
         // isEnabled: false,
         isDeleted: false
     };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
     return await DepartmentOperations.enableDepartment(query);
 }
 
-async function enableDepartments(ids) {
+async function enableDepartments(ids, businessUnitId) {
     let query = {
         _id: {$in: ids},
         // isEnabled: false,
         isDeleted: false
     };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
     return await DepartmentOperations.enableDepartments(query);
 }
 
-async function disableDepartment(id) {
+async function disableDepartment(id, businessUnitId) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
     return await DepartmentOperations.disableDepartment(query);
 }
 
 
-async function disableDepartments(ids) {
+async function disableDepartments(ids, businessUnitId) {
     let query = {
         _id: {$in: ids},
         // isEnabled: true,
         isDeleted: false
     };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
     return await DepartmentOperations.disableDepartments(query);
 }
 
-async function deleteDepartment(id) {
+async function deleteDepartment(id, businessUnitId) {
     let query = {
         _id: id,
         isDeleted: false
     };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
     return await DepartmentOperations.deleteDepartment(query);
 }
 
-async function deleteDepartments(ids) {
+async function deleteDepartments(ids, businessUnitId) {
     let query = {
         _id: {$in: ids},
         isDeleted: false
     };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
     return await DepartmentOperations.deleteDepartments(query);
 }
 
-async function updateDepartment(id, updateObject) {
+async function updateDepartment(id, updateObject, businessUnitId) {
     let query = {
         _id: id,
         isDeleted: false
     };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
     return await DepartmentOperations.updateDepartment(query, updateObject);
 }
 

@@ -20,6 +20,9 @@ verifyToken = (req, res, next) => {
             });
         }
         req.userId = decoded.id;
+        req.isSuperAdmin = decoded.isSuperAdmin;
+        req.businessUnitId = decoded.businessUnitId;
+        console.log("decoded", decoded)
         next();
     });
 };

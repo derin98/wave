@@ -62,7 +62,8 @@ async function init() {
             userId: "admin", // It should be atleat 16, else will throw error
             email: "admin@admin.com",  // If we don't pass this, it will throw the error
             userType: "ADMIN",
-            password :bcrypt.hashSync("derinb", 8) //this field should be hidden from the end userManagement
+            password :bcrypt.hashSync("derinb", 8), //this field should be hidden from the end userManagement
+            isSuperAdmin: true,
 
         });
         console.log(user);
