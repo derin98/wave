@@ -1,6 +1,7 @@
-exports.createPermissionGroupObject = (req) => {
+exports.createPermissionObject = (req) => {
     return {
         name: req.body.name,
+        permissionGroupId: req.params.id,
         businessUnitId: req.businessUnitId,
         isEnabled: req.body.isEnabled ? req.body.isEnabled : true,
         createdBy: req.userId,
@@ -8,7 +9,7 @@ exports.createPermissionGroupObject = (req) => {
     };
 }
 
-exports.updatePermissionGroupObject = (req) => {
+exports.updatePermissionObject = (req) => {
     const updateObject = {
         updatedBy: req.userId
     };

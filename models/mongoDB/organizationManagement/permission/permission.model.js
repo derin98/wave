@@ -1,7 +1,6 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const permissionGroupSchema = new mongoose.Schema({
-
+const permissionSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -9,6 +8,11 @@ const permissionGroupSchema = new mongoose.Schema({
     businessUnitId: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "BusinessUnit",
+        required: true
+    },
+    permissionGroupId: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "PermissionGroup",
         required: true
     },
     isEnabled: {
@@ -44,4 +48,10 @@ const permissionGroupSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model("PermissionGroup", permissionGroupSchema, "permissionGroups");
+
+const Permission = mongoose.model('Permission', permissionSchema, "permissions");
+
+module.exports = Permission;
+
+
+

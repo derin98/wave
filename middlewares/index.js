@@ -5,6 +5,7 @@ const verifyUserTypeReqBody = require("./organizationManagement/userType/verifyU
 const verifyBusinessUnitAfterAuth = require("./organizationManagement/businessUnit/verifyBusinessUnitAfterAuth");
 const verifyDesignationReqBody = require("./organizationManagement/designation/verifyDesignationReqBody");
 const verifyPermissionGroupReqBody = require("./organizationManagement/permissionGroup/verifyPermissionGroupReqBody");
+const verifyPermissionReqBody = require("./organizationManagement/permission/verifyPermissionReqBody");
 const authJwt = require("./userManagement/auth/authjwt");
 module.exports = {
       verifyUserReqBody,
@@ -14,5 +15,6 @@ module.exports = {
       verifyUserTypeReqBody,
       verifyBusinessUnitAfterAuth,
       verifyDesignationReqBody,
-      verifyPermissionGroupReqBody
+      verifyPermissionGroupReqBody,
+      verifyPermissionReqBody
 };

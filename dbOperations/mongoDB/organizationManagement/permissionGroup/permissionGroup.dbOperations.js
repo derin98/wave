@@ -8,7 +8,7 @@ async function createPermissionGroup(permissionGroupObject) {
 async function getAllPermissionGroups(query, sort, order, page, limit, skip) {
     if (limit > 0) {
         return PermissionGroup.find(query)
-            .select('name _id description')  // Include _id in the select clause for exclusion
+            .select('name _id')  // Include _id in the select clause for exclusion
             .sort({[sort]: order})
             .skip(skip)
             .limit(limit)
@@ -16,7 +16,7 @@ async function getAllPermissionGroups(query, sort, order, page, limit, skip) {
             .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
     } else {
         return PermissionGroup.find(query)
-            .select('name _id description')  // Include _id in the select clause for exclusion
+            .select('name _id')  // Include _id in the select clause for exclusion
             .sort({[sort]: order})
             .lean()
             .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
@@ -28,7 +28,7 @@ async function countPermissionGroups(query) {
 }
 
 async function getPermissionGroup(query) {
-    const result = await PermissionGroup.findOne(query).select('name _id description').lean();
+    const result = await PermissionGroup.findOne(query).select('name _id').lean();
     if (result) {
         const {_id, ...rest} = result;
         return {...rest, id: _id};

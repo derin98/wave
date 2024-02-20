@@ -16,14 +16,6 @@ validateCreatePermissionGroupRequestBody = async (req, res, next) => {
         );
     }
 
-    if (!req.body.description || typeof req.body.description !== 'string') {
-        return apiResponseHandler.errorResponse(
-            res,
-            "PermissionGroup description must be a non-empty string",
-            400,
-            null
-        );
-    }
 
     // Check if the provided name already exists in the database
     const existingNamePermissionGroup = await PermissionGroupDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnitId);
@@ -79,16 +71,6 @@ validateUpdatePermissionGroupRequestBody = async (req, res, next) => {
                     null
                 );
             }
-        }
-    }
-    if (req.body.description){
-        if (typeof req.body.description !== 'string') {
-            return apiResponseHandler.errorResponse(
-                res,
-                "BusinessUnit description must be a non-empty string",
-                400,
-                null
-            );
         }
     }
     next();
