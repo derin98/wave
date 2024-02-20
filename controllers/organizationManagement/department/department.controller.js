@@ -170,7 +170,7 @@ exports.deleteDepartments = async (req, res) => {
 exports.updateDepartment = async (req, res) => {
     try {
         const departmentReqObj = departmentReqObjExtractor.updateDepartmentObject(req);
-        const department = await departmentService.updateDepartment(req.params.id, departmentReqObj, businessUnitId);
+        const department = await departmentService.updateDepartment(req.params.id, departmentReqObj, req.businessUnitId);
         const message = "Department updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
