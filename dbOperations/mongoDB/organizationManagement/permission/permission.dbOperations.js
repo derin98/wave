@@ -78,7 +78,7 @@ async function checkExistingPermissionId(id, businessUnitId) {
     }
 
     const existingPermission = await Permission.findOne(query);
-    return existingPermission !== null;
+    return existingPermission;
 }
 
 async function checkExistingNameForPermissionGroup(name, permissionGroupId, businessUnitId) {
@@ -88,6 +88,7 @@ async function checkExistingNameForPermissionGroup(name, permissionGroupId, busi
     }
     console.log("query", query)
     const existingNamePermission = await Permission.findOne(query);
+    console.log("existingNamePermission", existingNamePermission)
     return existingNamePermission !== null;
 }
 

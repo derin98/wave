@@ -30,7 +30,7 @@ validateCreatePermissionRequestBody = async (req, res, next) => {
     if (existingNamePermission) {
         return apiResponseHandler.errorResponse(
             res,
-            "Failed! Permission name already exists for the business unit",
+            "Failed! Permission name already exists for the permission group",
             400,
             null
         );
@@ -61,11 +61,11 @@ validateUpdatePermissionRequestBody = async (req, res, next) => {
             );
         }
 
-        const existingNamePermission = await PermissionDbOperations.checkExistingNameForPermissionGroup(req.body.name, req.params.id, req.businessUnitId);
+        const existingNamePermission = await PermissionDbOperations.checkExistingNameForPermissionGroup(req.body.name, req.permissionGroupId, req.businessUnitId);
         if (existingNamePermission) {
             return apiResponseHandler.errorResponse(
                 res,
-                "Failed! Permission name already exists for the business unit",
+                "Failed! Permission name already exists for the permission group",
                 400,
                 null
             );
@@ -95,6 +95,7 @@ validatePermissionId = async (req, res, next) => {
     }
     let checkExistingPermission = await PermissionDbOperations.checkExistingPermissionId(req.params.id, req.businessUnitId);
     if (checkExistingPermission) {
+        req.permissionGroupId = checkExistingPermission.permissionGroupId;
         next();
     } else {
         return apiResponseHandler.errorResponse(

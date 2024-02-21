@@ -78,7 +78,7 @@ async function checkExistingDesignationId(id, businessUnitId) {
     }
 
     const existingDesignation = await Designation.findOne(query);
-    return existingDesignation !== null;
+    return existingDesignation;
 }
 
 async function checkExistingNameForUserType(name, userTypeId, businessUnitId) {

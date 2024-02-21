@@ -21,7 +21,7 @@ module.exports = function (app) {
 
     app.delete("/api/v1/permissions/", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyPermissionReqBody.validatePermissionIds], permissionController.deletePermissions);
 
-    app.put("/api/v1/permissions/:id", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyPermissionReqBody.validateUpdatePermissionRequestBody, verifyPermissionReqBody.validatePermissionId], permissionController.updatePermission);
+    app.put("/api/v1/permissions/:id", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyPermissionReqBody.validatePermissionId, verifyPermissionReqBody.validateUpdatePermissionRequestBody ], permissionController.updatePermission);
 //     app.get("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin], const permissionController.findById);
 //
 //     app.put("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin, verifyBusinessUnitRequestBody.validateCreateBusinessUnitRequestBody], constbusinessUnitController.update);

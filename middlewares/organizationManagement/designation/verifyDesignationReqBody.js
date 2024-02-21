@@ -30,7 +30,7 @@ validateCreateDesignationRequestBody = async (req, res, next) => {
     if (existingNameDesignation) {
         return apiResponseHandler.errorResponse(
             res,
-            "Failed! Designation name already exists for the business unit",
+            "Failed! Designation name already exists for the user type",
             400,
             null
         );
@@ -61,11 +61,11 @@ validateUpdateDesignationRequestBody = async (req, res, next) => {
             );
         }
 
-        const existingNameDesignation = await DesignationDbOperations.checkExistingNameForUserType(req.body.name, req.params.id, req.businessUnitId);
+        const existingNameDesignation = await DesignationDbOperations.checkExistingNameForUserType(req.body.name, req.userTypeId, req.businessUnitId);
         if (existingNameDesignation) {
             return apiResponseHandler.errorResponse(
                 res,
-                "Failed! Designation name already exists for the business unit",
+                "Failed! Designation name already exists for the user type",
                 400,
                 null
             );
@@ -95,6 +95,7 @@ validateDesignationId = async (req, res, next) => {
     }
     let checkExistingDesignation = await DesignationDbOperations.checkExistingDesignationId(req.params.id, req.businessUnitId);
     if (checkExistingDesignation) {
+        req.userTypeId = checkExistingDesignation.userTypeId;
         next();
     } else {
         return apiResponseHandler.errorResponse(
