@@ -21,7 +21,7 @@ module.exports = function (app) {
 
     app.delete("/api/v1/userTypes/", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyUserTypeReqBody.validateUserTypeIds], userTypeController.deleteUserTypes);
 
-    app.put("/api/v1/userTypes/:id", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyUserTypeReqBody.validateUpdateUserTypeRequestBody, verifyUserTypeReqBody.validateUserTypeId], userTypeController.updateUserType);
+    app.put("/api/v1/userTypes/:id", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyUserTypeReqBody.validateUserTypeId, verifyUserTypeReqBody.validateUpdateUserTypeRequestBody], userTypeController.updateUserType);
 //     app.get("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin], const userTypeController.findById);
 //
 //     app.put("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin, verifyBusinessUnitRequestBody.validateCreateBusinessUnitRequestBody], constbusinessUnitController.update);

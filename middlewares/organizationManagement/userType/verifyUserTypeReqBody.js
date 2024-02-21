@@ -30,7 +30,7 @@ validateCreateUserTypeRequestBody = async (req, res, next) => {
     if (existingNameUserType) {
         return apiResponseHandler.errorResponse(
             res,
-            "Failed! UserType name already exists for the business unit",
+            "Failed! UserType name already exists for the department",
             400,
             null
         );
@@ -61,11 +61,11 @@ validateUpdateUserTypeRequestBody = async (req, res, next) => {
             );
         }
 
-        const existingNameUserType = await UserTypeDbOperations.checkExistingNameForDepartment(req.body.name, req.params.id, req.businessUnitId);
+        const existingNameUserType = await UserTypeDbOperations.checkExistingNameForDepartment(req.body.name, req.departmentId, req.businessUnitId);
         if (existingNameUserType) {
             return apiResponseHandler.errorResponse(
                 res,
-                "Failed! UserType name already exists for the business unit",
+                "Failed! UserType name already exists for the department",
                 400,
                 null
             );
@@ -95,6 +95,7 @@ validateUserTypeId = async (req, res, next) => {
     }
     let checkExistingUserType = await UserTypeDbOperations.checkExistingUserTypeId(req.params.id, req.businessUnitId);
     if (checkExistingUserType) {
+    req.departmentId = checkExistingUserType.departmentId;
         next();
     } else {
         return apiResponseHandler.errorResponse(

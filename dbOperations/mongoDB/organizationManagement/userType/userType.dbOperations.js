@@ -78,7 +78,7 @@ async function checkExistingUserTypeId(id, businessUnitId) {
     }
 
     const existingUserType = await UserType.findOne(query);
-    return existingUserType !== null;
+    return existingUserType;
 }
 
 async function checkExistingNameForDepartment(name, departmentId, businessUnitId) {
@@ -86,7 +86,9 @@ async function checkExistingNameForDepartment(name, departmentId, businessUnitId
     if (businessUnitId) {
         query.businessUnitId = businessUnitId;
     }
+    console.log("query", query)
     const existingNameUserType = await UserType.findOne(query);
+    console.log("existingNameUserType", existingNameUserType)
     return existingNameUserType !== null;
 }
 
