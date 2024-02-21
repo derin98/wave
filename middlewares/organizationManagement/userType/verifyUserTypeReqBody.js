@@ -26,7 +26,7 @@ validateCreateUserTypeRequestBody = async (req, res, next) => {
         );
     }
     // Check if the provided name already exists in the database
-    const existingNameUserType = await UserTypeDbOperations.checkExistingNameForDepartment(req.body.name, req.params.userTypeId, req.businessUnitId);
+    const existingNameUserType = await UserTypeDbOperations.checkExistingNameForDepartment(req.body.name, req.params.departmentId, req.businessUnitId);
     if (existingNameUserType) {
         return apiResponseHandler.errorResponse(
             res,

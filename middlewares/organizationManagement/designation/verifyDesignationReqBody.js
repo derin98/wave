@@ -26,7 +26,7 @@ validateCreateDesignationRequestBody = async (req, res, next) => {
         );
     }
     // Check if the provided name already exists in the database
-    const existingNameDesignation = await DesignationDbOperations.checkExistingNameForUserType(req.body.name, req.params.designationId, req.businessUnitId);
+    const existingNameDesignation = await DesignationDbOperations.checkExistingNameForUserType(req.body.name, req.params.userTypeId, req.businessUnitId);
     if (existingNameDesignation) {
         return apiResponseHandler.errorResponse(
             res,
