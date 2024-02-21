@@ -26,7 +26,7 @@ validateCreatePermissionRequestBody = async (req, res, next) => {
         );
     }
     // Check if the provided name already exists in the database
-    const existingNamePermission = await PermissionDbOperations.checkExistingNameForPermissionGroup(req.body.name, req.params.permissionId, req.businessUnitId);
+    const existingNamePermission = await PermissionDbOperations.checkExistingNameForPermissionGroup(req.body.name, req.params.permissionGroupId, req.businessUnitId);
     if (existingNamePermission) {
         return apiResponseHandler.errorResponse(
             res,

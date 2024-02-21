@@ -77,6 +77,7 @@ validateUpdatePermissionGroupRequestBody = async (req, res, next) => {
 }
 
 validatePermissionGroupId = async (req, res, next) => {
+    console.log("req.params.permissionGroupId", req.params.permissionGroupId)
     if (!req.params.permissionGroupId || typeof req.params.permissionGroupId !== 'string') {
         return apiResponseHandler.errorResponse(
             res,
