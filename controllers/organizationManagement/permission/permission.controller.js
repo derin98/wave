@@ -46,7 +46,7 @@ exports.getAllPermissions = async (req, res) => {
 
 exports.getPermission = async (req, res) => {
     try {
-        const permission = await permissionService.getPermission(req.params.id);
+        const permission = await permissionService.getPermission(req.params.permissionId);
 
         if (!permission) {
             return apiResponseHandler.errorResponse(res, "Permission not found", 404, null);
@@ -67,7 +67,7 @@ exports.getPermission = async (req, res) => {
 
 exports.enablePermission = async (req, res) => {
     try {
-        const permission = await permissionService.enablePermission(req.params.id);
+        const permission = await permissionService.enablePermission(req.params.permissionId);
         const message = "Permission enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -85,7 +85,7 @@ exports.enablePermission = async (req, res) => {
 
 exports.disablePermission = async (req, res) => {
     try {
-        const permission = await permissionService.disablePermission(req.params.id);
+        const permission = await permissionService.disablePermission(req.params.permissionId);
         const message = "Permission disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -102,7 +102,7 @@ exports.disablePermission = async (req, res) => {
 
 exports.enablePermissions = async (req, res) => {
     try {
-        await permissionService.enablePermissions(req.body.ids);
+        await permissionService.enablePermissions(req.body.permissionIds);
         const message = "Permissions enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -120,7 +120,7 @@ exports.enablePermissions = async (req, res) => {
 
 exports.disablePermissions = async (req, res) => {
     try {
-        await permissionService.disablePermissions(req.body.ids);
+        await permissionService.disablePermissions(req.body.permissionIds);
         const message = "Permissions disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -137,7 +137,7 @@ exports.disablePermissions = async (req, res) => {
 
 exports.deletePermission = async (req, res) => {
     try {
-        await permissionService.deletePermission(req.params.id);
+        await permissionService.deletePermission(req.params.permissionId);
         const message = "Permission deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -153,7 +153,7 @@ exports.deletePermission = async (req, res) => {
 
 exports.deletePermissions = async (req, res) => {
     try {
-        await permissionService.deletePermissions(req.body.ids);
+        await permissionService.deletePermissions(req.body.permissionIds);
         const message = "Permissions deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -170,7 +170,7 @@ exports.deletePermissions = async (req, res) => {
 exports.updatePermission = async (req, res) => {
     try {
         const permissionReqObj = permissionReqObjExtractor.updatePermissionObject(req);
-        const permission = await permissionService.updatePermission(req.params.id, permissionReqObj);
+        const permission = await permissionService.updatePermission(req.params.permissionId, permissionReqObj);
         const message = "Permission updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {

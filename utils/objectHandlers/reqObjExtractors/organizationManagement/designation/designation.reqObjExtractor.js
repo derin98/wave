@@ -1,7 +1,7 @@
 exports.createDesignationObject = (req) => {
     return {
         name: req.body.name,
-        userTypeId: req.params.id,
+        userTypeId: req.params.userTypeId,
         businessUnitId: req.businessUnitId,
         isEnabled: req.body.isEnabled ? req.body.isEnabled : true,
         createdBy: req.userId,

@@ -77,7 +77,7 @@ validateUpdatePermissionGroupRequestBody = async (req, res, next) => {
 }
 
 validatePermissionGroupId = async (req, res, next) => {
-    if (!req.params.id || typeof req.params.id !== 'string') {
+    if (!req.params.permissionGroupId || typeof req.params.permissionGroupId !== 'string') {
         return apiResponseHandler.errorResponse(
             res,
             "PermissionGroup id must be a non-empty string",
@@ -86,7 +86,7 @@ validatePermissionGroupId = async (req, res, next) => {
         );
     }
 
-    let checkExistingPermissionGroup = await PermissionGroupDbOperations.checkExistingPermissionGroupId(req.params.id, req.businessUnitId);
+    let checkExistingPermissionGroup = await PermissionGroupDbOperations.checkExistingPermissionGroupId(req.params.permissionGroupId, req.businessUnitId);
     if (checkExistingPermissionGroup) {
         next();
     } else {
@@ -101,7 +101,7 @@ validatePermissionGroupId = async (req, res, next) => {
 
 validatePermissionGroupIds = async (req, res, next) => {
 
-    if (!req.body.ids || !Array.isArray(req.body.ids) || req.body.ids.length === 0) {
+    if (!req.body.permissionGroupIds || !Array.isArray(req.body.permissionGroupIds) || req.body.permissionGroupIds.length === 0) {
         return apiResponseHandler.errorResponse(
             res,
             "PermissionGroup ids must be a non-empty array of strings",
@@ -109,8 +109,8 @@ validatePermissionGroupIds = async (req, res, next) => {
             null
         );
     }
-    for (let i = 0; i < req.body.ids.length; i++) {
-        if (typeof req.body.ids[i] !== 'string') {
+    for (let i = 0; i < req.body.permissionGroupIds.length; i++) {
+        if (typeof req.body.permissionGroupIds[i] !== 'string') {
             return apiResponseHandler.errorResponse(
                 res,
                 "PermissionGroup ids must be a non-empty array of strings",
@@ -120,7 +120,7 @@ validatePermissionGroupIds = async (req, res, next) => {
         }
     }
 
-    let invalidPermissionGroupIds = await PermissionGroupDbOperations.returnInvalidPermissionGroupIds(req.body.ids, req.businessUnitId);
+    let invalidPermissionGroupIds = await PermissionGroupDbOperations.returnInvalidPermissionGroupIds(req.body.permissionGroupIds, req.businessUnitId);
     if (invalidPermissionGroupIds.length > 0) {
         return apiResponseHandler.errorResponse(
             res,

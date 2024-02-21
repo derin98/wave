@@ -116,7 +116,7 @@ validateUpdateBusinessUnitRequestBody = async (req, res, next) => {
 };
 validateBusinessUnitId = async (req, res, next) => {
     // Validate request
-    if (!req.params.id || typeof req.params.id !== 'string') {
+    if (!req.params.businessUnitId || typeof req.params.businessUnitId !== 'string') {
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit id must be a non-empty string",
@@ -124,7 +124,7 @@ validateBusinessUnitId = async (req, res, next) => {
             null
         );
     }
-    let checkExistingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(req.params.id);
+    let checkExistingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(req.params.businessUnitId);
     if (checkExistingBusinessUnit) {
         next();
     } else {
@@ -139,7 +139,7 @@ validateBusinessUnitId = async (req, res, next) => {
 
 validateBusinessUnitIds = async (req, res, next) => {
     // Validate request
-    if (!req.body.ids || !Array.isArray(req.body.ids) || req.body.ids.length === 0) {
+    if (!req.body.businessUnitIds || !Array.isArray(req.body.businessUnitIds) || req.body.businessUnitIds.length === 0) {
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit ids must be a non-empty array of strings",
@@ -148,8 +148,8 @@ validateBusinessUnitIds = async (req, res, next) => {
         );
 
     }
-    for (let i = 0; i < req.body.ids.length; i++) {
-        if (typeof req.body.ids[i] !== 'string') {
+    for (let i = 0; i < req.body.businessUnitIds.length; i++) {
+        if (typeof req.body.businessUnitIds[i] !== 'string') {
             return apiResponseHandler.errorResponse(
                 res,
                 "BusinessUnit ids must be a non-empty array of strings",
@@ -158,7 +158,7 @@ validateBusinessUnitIds = async (req, res, next) => {
             );
         }
     }
-    let invalidBusinessUnitIds = await BusinessUnitDbOperations.returnInvalidBusinessUnitIds(req.body.ids);
+    let invalidBusinessUnitIds = await BusinessUnitDbOperations.returnInvalidBusinessUnitIds(req.body.businessUnitIds);
     if (invalidBusinessUnitIds.length > 0) {
         return apiResponseHandler.errorResponse(
             res,

@@ -1,5 +1,5 @@
 const designationController = require('../../../controllers/organizationManagement/designation/designation.controller');
-const { verifyDesignationReqBody, verifyBusinessUnitAfterAuth, authJwt, verifyUserTypeReqBody} = require("../../../middlewares");
+const { verifyDesignationReqBody, verifyBusinessUnitAfterAuth, verifyPermissionReqBody,  authJwt, verifyUserTypeReqBody} = require("../../../middlewares");
 
 module.exports = function (app) {
 
@@ -21,7 +21,7 @@ module.exports = function (app) {
 
     app.delete("/api/v1/designations/", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyDesignationReqBody.validateDesignationIds], designationController.deleteDesignations);
 
-    app.put("/api/v1/designations/:id", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyDesignationReqBody.validateDesignationId, verifyDesignationReqBody.validateUpdateDesignationRequestBody], designationController.updateDesignation);
+    app.put("/api/v1/designations/:id", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyDesignationReqBody.validateDesignationId, verifyPermissionReqBody.validatePermissionIds, verifyDesignationReqBody.validateUpdateDesignationRequestBody], designationController.updateDesignation);
 //     app.get("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin], const designationController.findById);
 //
 //     app.put("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin, verifyBusinessUnitRequestBody.validateCreateBusinessUnitRequestBody], constbusinessUnitController.update);

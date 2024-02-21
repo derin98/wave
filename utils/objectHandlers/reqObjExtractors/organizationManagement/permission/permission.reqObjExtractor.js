@@ -1,7 +1,7 @@
 exports.createPermissionObject = (req) => {
     return {
         name: req.body.name,
-        permissionGroupId: req.params.id,
+        permissionGroupId: req.params.permissionGroupId,
         businessUnitId: req.businessUnitId,
         isEnabled: req.body.isEnabled ? req.body.isEnabled : true,
         createdBy: req.userId,

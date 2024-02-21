@@ -26,7 +26,7 @@ validateCreatePermissionRequestBody = async (req, res, next) => {
         );
     }
     // Check if the provided name already exists in the database
-    const existingNamePermission = await PermissionDbOperations.checkExistingNameForPermissionGroup(req.body.name, req.params.id, req.businessUnitId);
+    const existingNamePermission = await PermissionDbOperations.checkExistingNameForPermissionGroup(req.body.name, req.params.permissionId, req.businessUnitId);
     if (existingNamePermission) {
         return apiResponseHandler.errorResponse(
             res,
@@ -85,7 +85,7 @@ validateUpdatePermissionRequestBody = async (req, res, next) => {
 }
 
 validatePermissionId = async (req, res, next) => {
-    if (!req.params.id || typeof req.params.id !== 'string') {
+    if (!req.params.permissionId || typeof req.params.permissionId !== 'string') {
         return apiResponseHandler.errorResponse(
             res,
             "Permission id must be a non-empty string",
@@ -93,7 +93,7 @@ validatePermissionId = async (req, res, next) => {
             null
         );
     }
-    let checkExistingPermission = await PermissionDbOperations.checkExistingPermissionId(req.params.id, req.businessUnitId);
+    let checkExistingPermission = await PermissionDbOperations.checkExistingPermissionId(req.params.permissionId, req.businessUnitId);
     if (checkExistingPermission) {
         req.permissionGroupId = checkExistingPermission.permissionGroupId;
         next();
@@ -109,7 +109,7 @@ validatePermissionId = async (req, res, next) => {
 
 validatePermissionIds = async (req, res, next) => {
 
-    if (!req.body.ids || !Array.isArray(req.body.ids) || req.body.ids.length === 0) {
+    if (!req.body.permissionIds || !Array.isArray(req.body.permissionIds) || req.body.permissionIds.length === 0) {
         return apiResponseHandler.errorResponse(
             res,
             "Permission ids must be a non-empty array of strings",
@@ -117,8 +117,8 @@ validatePermissionIds = async (req, res, next) => {
             null
         );
     }
-    for (let i = 0; i < req.body.ids.length; i++) {
-        if (typeof req.body.ids[i] !== 'string') {
+    for (let i = 0; i < req.body.permissionIds.length; i++) {
+        if (typeof req.body.permissionIds[i] !== 'string') {
             return apiResponseHandler.errorResponse(
                 res,
                 "Permission ids must be a non-empty array of strings",
@@ -127,7 +127,7 @@ validatePermissionIds = async (req, res, next) => {
             );
         }
     }
-    let invalidPermissionIds = await PermissionDbOperations.returnInvalidPermissionIds(req.body.ids, req.businessUnitId);
+    let invalidPermissionIds = await PermissionDbOperations.returnInvalidPermissionIds(req.body.permissionIds, req.businessUnitId);
     if (invalidPermissionIds.length > 0) {
         return apiResponseHandler.errorResponse(
             res,

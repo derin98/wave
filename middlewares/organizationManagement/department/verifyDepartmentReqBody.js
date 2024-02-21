@@ -76,7 +76,7 @@ validateUpdateDepartmentRequestBody = async (req, res, next) => {
 }
 
 validateDepartmentId = async (req, res, next) => {
-    if (!req.params.id || typeof req.params.id !== 'string') {
+    if (!req.params.departmentId || typeof req.params.departmentId !== 'string') {
         return apiResponseHandler.errorResponse(
             res,
             "Department id must be a non-empty string",
@@ -85,7 +85,7 @@ validateDepartmentId = async (req, res, next) => {
         );
     }
 
-    let checkExistingDepartment = await DepartmentDbOperations.checkExistingDepartmentId(req.params.id, req.businessUnitId);
+    let checkExistingDepartment = await DepartmentDbOperations.checkExistingDepartmentId(req.params.departmentId, req.businessUnitId);
     if (checkExistingDepartment) {
         next();
     } else {
@@ -100,7 +100,7 @@ validateDepartmentId = async (req, res, next) => {
 
 validateDepartmentIds = async (req, res, next) => {
 
-    if (!req.body.ids || !Array.isArray(req.body.ids) || req.body.ids.length === 0) {
+    if (!req.body.departmentIds || !Array.isArray(req.body.departmentIds) || req.body.departmentIds.length === 0) {
         return apiResponseHandler.errorResponse(
             res,
             "Department ids must be a non-empty array of strings",
@@ -108,8 +108,8 @@ validateDepartmentIds = async (req, res, next) => {
             null
         );
     }
-    for (let i = 0; i < req.body.ids.length; i++) {
-        if (typeof req.body.ids[i] !== 'string') {
+    for (let i = 0; i < req.body.departmentIds.length; i++) {
+        if (typeof req.body.departmentIds[i] !== 'string') {
             return apiResponseHandler.errorResponse(
                 res,
                 "Department ids must be a non-empty array of strings",
@@ -119,7 +119,7 @@ validateDepartmentIds = async (req, res, next) => {
         }
     }
 
-    let invalidDepartmentIds = await DepartmentDbOperations.returnInvalidDepartmentIds(req.body.ids, req.businessUnitId);
+    let invalidDepartmentIds = await DepartmentDbOperations.returnInvalidDepartmentIds(req.body.departmentIds, req.businessUnitId);
     if (invalidDepartmentIds.length > 0) {
         return apiResponseHandler.errorResponse(
             res,

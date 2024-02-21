@@ -46,7 +46,7 @@ exports.getAllDesignations = async (req, res) => {
 
 exports.getDesignation = async (req, res) => {
     try {
-        const designation = await designationService.getDesignation(req.params.id);
+        const designation = await designationService.getDesignation(req.params.designationId);
 
         if (!designation) {
             return apiResponseHandler.errorResponse(res, "Designation not found", 404, null);
@@ -67,7 +67,7 @@ exports.getDesignation = async (req, res) => {
 
 exports.enableDesignation = async (req, res) => {
     try {
-        const designation = await designationService.enableDesignation(req.params.id);
+        const designation = await designationService.enableDesignation(req.params.designationId);
         const message = "Designation enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -85,7 +85,7 @@ exports.enableDesignation = async (req, res) => {
 
 exports.disableDesignation = async (req, res) => {
     try {
-        const designation = await designationService.disableDesignation(req.params.id);
+        const designation = await designationService.disableDesignation(req.params.designationId);
         const message = "Designation disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -102,7 +102,7 @@ exports.disableDesignation = async (req, res) => {
 
 exports.enableDesignations = async (req, res) => {
     try {
-        await designationService.enableDesignations(req.body.ids);
+        await designationService.enableDesignations(req.body.designationIds);
         const message = "Designations enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -120,7 +120,7 @@ exports.enableDesignations = async (req, res) => {
 
 exports.disableDesignations = async (req, res) => {
     try {
-        await designationService.disableDesignations(req.body.ids);
+        await designationService.disableDesignations(req.body.designationIds);
         const message = "Designations disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -137,7 +137,7 @@ exports.disableDesignations = async (req, res) => {
 
 exports.deleteDesignation = async (req, res) => {
     try {
-        await designationService.deleteDesignation(req.params.id);
+        await designationService.deleteDesignation(req.params.designationId);
         const message = "Designation deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -153,7 +153,7 @@ exports.deleteDesignation = async (req, res) => {
 
 exports.deleteDesignations = async (req, res) => {
     try {
-        await designationService.deleteDesignations(req.body.ids);
+        await designationService.deleteDesignations(req.body.designationIds);
         const message = "Designations deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -170,7 +170,7 @@ exports.deleteDesignations = async (req, res) => {
 exports.updateDesignation = async (req, res) => {
     try {
         const designationReqObj = designationReqObjExtractor.updateDesignationObject(req);
-        const designation = await designationService.updateDesignation(req.params.id, designationReqObj);
+        const designation = await designationService.updateDesignation(req.params.designationId, designationReqObj);
         const message = "Designation updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
