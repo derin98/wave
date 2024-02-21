@@ -107,6 +107,10 @@ const userSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
+    reportsToId: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
+    },
     updatedBy: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",

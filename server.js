@@ -79,6 +79,7 @@ async function init() {
 /**
  * importing the routes
  */
+require('./routes/organizationManagement/team/team.routes')(app);
 require('./routes/organizationManagement/permission/permission.routes')(app);
 require('./routes/organizationManagement/permissionGroup/permissionGroup.routes')(app);
 require('./routes/organizationManagement/designation/designation.routes')(app);
