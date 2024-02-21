@@ -75,15 +75,13 @@ async function updateBusinessUnit(query, update) {
 }
 
 async function checkExistingName(name) {
-    name = name.toLowerCase();
-    const existingNameBusinessUnit = await BusinessUnit.findOne({name});
+    const existingNameBusinessUnit = await BusinessUnit.findOne({name: {$regex: new RegExp(`^${name}$`, 'i')}})
     return existingNameBusinessUnit !== null;
 }
 
 // Check if the provided shortName already exists in the database
 const checkExistingShortName = async (shortName) => {
-    shortName = shortName.toLowerCase();
-    const existingShortNameBusinessUnit = await BusinessUnit.findOne({shortName});
+    const existingShortNameBusinessUnit = await BusinessUnit.findOne({shortName: {$regex: new RegExp(`^${shortName}$`, 'i')}});
     return existingShortNameBusinessUnit !== null;
 };
 
