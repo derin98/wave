@@ -85,15 +85,25 @@ validateUpdateDesignationRequestBody = async (req, res, next) => {
 }
 
 validateDesignationId = async (req, res, next) => {
-    if (!req.params.designationId || typeof req.params.designationId !== 'string') {
+    // Check if designationId is in req.params
+    if (req.params.designationId && typeof req.params.designationId === 'string') {
+        req.designationId = req.params.designationId;
+    }
+    // If not, check if designationId is in req.body
+    else if (req.body.designationId && typeof req.body.designationId === 'string') {
+        req.designationId = req.body.designationId;
+    }
+    // If userTypeId is not in req.params or req.body, return an error response
+    else {
         return apiResponseHandler.errorResponse(
             res,
-            "Designation id must be a non-empty string",
+            "Designation id must be a non-empty string in req.params or req.body",
             400,
             null
         );
     }
-    let checkExistingDesignation = await DesignationDbOperations.checkExistingDesignationId(req.params.designationId, req.businessUnitId);
+
+    let checkExistingDesignation = await DesignationDbOperations.checkExistingDesignationId(req.params.designationId, req.businessUnitId, req.userTypeId);
     if (checkExistingDesignation) {
         req.userTypeId = checkExistingDesignation.userTypeId;
         next();

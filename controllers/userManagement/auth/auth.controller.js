@@ -12,14 +12,7 @@ exports.signup = async (req, res) => {
     /**
      * Inside the sign up call
      */
-    var userStatus = req.body.userSatus;
-    if(!req.body.userSatus){
-       if(!req.body.userType || req.body.userType==constants.userTypes.customer){
-        userStatus = constants.userStatus.approved;
-       }else{
-        userStatus = constants.userStatus.pending;  
-       }
-    }
+
 
     const userObj = {
         name: req.body.name,

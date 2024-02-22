@@ -7,6 +7,16 @@ const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseH
 
 validateCreateDepartmentRequestBody = async (req, res, next) => {
     // Validate request
+
+    if (!req.businessUnitId){
+        return apiResponseHandler.errorResponse(
+            res,
+            "BusinessUnit Id must be a non-empty string",
+            400,
+            null
+        );
+    }
+
     if (!req.body.name || typeof req.body.name !== 'string') {
         return apiResponseHandler.errorResponse(
             res,
@@ -42,6 +52,17 @@ validateCreateDepartmentRequestBody = async (req, res, next) => {
 
 validateUpdateDepartmentRequestBody = async (req, res, next) => {
     // Validate request
+
+    if (!req.businessUnitId){
+        return apiResponseHandler.errorResponse(
+            res,
+            "BusinessUnit Id must be a non-empty string",
+            400,
+            null
+        );
+    }
+
+
     if (req.body.name){
         if (typeof req.body.name !== 'string') {
             return apiResponseHandler.errorResponse(
@@ -76,16 +97,28 @@ validateUpdateDepartmentRequestBody = async (req, res, next) => {
 }
 
 validateDepartmentId = async (req, res, next) => {
-    if (!req.params.departmentId || typeof req.params.departmentId !== 'string') {
+
+    // Check if departmentId is in req.params
+    if (req.params.departmentId && typeof req.params.departmentId === 'string') {
+        req.departmentId = req.params.departmentId;
+    }
+    // If not, check if departmentId is in req.body
+    else if (req.body.departmentId && typeof req.body.departmentId === 'string') {
+        req.departmentId = req.body.departmentId;
+    }
+    // If departmentId is not in req.params or req.body, return an error response
+    else {
         return apiResponseHandler.errorResponse(
             res,
-            "Department id must be a non-empty string",
+            "Department id must be a non-empty string in req.params or req.body",
             400,
             null
         );
     }
 
-    let checkExistingDepartment = await DepartmentDbOperations.checkExistingDepartmentId(req.params.departmentId, req.businessUnitId);
+    // Check if the department with the given ID exists
+    let checkExistingDepartment = await DepartmentDbOperations.checkExistingDepartmentId(req.departmentId, req.businessUnitId);
+
     if (checkExistingDepartment) {
         next();
     } else {

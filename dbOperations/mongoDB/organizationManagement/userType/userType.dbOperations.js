@@ -65,7 +65,7 @@ async function updateUserType(query, updateObject) {
     return UserType.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingUserTypeId(id, businessUnitId) {
+async function checkExistingUserTypeId(id, businessUnitId, departmentId) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
@@ -75,6 +75,9 @@ async function checkExistingUserTypeId(id, businessUnitId) {
 
     if (businessUnitId) {
         query.businessUnitId = businessUnitId;
+    }
+    if (departmentId) {
+        query.departmentId = departmentId;
     }
 
     const existingUserType = await UserType.findOne(query);

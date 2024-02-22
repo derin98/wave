@@ -72,33 +72,9 @@ const isValidEmail = (email) => {
 };
 
 
-validateUserStatusAndUserType = async (req, res, next) => {
-    //Validateing the userManagement type
-    const userType = req.body.userType;
-    const userTypes = [constants.userTypes.customer, constants.userTypes.engineer, constants.userTypes.admin]
-    if (userType && !userTypes.includes(userType)) {
-        res.status(400).send({
-            message: "UserType provided is invalid. Possible values CUSTOMER | ENGINEER | ADMIN "
-        });
-        return;
-    }
-    //validting the userStatus
-    const userStatus = req.body.userStatus;
-    const userSatuses = [constants.userStatus.pending, constants.userStatus.approved, constants.userStatus.rejected]
-    if (userStatus && !userSatuses.includes(userStatus)) {
-        res.status(400).send({
-            message: "UserStatus provided is invalid. Possible values PENDING | APPROVED | REJECTED "
-        });
-        return;
-    }
-    next();
-
-
-}
 
 const verifyUserRequestBody = {
-    validateUserRequestBody: validateUserRequestBody,
-    validateUserStatusAndUserType: validateUserStatusAndUserType
+    validateUserRequestBody: validateUserRequestBody
 
 };
 module.exports = verifyUserRequestBody

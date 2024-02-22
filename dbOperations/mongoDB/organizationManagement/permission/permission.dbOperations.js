@@ -65,7 +65,7 @@ async function updatePermission(query, updateObject) {
     return Permission.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingPermissionId(id, businessUnitId) {
+async function checkExistingPermissionId(id, businessUnitId, permissionGroupId) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
@@ -75,6 +75,10 @@ async function checkExistingPermissionId(id, businessUnitId) {
 
     if (businessUnitId) {
         query.businessUnitId = businessUnitId;
+    }
+
+    if (permissionGroupId) {
+        query.permissionGroupId = permissionGroupId;
     }
 
     const existingPermission = await Permission.findOne(query);

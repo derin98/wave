@@ -5,7 +5,6 @@ const UserTypeDbOperations = require('../../../dbOperations/mongoDB/organization
 const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseHandler.js");
 const BusinessUnitDbOperations = require("../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations");
 
-
 validateCreateUserTypeRequestBody = async (req, res, next) => {
     // Validate request
     if (!req.body.name || typeof req.body.name !== 'string') {
@@ -85,22 +84,35 @@ validateUpdateUserTypeRequestBody = async (req, res, next) => {
 }
 
 validateUserTypeId = async (req, res, next) => {
-    if (!req.params.userTypeId || typeof req.params.userTypeId !== 'string') {
+
+    // Check if userTypeId is in req.params
+    if (req.params.userTypeId && typeof req.params.userTypeId === 'string') {
+        req.userTypeId = req.params.userTypeId;
+    }
+    // If not, check if userTypeId is in req.body
+    else if (req.body.userTypeId && typeof req.body.userTypeId === 'string') {
+        req.userTypeId = req.body.userTypeId;
+    }
+    // If userTypeId is not in req.params or req.body, return an error response
+    else {
         return apiResponseHandler.errorResponse(
             res,
-            "UserType id must be a non-empty string",
+            "UserType id must be a non-empty string in req.params or req.body",
             400,
             null
         );
     }
-    let checkExistingUserType = await UserTypeDbOperations.checkExistingUserTypeId(req.params.userTypeId, req.businessUnitId);
+
+    // Check if the department with the given ID exists
+    let checkExistingUserType = await UserTypeDbOperations.checkExistingUserTypeId(req.params.userTypeId, req.businessUnitId, req.departmentId);
+
     if (checkExistingUserType) {
-    req.departmentId = checkExistingUserType.departmentId;
+        req.departmentId = checkExistingUserType.departmentId;
         next();
     } else {
         return apiResponseHandler.errorResponse(
             res,
-            "Failed! UserType does not exist",
+            "Failed! User Type does not exist",
             400,
             null
         );

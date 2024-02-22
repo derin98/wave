@@ -85,15 +85,25 @@ validateUpdatePermissionRequestBody = async (req, res, next) => {
 }
 
 validatePermissionId = async (req, res, next) => {
-    if (!req.params.permissionId || typeof req.params.permissionId !== 'string') {
+    // Check if permissionId is in req.params
+    if (req.params.permissionId && typeof req.params.permissionId === 'string') {
+        req.permissionId = req.params.permissionId;
+    }
+    // If not, check if permissionId is in req.body
+    else if (req.body.permissionId && typeof req.body.permissionId === 'string') {
+        req.permissionId = req.body.permissionId;
+    }
+    // If permissionId is not in req.params or req.body, return an error response
+    else {
         return apiResponseHandler.errorResponse(
             res,
-            "Permission id must be a non-empty string",
+            "Permission id must be a non-empty string in req.params or req.body",
             400,
             null
         );
     }
-    let checkExistingPermission = await PermissionDbOperations.checkExistingPermissionId(req.params.permissionId, req.businessUnitId);
+
+    let checkExistingPermission = await PermissionDbOperations.checkExistingPermissionId(req.params.permissionId, req.businessUnitId, req.permissionGroupId);
     if (checkExistingPermission) {
         req.permissionGroupId = checkExistingPermission.permissionGroupId;
         next();

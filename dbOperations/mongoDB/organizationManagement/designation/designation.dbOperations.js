@@ -65,7 +65,7 @@ async function updateDesignation(query, updateObject) {
     return Designation.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingDesignationId(id, businessUnitId) {
+async function checkExistingDesignationId(id, businessUnitId, userTypeId) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
@@ -75,6 +75,10 @@ async function checkExistingDesignationId(id, businessUnitId) {
 
     if (businessUnitId) {
         query.businessUnitId = businessUnitId;
+    }
+
+    if (userTypeId) {
+        query.userTypeId = userTypeId;
     }
 
     const existingDesignation = await Designation.findOne(query);

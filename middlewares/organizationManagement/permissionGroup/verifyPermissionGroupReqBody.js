@@ -7,6 +7,16 @@ const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseH
 
 validateCreatePermissionGroupRequestBody = async (req, res, next) => {
     // Validate request
+
+    if (!req.businessUnitId){
+        return apiResponseHandler.errorResponse(
+            res,
+            "BusinessUnit Id must be a non-empty string",
+            400,
+            null
+        );
+    }
+
     if (!req.body.name || typeof req.body.name !== 'string') {
         return apiResponseHandler.errorResponse(
             res,
@@ -43,6 +53,15 @@ validateCreatePermissionGroupRequestBody = async (req, res, next) => {
 
 validateUpdatePermissionGroupRequestBody = async (req, res, next) => {
     // Validate request
+
+    if (!req.businessUnitId){
+        return apiResponseHandler.errorResponse(
+            res,
+            "BusinessUnit Id must be a non-empty string",
+            400,
+            null
+        );
+        }
     if (req.body.name){
         if (typeof req.body.name !== 'string') {
             return apiResponseHandler.errorResponse(
