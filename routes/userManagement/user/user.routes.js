@@ -1,12 +1,40 @@
 const userController = require('../../../controllers/userManagement/user/user.controller');
-const { verifyUserReqBody, authJwt } = require("../../../middlewares");
+const { verifyUserReqBody, verifyBusinessUnitAfterAuth, authJwt,
+    verifyDepartmentReqBody,
+    verifyUserTypeReqBody,
+    verifyDesignationReqBody,
+    verifyTeamReqBody
+} = require("../../../middlewares");
 
 module.exports = function (app) {
 
-    app.get("/crm/api/v1/users/", [authJwt.verifyToken, authJwt.isAdmin], userController.findAll);
+    app.post("/api/v1/users", [
+        // authJwt.verifyToken,
+        verifyBusinessUnitAfterAuth.verifyBusinessUnitId,
+        verifyDepartmentReqBody.validateDepartmentId, verifyUserTypeReqBody.validateUserTypeId,
+        verifyDesignationReqBody.validateDesignationId, verifyTeamReqBody.validateTeamId,
+        verifyUserReqBody.validateCreateUserRequestBody
+    ], userController.createUser);
 
-    app.get("/crm/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin], userController.findById);
+    app.get("/api/v1/users", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, ], userController.getAllUsers);
 
-    app.put("/crm/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin, verifyUserReqBody.validateUserStatusAndUserType], userController.update);
+    app.get("/api/v1/users/:userId", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyUserReqBody.validateUserId], userController.getUser);
 
+    app.patch("/api/v1/users/:userId/enable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyUserReqBody.validateUserId], userController.enableUser);
+
+    app.patch("/api/v1/users/:userId/disable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyUserReqBody.validateUserId], userController.disableUser);
+
+    app.patch("/api/v1/users/enable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyUserReqBody.validateUserIds], userController.enableUsers);
+
+    app.patch("/api/v1/users/disable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyUserReqBody.validateUserIds], userController.disableUsers);
+
+    app.delete("/api/v1/users/:userId", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyUserReqBody.validateUserId], userController.deleteUser);
+
+    app.delete("/api/v1/users/", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyUserReqBody.validateUserIds], userController.deleteUsers);
+
+    app.put("/api/v1/users/:userId", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnitId, verifyUserReqBody.validateUpdateUserRequestBody, verifyUserReqBody.validateUserId], userController.updateUser);
+//     app.get("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin], const userController.findById);
+//
+//     app.put("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin, verifyBusinessUnitRequestBody.validateCreateBusinessUnitRequestBody], constbusinessUnitController.update);
+//
 }

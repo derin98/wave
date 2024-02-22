@@ -2,7 +2,7 @@
  * This file will contain the middlewares for valdiating the business unit request body
  */
 const BusinessUnitDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations');
-const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseHandler.js");
+const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
 
 
 validateCreateBusinessUnitRequestBody = async (req, res, next) => {

@@ -3,7 +3,7 @@
  */
 
 const permissionGroupReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/organizationManagement/permissionGroup/permissionGroup.reqObjExtractor');
-const apiResponseHandler = require('../../../utils/responseHandlers/apiResponseHandler');
+const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
 const permissionGroupService = require('../../../services/internalServices/organizationManagement/permissionGroup/permissionGroup.services');
 /**
  * Create a permissionGroup

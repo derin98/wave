@@ -2,7 +2,7 @@
  * This file will contain the middlewares for valdiating the team request body
  */
 const TeamDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/team/team.dbOperations');
-const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseHandler.js");
+const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
 
 
 validateCreateTeamRequestBody = async (req, res, next) => {
@@ -76,16 +76,27 @@ validateUpdateTeamRequestBody = async (req, res, next) => {
 }
 
 validateTeamId = async (req, res, next) => {
-    if (!req.params.teamId || typeof req.params.teamId !== 'string') {
+
+    // Check if teamId is in req.params
+    if (req.params.teamId && typeof req.params.teamId === 'string') {
+        req.teamId = req.params.teamId;
+    }
+    // If not, check if teamId is in req.body
+    else if (req.body.teamId && typeof req.body.teamId === 'string') {
+        req.teamId = req.body.teamId;
+    }
+    // If departmentId is not in req.params or req.body, return an error response
+    else {
         return apiResponseHandler.errorResponse(
             res,
-            "Team id must be a non-empty string",
+            "Team id must be a non-empty string in req.params or req.body",
             400,
             null
         );
     }
 
-    let checkExistingTeam = await TeamDbOperations.checkExistingTeamId(req.params.teamId, req.businessUnitId);
+
+    let checkExistingTeam = await TeamDbOperations.checkExistingTeamId(req.teamId, req.businessUnitId);
     if (checkExistingTeam) {
         next();
     } else {

@@ -23,10 +23,6 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    password: {
-        type: String,
-        required: true,
-    },
     isSuperAdmin: {
         type: Boolean,
         default: false,
@@ -90,12 +86,12 @@ const userSchema = new mongoose.Schema({
     userPermissionId: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "UserPermission",
-        required: true
+        // required: true
     },
-    userPasswordId: {
+    userPassword: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "UserPassword",
-        required: true
+        // required: true
     },
     teamId: {
         type: mongoose.SchemaTypes.ObjectId,

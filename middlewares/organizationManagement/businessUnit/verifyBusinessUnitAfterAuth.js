@@ -3,7 +3,7 @@
  */
 
 const BusinessUnitDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations');
-const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseHandler.js");
+const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
 
 
 const verifyBusinessUnitId = async (req, res, next) => {

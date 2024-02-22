@@ -2,7 +2,7 @@
  * This file will contain the middlewares for valdiating the designation request body
  */
 const DesignationDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/designation/designation.dbOperations');
-const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseHandler.js");
+const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
 const BusinessUnitDbOperations = require("../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations");
 
 
@@ -103,7 +103,7 @@ validateDesignationId = async (req, res, next) => {
         );
     }
 
-    let checkExistingDesignation = await DesignationDbOperations.checkExistingDesignationId(req.params.designationId, req.businessUnitId, req.userTypeId);
+    let checkExistingDesignation = await DesignationDbOperations.checkExistingDesignationId(req.designationId, req.businessUnitId, req.userTypeId);
     if (checkExistingDesignation) {
         req.userTypeId = checkExistingDesignation.userTypeId;
         next();

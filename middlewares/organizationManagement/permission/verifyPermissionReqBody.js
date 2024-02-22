@@ -2,7 +2,7 @@
  * This file will contain the middlewares for valdiating the permission request body
  */
 const PermissionDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/permission/permission.dbOperations');
-const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseHandler.js");
+const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
 const BusinessUnitDbOperations = require("../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations");
 
 

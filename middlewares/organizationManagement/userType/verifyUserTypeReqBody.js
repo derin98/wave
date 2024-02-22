@@ -2,7 +2,7 @@
  * This file will contain the middlewares for valdiating the userType request body
  */
 const UserTypeDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/userType/userType.dbOperations');
-const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseHandler.js");
+const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
 const BusinessUnitDbOperations = require("../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations");
 
 validateCreateUserTypeRequestBody = async (req, res, next) => {
@@ -104,7 +104,7 @@ validateUserTypeId = async (req, res, next) => {
     }
 
     // Check if the department with the given ID exists
-    let checkExistingUserType = await UserTypeDbOperations.checkExistingUserTypeId(req.params.userTypeId, req.businessUnitId, req.departmentId);
+    let checkExistingUserType = await UserTypeDbOperations.checkExistingUserTypeId(req.userTypeId, req.businessUnitId, req.departmentId);
 
     if (checkExistingUserType) {
         req.departmentId = checkExistingUserType.departmentId;

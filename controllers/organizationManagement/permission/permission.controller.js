@@ -3,7 +3,7 @@
  */
 
 const permissionReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/organizationManagement/permission/permission.reqObjExtractor');
-const apiResponseHandler = require('../../../utils/responseHandlers/apiResponseHandler');
+const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
 const permissionService = require('../../../services/internalServices/organizationManagement/permission/permission.services');
 /**
  * Create a permission

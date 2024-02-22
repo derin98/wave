@@ -2,7 +2,7 @@
  * This file will contain the middlewares for valdiating the permissionGroup request body
  */
 const PermissionGroupDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/permissionGroup/permissionGroup.dbOperations');
-const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseHandler.js");
+const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
 
 
 validateCreatePermissionGroupRequestBody = async (req, res, next) => {

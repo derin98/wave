@@ -2,7 +2,7 @@
  * This file will contain the middlewares for valdiating the department request body
  */
 const DepartmentDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/department/department.dbOperations');
-const apiResponseHandler = require("../../../utils/responseHandlers/apiResponseHandler.js");
+const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
 
 
 validateCreateDepartmentRequestBody = async (req, res, next) => {

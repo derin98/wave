@@ -1,11 +1,11 @@
-const User = require('../../../../models/mongoDB/organizationManagement/user/user.model');
+const User = require('../../../../models/mongoDB/userManagement/user/user.model');
 const mongoose = require('mongoose');
 
 async function createUser(userObject) {
     return User.create(userObject);
 }
 
-async function getAllUsers(query, sort, order, page, limit, skip) {
+async function getAllUsers(query, sort, order, page, limit, skip, populateFields) {
     if (limit > 0) {
         return User.find(query)
             .select('name _id')  // Include _id in the select clause for exclusion
@@ -77,9 +77,21 @@ async function checkExistingUserId(id, businessUnitId) {
     return existingUser !== null;
 }
 
-async function checkExistingNameForBusinessUnit(name, businessUnitId) {
+async function checkExistingEmployeeIdForBusinessUnit(employeeId, businessUnitId) {
     const query = {
-        name: {$regex: new RegExp(`^${name}$`, 'i')},
+        employeeId: {$regex: new RegExp(`^${name}$`, 'i')},
+        isDeleted: false
+    };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
+    const existingNameUser = await User.findOne(query);
+    return existingNameUser !== null;
+}
+
+async function checkExistingEmailForBusinessUnit(email, businessUnitId) {
+    const query = {
+        email: {$regex: new RegExp(`^${name}$`, 'i')},
         isDeleted: false
     };
     if(businessUnitId) {
@@ -126,6 +138,7 @@ module.exports = {
     deleteUsers,
     updateUser,
     checkExistingUserId,
-    checkExistingNameForBusinessUnit,
+    checkExistingEmailForBusinessUnit,
+    checkExistingEmployeeIdForBusinessUnit,
     returnInvalidUserIds
 };
