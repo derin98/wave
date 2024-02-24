@@ -50,6 +50,18 @@ async function getUserType(id, businessUnitId) {
     return await UserTypeOperations.getUserType(query);
 }
 
+async function getUserTypeByName(name, businessUnitId) {
+    let query = {
+        name: name,
+        // isEnabled: true,
+        isDeleted: false
+    };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
+    return await UserTypeOperations.getUserType(query);
+}
+
 async function enableUserType(id, businessUnitId) {
     let query = {
         _id: id,
@@ -136,6 +148,7 @@ module.exports = {
     createUserType,
     getAllUserTypes,
     getUserType,
+    getUserTypeByName,
     enableUserType,
     enableUserTypes,
     disableUserType,

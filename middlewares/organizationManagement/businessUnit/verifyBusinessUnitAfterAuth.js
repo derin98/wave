@@ -8,7 +8,7 @@ const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHan
 
 const verifyBusinessUnitId = async (req, res, next) => {
     // Validate request
-    req.businessUnitId = req.isSuperAdmin ? req.query.businessUnitId : req.businessUnitId ? req.businessUnitId : undefined;
+    req.businessUnitId = req.isSuperAdmin ? req.query.businessUnitId : req.businessUnitId ? req.businessUnitId : req.query.businessUnitId;
     if (!req.isSuperAdmin) {
         if (!req.businessUnitId) {
             return apiResponseHandler.errorResponse(
