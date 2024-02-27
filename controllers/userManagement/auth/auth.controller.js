@@ -88,7 +88,7 @@ exports.signin = async (req, res)=> {
     if(designation){
         delete designation.permissionIds;
     }
-      let token = jwt.sign({ id: user._id, isSuperAdmin: user.isSuperAdmin, designation }, config.secret, {
+      let token = jwt.sign({ id: user._id, isSuperAdmin: user.isSuperAdmin, businessUnit }, config.secret, {
         expiresIn: 30 // 1 hour
       });
 
@@ -99,7 +99,7 @@ exports.signin = async (req, res)=> {
         email: user.email,
         accessToken : token,
           designation,
-          businessUnit, department: user.department, userType: user.department
+          department: user.department, userType: user.department
       })
    
 }

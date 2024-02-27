@@ -20,9 +20,10 @@ verifyToken = (req, res, next) => {
                 message: "Unauthorized!"
             });
         }
+        const businessUnit = decoded.businessUnit
         req.userId = decoded.id;
         req.isSuperAdmin = decoded.isSuperAdmin;
-        req.businessUnitId = decoded.businessUnitId;
+        req.businessUnitId = businessUnit.id;
         console.log("decoded", decoded)
         next();
     });
