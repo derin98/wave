@@ -4,12 +4,16 @@
 const serverConfig = require('./configs/server/server.config');
 const {MONGO_DB_URL} = require('./configs/db/mongoDb.config');
 const mongoose = require('mongoose');
-const User = require('./models/mongoDB/userManagement/user/user.model');
 const express = require('express');
-const bcrypt = require("bcryptjs");
 const bodyParser = require("body-parser");
 const app = express();
 const cors = require('cors');
+const authController = require('./controllers/userManagement/auth/auth.controller');
+const userServices = require('./services/internalServices/userManagement/user/user.services');
+const businessUnitServices = require('./services/internalServices/organizationManagement/businessUnit/businessUnit.services');
+const departmentServices = require('./services/internalServices/organizationManagement/department/department.services');
+const userTypeServices = require('./services/internalServices/organizationManagement/userType/userType.services');
+const designationServices = require('./services/internalServices/organizationManagement/designation/designation.services');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended :true}));
@@ -45,32 +49,147 @@ db.once("open",()=>{
  */
 async function init() {
 
+    let user;
+    let businessUnit;
+    let department;
+    let userType;
+    let designation;
 
-    var user = await User.findOne({ userId: "admin" });
 
+    const userCreation = {
+        firstName: "Super",
+        lastName: "Admin",
+        employeeId: "superAdmin",
+    }
+    const password = "adm!n@1234";
+
+
+    const businessUnitCreation = {
+        name: "Admin",
+        shortName: "ADM",
+    }
+
+    const departmentCreation = {
+        name: "Administration",
+    }
+
+    const userTypeCreation = {
+        name: "Super Administrator",
+    }
+
+    const designationCreation = {
+        name: "Super Admin",
+    }
+
+    user = await userServices.getUserByEmployeeId(userCreation.employeeId);
     if (user) {
         console.log("Admin user already present");
         return;
     }
 
     try {
-
-        user = await User.create({
-            firstName: "admin",
-            lastName: "crion",
-            name: "admin crion",
-            userId: "admin", // It should be atleat 16, else will throw error
-            email: "admin@admin.com",  // If we don't pass this, it will throw the error
-            userType: "ADMIN",
-            password :bcrypt.hashSync("derinb", 8), //this field should be hidden from the end userManagement
+        const userObj = {
             isSuperAdmin: true,
+            firstName: userCreation.firstName,
+            lastName: userCreation.lastName,
+            name: userCreation.firstName + " " + userCreation.lastName,
+            employeeId: userCreation.employeeId,
+            isEnabled: true,
+        }
 
-        });
-        console.log(user);
+        user = await authController.initSignup(userObj, password)
+        console.log("Admin user created successfully  =====>  ", user);
+
+        try{
+            const businessUnitObj = {
+                name: businessUnitCreation.name,
+                shortName: businessUnitCreation.shortName.toUpperCase(),
+                isEnabled: true,
+                createdBy: user.id,
+                updatedBy: user.id
+            }
+            businessUnit = await businessUnitServices.getBusinessUnitByName(businessUnitObj.name, "userCount");
+            if(!businessUnit){
+                businessUnit = await businessUnitServices.createBusinessUnit(businessUnitObj);
+                console.log("Default business unit created successfully  =====>  ", businessUnit);
+            }
+
+        } catch (e) {
+            console.log(e.message);
+        }
+
+        try{
+            const departmentObj = {
+                name: departmentCreation.name,
+                businessUnitId: businessUnit.id,
+                isEnabled: true,
+                createdBy: user.id,
+                updatedBy: user.id
+            }
+            department = await departmentServices.getDepartmentByName(departmentObj.name);
+            if(!department){
+                department = await departmentServices.createDepartment(departmentObj);
+                console.log("Default department created successfully  =====>  ", department);
+            }
+        } catch (e) {
+            console.log(e.message);
+        }
+        try{
+            const userTypeObj = {
+                name: userTypeCreation.name,
+                businessUnitId: businessUnit.id,
+                departmentId: department.id,
+                isEnabled: true,
+                createdBy: user.id,
+                updatedBy: user.id
+            }
+
+            userType = await userTypeServices.getUserTypeByName(userTypeObj.name);
+            if(!userType){
+                userType = await userTypeServices.createUserType(userTypeObj);
+                console.log("Default userType created successfully  =====>  ", userType);
+            }
+        } catch (e) {
+            console.log(e.message);
+        }
+        try{
+            const designationObj = {
+                name: designationCreation.name,
+                businessUnitId: businessUnit.id,
+                departmentId: department.id,
+                userTypeId: userType.id,
+                isEnabled: true,
+                createdBy: user.id,
+                updatedBy: user.id
+            }
+
+            designation = await designationServices.getDesignationByName(designationObj.name);
+            if(!designation){
+                designation = await designationServices.createDesignation(designationObj);
+                console.log("Default designation created successfully  =====>  ", designation);
+            }
+        } catch (e) {
+            console.log(e.message);
+        }
+
+        const userUpdateObj = {
+            businessUnit: businessUnit.id,
+            department: department.id,
+            userType: userType.id,
+            designation: designation.id,
+            updatedBy: user.id,
+            reportsTo: user.id
+        }
+
+        await userServices.updateUser(user.id, userUpdateObj);
 
     } catch (e) {
         console.log(e.message);
     }
+
+
+
+
 
 }
 

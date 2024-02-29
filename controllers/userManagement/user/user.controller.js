@@ -5,8 +5,7 @@
 const userReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/userManagement/user/user.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
 const userService = require('../../../services/internalServices/userManagement/user/user.services');
-const passwordGenerator = require('../../../utils/auth/passwordGenerator');
-const passwordHasher = require('../../../utils/auth/passwordHasher');
+
 /**
  * Create a user
  *

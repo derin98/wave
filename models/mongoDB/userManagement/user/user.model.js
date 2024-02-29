@@ -15,7 +15,9 @@ const userSchema = new mongoose.Schema({
     },
     userId: {
         type: String,
-        required: true,
+        required: function() {
+            return !this.isSuperAdmin;
+        },
         unique: true
     },
     employeeId: {
@@ -30,7 +32,9 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: true,
+        required: function() {
+            return !this.isSuperAdmin;
+        },
         lowercase: true, // it will convert the email into the lower case and then store in the db,
         minLength: 10,  // anything less than 10 will fail
         unique: true
@@ -38,12 +42,16 @@ const userSchema = new mongoose.Schema({
     },
     contactNumber: {
         type: String,
-        required: true,
+        required: function() {
+            return !this.isSuperAdmin;
+        },
         unique: true
     },
     countryCode: {
         type: String,
-        required: true,
+        required: function() {
+            return !this.isSuperAdmin;
+        },
     },
     isEnabled: {
         type: Boolean,
@@ -53,64 +61,88 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    imageId: {
+    userImage: {
         type: String,
-        required: true,
+        required: function() {
+            return !this.isSuperAdmin;
+        },
+        ref: "UserImage",
         // default: "default"
     },
-    eSignatureId: {
+    eSignature: {
         type: String,
-        required: true,
+        required: function() {
+            return !this.isSuperAdmin;
+        },
+        ref: "ESignature",
         // default: "default"
     },
-    businessUnitId: {
+    businessUnit: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "BusinessUnit",
-        required: true
+        required: function() {
+            return !this.isSuperAdmin;
+        },
     },
-    departmentId: {
+    department: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "Department",
-        required: true
+        required: function() {
+            return !this.isSuperAdmin;
+        },
     },
-    userTypeId: {
+    userType: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "UserType",
-        required: true
+        required: function() {
+            return !this.isSuperAdmin;
+        },
     },
-    designationId: {
+    designation: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "Designation",
-        required: true
+        required: function() {
+            return !this.isSuperAdmin;
+        },
     },
-    userPermissionId: {
+    userPermission: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "UserPermission",
-        // required: true
+        required: function() {
+            return !this.isSuperAdmin;
+        },
     },
     userPassword: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "UserPassword",
         // required: true
     },
-    teamId: {
+    team: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: "Team",
-        required: true
+        ref: "Team"
+    },
+    reportsTo: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
+        default: function () {
+            return this.isSuperAdmin ? this._id : null;
+        },
     },
     createdBy: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: true,
-    },
-    reportsToId: {
-        type: mongoose.SchemaTypes.ObjectId,
-        ref: "User",
+        default: function () {
+            return this.isSuperAdmin ? this._id : null;
+        },
     },
     updatedBy: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: true,
+        default: function () {
+            return this.isSuperAdmin ? this._id : null;
+        },
     },
     createdAt: {
         // I want to default to a new date
@@ -125,16 +157,6 @@ const userSchema = new mongoose.Schema({
         default: () => {
             return Date.now();
         }
-    },
-    userType: {
-        type: String,
-        required: true,
-        default: "CUSTOMER"
-    },
-    userStatus: {
-        type: String,
-        required: true,
-        default: "APPROVED"
     }
 
 })

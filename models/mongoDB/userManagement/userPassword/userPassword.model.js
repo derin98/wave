@@ -10,11 +10,6 @@ const userPasswordSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    userPasswordHistories:{
-        type: [mongoose.SchemaTypes.ObjectId],
-        ref: "UserPasswordHistory",
-        required: true
-    },
     expiredAt: {
         type: Date,
         required: true,

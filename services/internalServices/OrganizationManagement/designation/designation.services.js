@@ -50,6 +50,18 @@ async function getDesignation(id, businessUnitId) {
     return await DesignationOperations.getDesignation(query);
 }
 
+async function getDesignationByName(name, businessUnitId) {
+    let query = {
+        name: name,
+        // isEnabled: true,
+        isDeleted: false
+    };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
+    return await DesignationOperations.getDesignation(query);
+}
+
 async function enableDesignation(id, businessUnitId) {
     let query = {
         _id: id,
@@ -142,5 +154,7 @@ module.exports = {
     disableDesignations,
     deleteDesignation,
     deleteDesignations,
-    updateDesignation
+    updateDesignation,
+    getDesignationByName
+
 };

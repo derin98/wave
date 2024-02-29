@@ -51,6 +51,62 @@ async function getUser(id, businessUnitId) {
     return await UserOperations.getUser(query);
 }
 
+async function getUserByEmail(email, selectFields, populateFields, businessUnitId) {
+    let query = {
+        email: email,
+        // isEnabled: true,
+        isDeleted: false
+    };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
+    populateFields = populateFields
+        ? [...new Set(populateFields.split(','))].join(' ')
+        : "";
+    selectFields = selectFields
+        ? [...new Set(selectFields.split(',')), 'name', '_id'].join(' ')
+        : "";
+    return await UserOperations.getUser(query, selectFields, populateFields);
+}
+
+async function getUserByEmployeeId(employeeId, selectFields, populateFields, businessUnitId) {
+    let query = {
+        employeeId: employeeId,
+        // isEnabled: true,
+        isDeleted: false
+    };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
+    populateFields = populateFields
+        ? [...new Set(populateFields.split(','))].join(' ')
+        : "";
+    selectFields = selectFields
+        ? [...new Set(selectFields.split(',')), 'name', '_id'].join(' ')
+        : "";
+    return await UserOperations.getUser(query, selectFields, populateFields);
+}
+
+async function getUserByUserId(userId, selectFields, populateFields, businessUnitId) {
+    let query = {
+        userId: userId,
+        // isEnabled: true,
+        isDeleted: false
+    };
+    if(businessUnitId) {
+        query.businessUnitId = businessUnitId;
+    }
+    populateFields = populateFields
+        ? [...new Set(populateFields.split(','))].join(' ')
+        : "";
+    selectFields = selectFields
+        ? [...new Set(selectFields.split(',')), 'name', '_id'].join(' ')
+        : "";
+
+
+    return await UserOperations.getUser(query, selectFields, populateFields);
+}
+
 async function enableUser(id, businessUnitId) {
     let query = {
         _id: id,
@@ -132,16 +188,27 @@ async function updateUser(id, updateObject, businessUnitId) {
     }
     return await UserOperations.updateUser(query, updateObject);
 }
+async function updateUserPassword(id, userPasswordId) {
+    let query = {
+        _id: id,
+        isDeleted: false
+    };
+    return await UserOperations.updateUser(query, {userPassword: userPasswordId});
+}
 
 module.exports = {
     createUser,
     getAllUsers,
     getUser,
+    getUserByEmail,
+    getUserByEmployeeId,
+    getUserByUserId,
     enableUser,
     enableUsers,
     disableUser,
     disableUsers,
     deleteUser,
     deleteUsers,
-    updateUser
+    updateUser,
+    updateUserPassword
 };

@@ -1,5 +1,5 @@
-exports.userCreateResponse = (auth) => {
+exports.userCreateResponse = (user) => {
     return {
-        id: auth._id
+        id: user._id
     }
 }
