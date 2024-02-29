@@ -27,9 +27,9 @@ async function countBusinessUnits(query) {
     return BusinessUnit.countDocuments(query)
 }
 
-async function getBusinessUnit(query) {
+async function getBusinessUnit(query, populateFields) {
 
-    const result = await BusinessUnit.findOne(query).select('name shortName _id').lean();
+    const result = await BusinessUnit.findOne(query).select('name shortName _id').populate(populateFields).lean();
     if (result) {
         const {_id, ...rest} = result;
         return {...rest, id: _id};

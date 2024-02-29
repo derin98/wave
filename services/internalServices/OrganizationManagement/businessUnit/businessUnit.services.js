@@ -55,6 +55,19 @@ async function createBusinessUnit(businessUnitObject) {
         return await BusinessUnitOperations.getBusinessUnit(query);
     }
 
+async function getBusinessUnitByName(name, populateFields) {
+
+    let query = {
+        // isEnabled : true,
+        isDeleted : false,
+        name : name
+    };
+    populateFields = populateFields
+        ? [...new Set(populateFields.split(',')), 'name', '_id'].join(' ')
+        : "";
+    return await BusinessUnitOperations.getBusinessUnit(query, populateFields);
+}
+
     async function enableBusinessUnit(id) {
         let query = {
             isDeleted : false,
@@ -122,5 +135,6 @@ module.exports = {
     disableBusinessUnits,
     deleteBusinessUnit,
     deleteBusinessUnits,
-    updateBusinessUnit
+    updateBusinessUnit,
+    getBusinessUnitByName
 };

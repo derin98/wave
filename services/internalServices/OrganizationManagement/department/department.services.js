@@ -1,6 +1,7 @@
 const DepartmentOperations = require('../../../../dbOperations/mongoDB/organizationManagement/department/department.dbOperations');
 const paginationHandler = require('../../../../utils/objectHandlers/paginationHandler');
 const departmentResObjConverter = require('../../../../utils/objectHandlers/resObjConverters/organizationManagement/department/department.resObjConverter');
+const BusinessUnitOperations = require("../../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations");
 
 
 async function createDepartment(departmentObject) {
@@ -48,6 +49,16 @@ async function getDepartment(id, businessUnitId) {
     if(businessUnitId) {
         query.businessUnitId = businessUnitId;
     }
+    return await DepartmentOperations.getDepartment(query);
+}
+
+async function getDepartmentByName(name) {
+
+    let query = {
+        // isEnabled : true,
+        isDeleted : false,
+        name : name
+    };
     return await DepartmentOperations.getDepartment(query);
 }
 
@@ -137,6 +148,7 @@ module.exports = {
     createDepartment,
     getAllDepartments,
     getDepartment,
+    getDepartmentByName,
     enableDepartment,
     enableDepartments,
     disableDepartment,

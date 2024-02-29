@@ -27,14 +27,46 @@ async function countUsers(query) {
     return User.countDocuments(query);
 }
 
-async function getUser(query) {
-    const result = await User.findOne(query).select('name _id').lean();
-    if (result) {
-        const {_id, ...rest} = result;
-        return {...rest, id: _id};
+async function getUser(query, selectFields, populateFields) {
+    let queryObject = User.findOne(query);
+
+    if (selectFields) {
+        queryObject = queryObject.select(selectFields);
     }
+
+    if (populateFields) {
+        // Convert populateFields string to an array
+        const populateFieldsArray = populateFields.split(',');
+
+        // Remove unwanted fields from populateFields
+        const populateFieldsWithoutSystemFields = populateFieldsArray.filter(field => !['createdAt', 'updatedAt', '__v', 'isEnabled', 'isDeleted', 'createdBy', 'updatedBy', 'userTypeId', 'departmentId', 'businessUnitId'].includes(field.trim()));
+
+        queryObject = queryObject.populate({
+            path: populateFieldsWithoutSystemFields.join(' '), // Convert back to a string
+            select: '-createdAt -updatedAt -__v -isEnabled -isDeleted -createdBy -updatedBy -userTypeId -departmentId -businessUnitId',
+            options: {
+                lean: true, // Ensure the result is in plain JavaScript objects
+                transform: doc => {
+                    // Rename _id to id within the populated item
+                    const { _id, ...rest } = doc;
+                    return { ...rest, id: _id };
+                },
+            },
+        });
+    }
+
+    const result = await queryObject.lean();
+
+    if (result) {
+        const { _id, ...rest } = result;
+        return { ...rest, id: _id };
+    }
+
     return null;
 }
+
+
+
 
 async function enableUser(query) {
     return User.updateOne(query, {$set: {isEnabled: true}});
@@ -79,7 +111,7 @@ async function checkExistingUserId(id, businessUnitId) {
 
 async function checkExistingEmployeeIdForBusinessUnit(employeeId, businessUnitId) {
     const query = {
-        employeeId: {$regex: new RegExp(`^${name}$`, 'i')},
+        employeeId: {$regex: new RegExp(`^${employeeId}$`, 'i')},
         isDeleted: false
     };
     if(businessUnitId) {
@@ -91,7 +123,7 @@ async function checkExistingEmployeeIdForBusinessUnit(employeeId, businessUnitId
 
 async function checkExistingEmailForBusinessUnit(email, businessUnitId) {
     const query = {
-        email: {$regex: new RegExp(`^${name}$`, 'i')},
+        email: {$regex: new RegExp(`^${email}$`, 'i')},
         isDeleted: false
     };
     if(businessUnitId) {
