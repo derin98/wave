@@ -49,3 +49,70 @@ exports.updateUserObject = (req) => {
     }
     return updateObject;
 }
+
+
+exports.fetchUsers = async (data, selectFields, populateFields) => {
+    if (selectFields) {
+        data = this.applySelect(data, selectFields);
+    }
+
+    if (populateFields) {
+        data = this.applyPopulate(data, populateFields);
+    }
+
+    return await data.lean();
+}
+
+exports.fetchUser = async (data, selectFields, populateFields) => {
+    if (selectFields) {
+        data = this.applySelect(data, selectFields);
+    }
+
+    if (populateFields) {
+        data = this.applyPopulate(data, populateFields);
+    }
+    console.log("data11111", data);
+    // return data
+
+    const result = await data;
+    console.log("result", result);
+    if (result) {
+        const { _id, ...rest } = result;
+        return { ...rest, id: _id };
+    }
+
+    return null;
+}
+
+exports.applyPopulate = async (queryObject, populateFields) => {
+    const populateFieldsArray = populateFields.split(',');
+    const populateFieldsWithoutSystemFields = populateFieldsArray.filter(field => !['createdAt', 'updatedAt', '__v', 'isEnabled', 'isDeleted', 'createdBy', 'updatedBy', 'userTypeId', 'departmentId', 'businessUnitId'].includes(field.trim()));
+
+    return await queryObject.populate({
+        path: populateFieldsWithoutSystemFields.join(' '),
+        select: '-createdAt -updatedAt -__v -isEnabled -isDeleted -createdBy -updatedBy -userTypeId -departmentId -businessUnitId',
+        options: {
+            lean: true,
+            transform: doc => {
+                const { _id, ...rest } = doc;
+                return { ...rest, id: _id };
+            },
+        },
+    });
+}
+
+
+exports.applySelect = (queryObject, selectFields) => {
+    return queryObject.select(selectFields);
+}
+
+exports.executeQuery = async (queryObject) => {
+    const result = await queryObject.lean();
+    console.log("result", result);
+    if (result) {
+        const { _id, ...rest } = result;
+        return { ...rest, id: _id };
+    }
+
+    return null;
+}

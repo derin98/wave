@@ -48,7 +48,10 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUser = async (req, res) => {
     try {
-        const user = await userService.getUser(req.params.userId, req.businessUnitId);
+        let populateFields = req.query.populateFields || undefined;
+        let selectFields = req.query.selectFields || undefined;
+
+        const user = await userService.getUser(req.params.userId, selectFields, populateFields, req.businessUnitId);
 
         if (!user) {
             return apiResponseHandler.errorResponse(res, "User not found", 404, null);

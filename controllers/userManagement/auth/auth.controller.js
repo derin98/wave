@@ -1,5 +1,5 @@
-var bcrypt = require("bcryptjs");
-var jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const config = require("../../../configs/auth/auth.config");
 const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler");
 const userReqObjExtractor = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/user/user.reqObjExtractor");
@@ -43,18 +43,21 @@ exports.signin = async (req, res)=> {
     const selectFields = "userId,email,isSuperAdmin,employeeId"
     const populateFields = "userPassword,businessUnit,department,userType,designation";
     if(req.body.userId) {
-        user = await userService.getUserByUserId(req.body.userId, selectFields, populateFields);
+        let userDetails = {userId: req.body.userId}
+        user = await userService.getUserForSignIn(userDetails, selectFields, populateFields);
     }
     else if (req.body.email) {
-        user = await userService.getUserByEmail(req.body.email, selectFields, populateFields);
+        let userDetails = {email: req.body.email}
+        user = await userService.getUserForSignIn(userDetails, selectFields, populateFields);
     }
     else if (req.body.employeeId){
-        user = await userService.getUserByEmployeeId(req.body.employeeId, selectFields, populateFields);
+        let userDetails = {employeeId: req.body.employeeId}
+        user = await userService.getUserForSignIn(userDetails, selectFields, populateFields);
     }
     else {
         return apiResponseHandler.errorResponse(res, "Failed! email or userId or employeeId is required", 400, null);
     }
-
+    
     if (user == null) {
         res.status(400).send({
             message: "Failed! User doesn't exist!"
@@ -89,7 +92,7 @@ exports.signin = async (req, res)=> {
         delete designation.permissionIds;
     }
       let token = jwt.sign({ id: user._id, isSuperAdmin: user.isSuperAdmin, businessUnit }, config.secret, {
-        expiresIn: 30 // 1 hour
+        expiresIn: 60*60*60 // 1 hour
       });
 
       res.status(200).send({
