@@ -1,6 +1,7 @@
 const PermissionOperations = require('../../../../dbOperations/mongoDB/organizationManagement/permission/permission.dbOperations');
 const paginationHandler = require('../../../../utils/objectHandlers/paginationHandler');
 const permissionResObjConverter = require('../../../../utils/objectHandlers/resObjConverters/organizationManagement/permission/permission.resObjConverter');
+const DepartmentOperations = require("../../../../dbOperations/mongoDB/organizationManagement/department/department.dbOperations");
 
 
 async function createPermission(permissionObject) {
@@ -43,6 +44,19 @@ async function getPermission(id, businessUnit) {
         _id: id,
         // isEnabled: true,
         isDeleted: false
+    };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
+    return await PermissionOperations.getPermission(query);
+}
+
+async function getPermissionByName(name, businessUnit) {
+
+    let query = {
+        // isEnabled : true,
+        isDeleted : false,
+        name : name
     };
     if(businessUnit) {
         query.businessUnit = businessUnit;
@@ -136,6 +150,7 @@ module.exports = {
     createPermission,
     getAllPermissions,
     getPermission,
+    getPermissionByName,
     enablePermission,
     enablePermissions,
     disablePermission,

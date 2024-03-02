@@ -52,13 +52,16 @@ async function getDepartment(id, businessUnit) {
     return await DepartmentOperations.getDepartment(query);
 }
 
-async function getDepartmentByName(name) {
+async function getDepartmentByName(name, businessUnit) {
 
     let query = {
         // isEnabled : true,
         isDeleted : false,
         name : name
     };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
     return await DepartmentOperations.getDepartment(query);
 }
 

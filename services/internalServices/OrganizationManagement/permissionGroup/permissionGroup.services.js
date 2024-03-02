@@ -1,6 +1,7 @@
 const PermissionGroupOperations = require('../../../../dbOperations/mongoDB/organizationManagement/permissionGroup/permissionGroup.dbOperations');
 const paginationHandler = require('../../../../utils/objectHandlers/paginationHandler');
 const permissionGroupResObjConverter = require('../../../../utils/objectHandlers/resObjConverters/organizationManagement/permissionGroup/permissionGroup.resObjConverter');
+const DepartmentOperations = require("../../../../dbOperations/mongoDB/organizationManagement/department/department.dbOperations");
 
 
 async function createPermissionGroup(permissionGroupObject) {
@@ -44,6 +45,19 @@ async function getPermissionGroup(id, businessUnit) {
         _id: id,
         // isEnabled: true,
         isDeleted: false
+    };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
+    return await PermissionGroupOperations.getPermissionGroup(query);
+}
+
+async function getPermissionGroupByName(name, businessUnit) {
+
+    let query = {
+        // isEnabled : true,
+        isDeleted : false,
+        name : name
     };
     if(businessUnit) {
         query.businessUnit = businessUnit;
@@ -137,6 +151,7 @@ module.exports = {
     createPermissionGroup,
     getAllPermissionGroups,
     getPermissionGroup,
+    getPermissionGroupByName,
     enablePermissionGroup,
     enablePermissionGroups,
     disablePermissionGroup,
