@@ -29,92 +29,50 @@ async function createUser(userObject) {
 
 async function getAllUsers(query, sort, order, page, limit, skip, selectFields, populateFields) {
     try {
+        let queryObject
         if(limit > 0){
-            let queryObject = User.find(query)
+            queryObject = User.find(query)
                 .sort({[sort]: order})
                 .skip(skip)
                 .limit(limit)
             ;
-
-            if (selectFields) {
-                queryObject = queryObject.select(selectFields);
-            }
-
-            if (populateFields) {
-                // Convert populateFields string to an array
-                const populateFieldsArray = populateFields.split(',');
-
-                // Remove unwanted fields from populateFields
-                const populateFieldsWithoutSystemFields = populateFieldsArray.filter(field => !['createdAt', 'updatedAt', '__v', 'isEnabled', 'isDeleted', 'createdBy', 'updatedBy', 'userTypeId', 'departmentId', 'businessUnitId', 'permissionIds'].includes(field.trim()));
-
-                queryObject = queryObject.populate({
-                    path: populateFieldsWithoutSystemFields.join(' '), // Convert back to a string
-                    select: '-createdAt -updatedAt -__v -isEnabled -isDeleted -createdBy -updatedBy -userTypeId -departmentId -businessUnitId -permissionIds',
-                    options: {
-                        lean: true, // Ensure the result is in plain JavaScript objects
-                        transform: doc => {
-                            // Rename _id to id within the populated item
-                            const {_id, ...rest} = doc;
-                            return {...rest, id: _id};
-                        },
-                    },
-                });
-            }
-
-            const results = await queryObject.lean();
-
-            return results.map(result => {
-                const {_id, ...rest} = result;
-                return {...rest, id: _id};
-            });
         }
         else{
-            let queryObject = User.find(query);
+            queryObject = User.find(query).sort({[sort]: order});
+        }
 
-            if (selectFields) {
-                queryObject = queryObject.select(selectFields);
-            }
+        if (selectFields) {
+            queryObject = queryObject.select(selectFields);
+        }
 
-            if (populateFields) {
-                // Convert populateFields string to an array
-                const populateFieldsArray = populateFields.split(',');
-
-                // Remove unwanted fields from populateFields
-                const populateFieldsWithoutSystemFields = populateFieldsArray.filter(field => !['createdAt', 'updatedAt', '__v', 'isEnabled', 'isDeleted', 'createdBy', 'updatedBy', 'userTypeId', 'departmentId', 'businessUnitId', 'permissionIds'].includes(field.trim()));
-
-                queryObject = queryObject.populate({
-                    path: populateFieldsWithoutSystemFields.join(' '), // Convert back to a string
-                    select: '-createdAt -updatedAt -__v -isEnabled -isDeleted -createdBy -updatedBy -userTypeId -departmentId -businessUnitId -permissionIds',
-                    options: {
-                        lean: true, // Ensure the result is in plain JavaScript objects
-                        transform: doc => {
-                            // Rename _id to id within the populated item
-                            const {_id, ...rest} = doc;
-                            return {...rest, id: _id};
-                        },
+        if (populateFields) {
+            const populateFieldsArray = populateFields.split(' ');
+            const validPopulateFields = populateFieldsArray.filter(field => User.schema.path(field) != null);
+            queryObject = queryObject.populate({
+                path: validPopulateFields.join(' '), // Convert back to a string
+                select: '_id name email employeeId userId password expiredAt shortName userCount',
+                options: {
+                    lean: true, // Ensure the result is in plain JavaScript objects
+                    transform: doc => {
+                        // Rename _id to id within the populated item
+                        const {_id, ...rest} = doc;
+                        return {...rest, id: _id};
                     },
-                });
-            }
-
-            const results = await queryObject.lean();
-
-            return results.map(result => {
-                const {_id, ...rest} = result;
-                return {...rest, id: _id};
+                },
             });
         }
+
+        const results = await queryObject.lean();
+
+        return results.map(result => {
+            const {_id, ...rest} = result;
+            return {...rest, id: _id};
+        });
     } catch (error) {
         console.error('Error in getAllUsers:', error);
         return null;
     }
 }
-
-
-async function countUsers(query) {
-    return User.countDocuments(query);
-}
-
-
 
 async function getUser(query, selectFields, populateFields) {
     try {
@@ -126,14 +84,14 @@ async function getUser(query, selectFields, populateFields) {
 
         if (populateFields) {
             // Convert populateFields string to an array
-            console.log("populateFields", populateFields)
             const populateFieldsArray = populateFields.split(' ');
-            console.log("populateFieldsArray", populateFieldsArray)
-            // Remove unwanted fields from populateFields
-            const populateFieldsWithoutSystemFields = populateFieldsArray.filter(field => !['createdAt', 'updatedAt', '__v', 'isEnabled', 'isDeleted', 'createdBy', 'updatedBy', 'userTypeId', 'departmentId', 'businessUnitId'].includes(field.trim()));
-            console.log("populateFieldsWithoutSystemFields", populateFieldsWithoutSystemFields)
+
+            // Filter out invalid fields
+            const validPopulateFields = populateFieldsArray.filter(field => User.schema.path(field) != null);
+
+
             queryObject = queryObject.populate({
-                path: populateFieldsWithoutSystemFields.join(' '), // Convert back to a string
+                path: validPopulateFields.join(' '), // Convert back to a string
                 select: '_id name email employeeId userId permissionIds password expiredAt shortName userCount',
                 options: {
                     lean: true, // Ensure the result is in plain JavaScript objects
@@ -158,6 +116,11 @@ async function getUser(query, selectFields, populateFields) {
         console.error('Error in getUser:', error);
         return null;
     }
+}
+
+
+async function countUsers(query) {
+    return User.countDocuments(query);
 }
 
 
