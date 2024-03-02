@@ -1,6 +1,7 @@
 const PermissionOperations = require('../../../../dbOperations/mongoDB/organizationManagement/permission/permission.dbOperations');
 const paginationHandler = require('../../../../utils/objectHandlers/paginationHandler');
 const permissionResObjConverter = require('../../../../utils/objectHandlers/resObjConverters/organizationManagement/permission/permission.resObjConverter');
+const DepartmentOperations = require("../../../../dbOperations/mongoDB/organizationManagement/department/department.dbOperations");
 
 
 async function createPermission(permissionObject) {
@@ -13,8 +14,8 @@ async function getAllPermissions(req) {
         isEnabled: true,
         isDeleted: false
     };
-    if(req.businessUnitId) {
-        query.businessUnitId = req.businessUnitId;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
     if (req.query.name) {
         query.name = {$regex: req.query.name, $options: 'i'};
@@ -38,96 +39,109 @@ async function getAllPermissions(req) {
     return paginationHandler.paginationResObj(page, totalPages, countPermissions, permissions);
 }
 
-async function getPermission(id, businessUnitId) {
+async function getPermission(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionOperations.getPermission(query);
 }
 
-async function enablePermission(id, businessUnitId) {
+async function getPermissionByName(name, businessUnit) {
+
+    let query = {
+        // isEnabled : true,
+        isDeleted : false,
+        name : name
+    };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
+    return await PermissionOperations.getPermission(query);
+}
+
+async function enablePermission(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionOperations.enablePermission(query);
 }
 
-async function enablePermissions(ids, businessUnitId) {
+async function enablePermissions(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionOperations.enablePermissions(query);
 }
 
-async function disablePermission(id, businessUnitId) {
+async function disablePermission(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionOperations.disablePermission(query);
 }
 
 
-async function disablePermissions(ids, businessUnitId) {
+async function disablePermissions(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionOperations.disablePermissions(query);
 }
 
-async function deletePermission(id, businessUnitId) {
+async function deletePermission(id, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionOperations.deletePermission(query);
 }
 
-async function deletePermissions(ids, businessUnitId) {
+async function deletePermissions(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionOperations.deletePermissions(query);
 }
 
-async function updatePermission(id, updateObject, businessUnitId) {
+async function updatePermission(id, updateObject, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionOperations.updatePermission(query, updateObject);
 }
@@ -136,6 +150,7 @@ module.exports = {
     createPermission,
     getAllPermissions,
     getPermission,
+    getPermissionByName,
     enablePermission,
     enablePermissions,
     disablePermission,

@@ -51,7 +51,7 @@ exports.getAllBusinessUnits = async (req, res) => {
 
 exports.getBusinessUnit = async (req, res) => {
     try {
-        const businessUnit = await businessUnitService.getBusinessUnit(req.params.businessUnitId);
+        const businessUnit = await businessUnitService.getBusinessUnit(req.params.businessUnit);
 
         if (!businessUnit) {
             return apiResponseHandler.errorResponse(res, "BusinessUnit not found", 404);
@@ -73,7 +73,7 @@ exports.getBusinessUnit = async (req, res) => {
 
 exports.enableBusinessUnit = async (req, res) => {
     try {
-        await businessUnitService.enableBusinessUnit(req.params.businessUnitId);
+        await businessUnitService.enableBusinessUnit(req.params.businessUnit);
 
         const message = "BusinessUnit enabled successfully";
 
@@ -91,7 +91,7 @@ exports.enableBusinessUnit = async (req, res) => {
 
 exports.disableBusinessUnit = async (req, res) => {
     try {
-        await businessUnitService.disableBusinessUnit(req.params.businessUnitId);
+        await businessUnitService.disableBusinessUnit(req.params.businessUnit);
 
         const message = "BusinessUnit disabled successfully";
 
@@ -109,7 +109,7 @@ exports.disableBusinessUnit = async (req, res) => {
 
     exports.enableBusinessUnits = async (req, res) => {
         try {
-            await businessUnitService.enableBusinessUnits(req.body.businessUnitIds);
+            await businessUnitService.enableBusinessUnits(req.body.businessUnits);
 
             const message = "BusinessUnits enabled successfully";
 
@@ -127,7 +127,7 @@ exports.disableBusinessUnit = async (req, res) => {
 
     exports.disableBusinessUnits = async (req, res) => {
         try {
-            await businessUnitService.disableBusinessUnits(req.body.businessUnitIds);
+            await businessUnitService.disableBusinessUnits(req.body.businessUnits);
 
             const message = "BusinessUnits disabled successfully";
 
@@ -146,7 +146,7 @@ exports.disableBusinessUnit = async (req, res) => {
 
     exports.deleteBusinessUnit = async (req, res) => {
         try {
-            await businessUnitService.deleteBusinessUnit(req.params.businessUnitId);
+            await businessUnitService.deleteBusinessUnit(req.params.businessUnit);
 
             const message = "BusinessUnit deleted successfully";
 
@@ -164,7 +164,7 @@ exports.disableBusinessUnit = async (req, res) => {
 
     exports.deleteBusinessUnits = async (req, res) => {
         try {
-            await businessUnitService.deleteBusinessUnits(req.body.businessUnitIds);
+            await businessUnitService.deleteBusinessUnits(req.body.businessUnits);
 
             const message = "BusinessUnits deleted successfully";
 
@@ -184,7 +184,7 @@ exports.disableBusinessUnit = async (req, res) => {
         try {
             const businessUnitObject = businessUnitReqObjExtractor.updateBusinessUnitObject(req);
 
-            await businessUnitService.updateBusinessUnit(req.params.businessUnitId, businessUnitObject);
+            await businessUnitService.updateBusinessUnit(req.params.businessUnit, businessUnitObject);
 
             const message = "BusinessUnit updated successfully";
 

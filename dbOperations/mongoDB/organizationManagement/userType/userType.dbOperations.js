@@ -65,7 +65,7 @@ async function updateUserType(query, updateObject) {
     return UserType.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingUserTypeId(id, businessUnitId, departmentId) {
+async function checkExistingUserType(id, businessUnit, department) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
@@ -73,21 +73,21 @@ async function checkExistingUserTypeId(id, businessUnitId, departmentId) {
 
     const query = {_id: id, isDeleted: false};
 
-    if (businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if (businessUnit) {
+        query.businessUnit = businessUnit;
     }
-    if (departmentId) {
-        query.departmentId = departmentId;
+    if (department) {
+        query.department = department;
     }
 
     const existingUserType = await UserType.findOne(query);
     return existingUserType;
 }
 
-async function checkExistingNameForDepartment(name, departmentId, businessUnitId) {
-    const query = {name: {$regex: new RegExp(`^${name}$`, 'i')}, isDeleted: false, departmentId: departmentId }
-    if (businessUnitId) {
-        query.businessUnitId = businessUnitId;
+async function checkExistingNameForDepartment(name, department, businessUnit) {
+    const query = {name: {$regex: new RegExp(`^${name}$`, 'i')}, isDeleted: false, department: department }
+    if (businessUnit) {
+        query.businessUnit = businessUnit;
     }
     console.log("query", query)
     const existingNameUserType = await UserType.findOne(query);
@@ -95,27 +95,27 @@ async function checkExistingNameForDepartment(name, departmentId, businessUnitId
     return existingNameUserType !== null;
 }
 
-const returnInvalidUserTypeIds = async (ids, businessUnitId) => {
+const returnInvalidUserTypes = async (ids, businessUnit) => {
 
-    let invalidUserTypeIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
+    let invalidUserTypes = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
-    if (invalidUserTypeIds.length > 0) {
-        return invalidUserTypeIds;
+    if (invalidUserTypes.length > 0) {
+        return invalidUserTypes;
     }
     const query = {
         _id: {$in: ids},
         isDeleted: false
     };
-    if (businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if (businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingUserTypes = await UserType.find(query).select('_id');
 
-    const existingUserTypeIds = existingUserTypes.map(userType => userType._id.toString());
+    const filterIds = existingUserTypes.map(userType => userType._id.toString());
 
-    invalidUserTypeIds.push(...ids.filter(id => !existingUserTypeIds.includes(id)));
+    invalidUserTypes.push(...ids.filter(id => !filterIds.includes(id)));
 
-    return Array.from(new Set(invalidUserTypeIds));
+    return Array.from(new Set(invalidUserTypes));
 }
 
 module.exports = {
@@ -130,7 +130,7 @@ module.exports = {
     deleteUserType,
     deleteUserTypes,
     updateUserType,
-    checkExistingUserTypeId,
+    checkExistingUserType,
     checkExistingNameForDepartment,
-    returnInvalidUserTypeIds
+    returnInvalidUserTypes
 };

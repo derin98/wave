@@ -1,7 +1,7 @@
 exports.createDepartmentObject = (req) => {
     return {
         name: req.body.name,
-        businessUnitId: req.businessUnitId,
+        businessUnit: req.businessUnit,
         isEnabled: req.body.isEnabled ? req.body.isEnabled : true,
         createdBy: req.userId,
         updatedBy: req.userId

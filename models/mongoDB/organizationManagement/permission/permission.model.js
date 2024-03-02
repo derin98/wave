@@ -5,12 +5,12 @@ const permissionSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    businessUnitId: {
+    businessUnit: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "BusinessUnit",
         required: true
     },
-    permissionGroupId: {
+    permissionGroup: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "PermissionGroup",
         required: true

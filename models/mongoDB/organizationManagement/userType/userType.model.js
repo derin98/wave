@@ -5,12 +5,12 @@ const userTypeSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    businessUnitId: {
+    businessUnit: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "BusinessUnit",
         required: true
     },
-    departmentId: {
+    department: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "Department",
         required: true

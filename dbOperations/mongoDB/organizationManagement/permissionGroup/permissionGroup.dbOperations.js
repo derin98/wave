@@ -64,53 +64,53 @@ async function updatePermissionGroup(query, updateObject) {
     return PermissionGroup.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingPermissionGroupId(id, businessUnitId) {
+async function checkExistingPermissionGroup(id, businessUnit) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
     }
     const query = {_id: id, isDeleted: false}
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingPermissionGroup = await PermissionGroup.findOne(query);
     return existingPermissionGroup !== null;
 }
 
-async function checkExistingNameForBusinessUnit(name, businessUnitId) {
+async function checkExistingNameForBusinessUnit(name, businessUnit) {
     const query = {
         name: {$regex: new RegExp(`^${name}$`, 'i')},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingNamePermissionGroup = await PermissionGroup.findOne(query);
     return existingNamePermissionGroup !== null;
 }
 
-const returnInvalidPermissionGroupIds = async (ids, businessUnitId) => {
+const returnInvalidPermissionGroups = async (ids, businessUnit) => {
 
-    let invalidPermissionGroupIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
+    let invalidPermissionGroups = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
-    if (invalidPermissionGroupIds.length > 0) {
-        return invalidPermissionGroupIds;
+    if (invalidPermissionGroups.length > 0) {
+        return invalidPermissionGroups;
     }
 
     const query = {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingPermissionGroups = await PermissionGroup.find(query).select('_id');
 
-    const existingPermissionGroupIds = existingPermissionGroups.map(permissionGroup => permissionGroup._id.toString());
+    const filterIds = existingPermissionGroups.map(permissionGroup => permissionGroup._id.toString());
 
-    invalidPermissionGroupIds.push(...ids.filter(id => !existingPermissionGroupIds.includes(id)));
+    invalidPermissionGroups.push(...ids.filter(id => !filterIds.includes(id)));
 
-    return Array.from(new Set(invalidPermissionGroupIds));
+    return Array.from(new Set(invalidPermissionGroups));
 }
 
 module.exports = {
@@ -125,7 +125,7 @@ module.exports = {
     deletePermissionGroup,
     deletePermissionGroups,
     updatePermissionGroup,
-    checkExistingPermissionGroupId,
+    checkExistingPermissionGroup,
     checkExistingNameForBusinessUnit,
-    returnInvalidPermissionGroupIds
+    returnInvalidPermissionGroups
 };

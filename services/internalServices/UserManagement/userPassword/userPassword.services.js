@@ -13,8 +13,8 @@ async function getAllUserPasswordPasswords(req) {
         isEnabled: true,
         isDeleted: false,
     };
-    if(req.businessUnitId) {
-        query.businessUnitId = req.businessUnitId;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
     console.log("query", query)
     if (req.query.name) {
@@ -39,96 +39,96 @@ async function getAllUserPasswordPasswords(req) {
     return paginationHandler.paginationResObj(page, totalPages, countUserPasswordPasswords, userPasswordPasswords);
 }
 
-async function getUserPassword(id, businessUnitId) {
+async function getUserPassword(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordOperations.getUserPassword(query);
 }
 
-async function enableUserPassword(id, businessUnitId) {
+async function enableUserPassword(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordOperations.enableUserPassword(query);
 }
 
-async function enableUserPasswordPasswords(ids, businessUnitId) {
+async function enableUserPasswordPasswords(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordOperations.enableUserPasswordPasswords(query);
 }
 
-async function disableUserPassword(id, businessUnitId) {
+async function disableUserPassword(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordOperations.disableUserPassword(query);
 }
 
 
-async function disableUserPasswordPasswords(ids, businessUnitId) {
+async function disableUserPasswordPasswords(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordOperations.disableUserPasswordPasswords(query);
 }
 
-async function deleteUserPassword(id, businessUnitId) {
+async function deleteUserPassword(id, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordOperations.deleteUserPassword(query);
 }
 
-async function deleteUserPasswordPasswords(ids, businessUnitId) {
+async function deleteUserPasswordPasswords(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordOperations.deleteUserPasswordPasswords(query);
 }
 
-async function updateUserPassword(id, updateObject, businessUnitId) {
+async function updateUserPassword(id, updateObject, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordOperations.updateUserPassword(query, updateObject);
 }

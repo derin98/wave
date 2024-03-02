@@ -8,7 +8,7 @@ const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHan
 validateCreatePermissionGroupRequestBody = async (req, res, next) => {
     // Validate request
 
-    if (!req.businessUnitId){
+    if (!req.businessUnit){
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit Id must be a non-empty string",
@@ -28,7 +28,7 @@ validateCreatePermissionGroupRequestBody = async (req, res, next) => {
 
 
     // Check if the provided name already exists in the database
-    const existingNamePermissionGroup = await PermissionGroupDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnitId);
+    const existingNamePermissionGroup = await PermissionGroupDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnit);
     if (existingNamePermissionGroup) {
         return apiResponseHandler.errorResponse(
             res,
@@ -54,7 +54,7 @@ validateCreatePermissionGroupRequestBody = async (req, res, next) => {
 validateUpdatePermissionGroupRequestBody = async (req, res, next) => {
     // Validate request
 
-    if (!req.businessUnitId){
+    if (!req.businessUnit){
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit Id must be a non-empty string",
@@ -72,7 +72,7 @@ validateUpdatePermissionGroupRequestBody = async (req, res, next) => {
             );
         }
 
-        const existingNamePermissionGroup = await PermissionGroupDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnitId);
+        const existingNamePermissionGroup = await PermissionGroupDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnit);
         if (existingNamePermissionGroup) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -95,9 +95,9 @@ validateUpdatePermissionGroupRequestBody = async (req, res, next) => {
     next();
 }
 
-validatePermissionGroupId = async (req, res, next) => {
-    console.log("req.params.permissionGroupId", req.params.permissionGroupId)
-    if (!req.params.permissionGroupId || typeof req.params.permissionGroupId !== 'string') {
+validatePermissionGroup = async (req, res, next) => {
+    console.log("req.params.permissionGroup", req.params.permissionGroup)
+    if (!req.params.permissionGroup || typeof req.params.permissionGroup !== 'string') {
         return apiResponseHandler.errorResponse(
             res,
             "PermissionGroup id must be a non-empty string",
@@ -106,7 +106,7 @@ validatePermissionGroupId = async (req, res, next) => {
         );
     }
 
-    let checkExistingPermissionGroup = await PermissionGroupDbOperations.checkExistingPermissionGroupId(req.params.permissionGroupId, req.businessUnitId);
+    let checkExistingPermissionGroup = await PermissionGroupDbOperations.checkExistingPermissionGroup(req.params.permissionGroup, req.businessUnit);
     if (checkExistingPermissionGroup) {
         next();
     } else {
@@ -119,9 +119,9 @@ validatePermissionGroupId = async (req, res, next) => {
     }
 }
 
-validatePermissionGroupIds = async (req, res, next) => {
+validatePermissionGroups = async (req, res, next) => {
 
-    if (!req.body.permissionGroupIds || !Array.isArray(req.body.permissionGroupIds) || req.body.permissionGroupIds.length === 0) {
+    if (!req.body.permissionGroups || !Array.isArray(req.body.permissionGroups) || req.body.permissionGroups.length === 0) {
         return apiResponseHandler.errorResponse(
             res,
             "PermissionGroup ids must be a non-empty array of strings",
@@ -129,8 +129,8 @@ validatePermissionGroupIds = async (req, res, next) => {
             null
         );
     }
-    for (let i = 0; i < req.body.permissionGroupIds.length; i++) {
-        if (typeof req.body.permissionGroupIds[i] !== 'string') {
+    for (let i = 0; i < req.body.permissionGroups.length; i++) {
+        if (typeof req.body.permissionGroups[i] !== 'string') {
             return apiResponseHandler.errorResponse(
                 res,
                 "PermissionGroup ids must be a non-empty array of strings",
@@ -140,13 +140,13 @@ validatePermissionGroupIds = async (req, res, next) => {
         }
     }
 
-    let invalidPermissionGroupIds = await PermissionGroupDbOperations.returnInvalidPermissionGroupIds(req.body.permissionGroupIds, req.businessUnitId);
-    if (invalidPermissionGroupIds.length > 0) {
+    let invalidPermissionGroups = await PermissionGroupDbOperations.returnInvalidPermissionGroups(req.body.permissionGroups, req.businessUnit);
+    if (invalidPermissionGroups.length > 0) {
         return apiResponseHandler.errorResponse(
             res,
             "Failed! Invalid PermissionGroup ids",
             400,
-            { invalidPermissionGroupIds }
+            { invalidPermissionGroups }
         );
     }
     next();
@@ -155,8 +155,8 @@ validatePermissionGroupIds = async (req, res, next) => {
 const verifyPermissionGroupReqBody = {
     validateCreatePermissionGroupRequestBody: validateCreatePermissionGroupRequestBody,
     validateUpdatePermissionGroupRequestBody: validateUpdatePermissionGroupRequestBody,
-    validatePermissionGroupId: validatePermissionGroupId,
-    validatePermissionGroupIds: validatePermissionGroupIds
+    validatePermissionGroup: validatePermissionGroup,
+    validatePermissionGroups: validatePermissionGroups
 };
 
 

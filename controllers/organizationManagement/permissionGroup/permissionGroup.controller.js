@@ -46,7 +46,7 @@ exports.getAllPermissionGroups = async (req, res) => {
 
 exports.getPermissionGroup = async (req, res) => {
     try {
-        const permissionGroup = await permissionGroupService.getPermissionGroup(req.params.permissionGroupId, req.businessUnitId);
+        const permissionGroup = await permissionGroupService.getPermissionGroup(req.params.permissionGroup, req.businessUnit);
 
         if (!permissionGroup) {
             return apiResponseHandler.errorResponse(res, "PermissionGroup not found", 404, null);
@@ -67,7 +67,7 @@ exports.getPermissionGroup = async (req, res) => {
 
 exports.enablePermissionGroup = async (req, res) => {
     try {
-        const permissionGroup = await permissionGroupService.enablePermissionGroup(req.params.permissionGroupId, req.businessUnitId);
+        const permissionGroup = await permissionGroupService.enablePermissionGroup(req.params.permissionGroup, req.businessUnit);
         const message = "PermissionGroup enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -85,7 +85,7 @@ exports.enablePermissionGroup = async (req, res) => {
 
 exports.disablePermissionGroup = async (req, res) => {
     try {
-        const permissionGroup = await permissionGroupService.disablePermissionGroup(req.params.permissionGroupId, req.businessUnitId);
+        const permissionGroup = await permissionGroupService.disablePermissionGroup(req.params.permissionGroup, req.businessUnit);
         const message = "PermissionGroup disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -102,7 +102,7 @@ exports.disablePermissionGroup = async (req, res) => {
 
 exports.enablePermissionGroups = async (req, res) => {
     try {
-        await permissionGroupService.enablePermissionGroups(req.body.permissionGroupIds, req.businessUnitId, req.businessUnitId);
+        await permissionGroupService.enablePermissionGroups(req.body.permissionGroups, req.businessUnit, req.businessUnit);
         const message = "PermissionGroups enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -120,7 +120,7 @@ exports.enablePermissionGroups = async (req, res) => {
 
 exports.disablePermissionGroups = async (req, res) => {
     try {
-        await permissionGroupService.disablePermissionGroups(req.body.permissionGroupIds, req.businessUnitId);
+        await permissionGroupService.disablePermissionGroups(req.body.permissionGroups, req.businessUnit);
         const message = "PermissionGroups disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -137,7 +137,7 @@ exports.disablePermissionGroups = async (req, res) => {
 
 exports.deletePermissionGroup = async (req, res) => {
     try {
-        await permissionGroupService.deletePermissionGroup(req.params.permissionGroupId, req.businessUnitId);
+        await permissionGroupService.deletePermissionGroup(req.params.permissionGroup, req.businessUnit);
         const message = "PermissionGroup deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -153,7 +153,7 @@ exports.deletePermissionGroup = async (req, res) => {
 
 exports.deletePermissionGroups = async (req, res) => {
     try {
-        await permissionGroupService.deletePermissionGroups(req.body.permissionGroupIds, req.businessUnitId);
+        await permissionGroupService.deletePermissionGroups(req.body.permissionGroups, req.businessUnit);
         const message = "PermissionGroups deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -170,7 +170,7 @@ exports.deletePermissionGroups = async (req, res) => {
 exports.updatePermissionGroup = async (req, res) => {
     try {
         const permissionGroupReqObj = permissionGroupReqObjExtractor.updatePermissionGroupObject(req);
-        const permissionGroup = await permissionGroupService.updatePermissionGroup(req.params.permissionGroupId, permissionGroupReqObj, req.businessUnitId);
+        const permissionGroup = await permissionGroupService.updatePermissionGroup(req.params.permissionGroup, permissionGroupReqObj, req.businessUnit);
         const message = "PermissionGroup updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {

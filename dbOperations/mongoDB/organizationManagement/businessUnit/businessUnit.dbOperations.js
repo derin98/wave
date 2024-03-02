@@ -96,12 +96,12 @@ const checkExistingBusinessUnit = async (id) => {
     return existingBusinessUnit !== null;
 };
 
-const returnInvalidBusinessUnitIds = async (ids) => {
+const returnInvalidBusinessUnits = async (ids) => {
 
-    let invalidBusinessUnitIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
+    let invalidBusinessUnits = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
-    if (invalidBusinessUnitIds.length > 0) {
-        return invalidBusinessUnitIds;
+    if (invalidBusinessUnits.length > 0) {
+        return invalidBusinessUnits;
     }
 
     const existingBusinessUnits = await BusinessUnit.find({
@@ -109,12 +109,12 @@ const returnInvalidBusinessUnitIds = async (ids) => {
         isDeleted: false
     }).select('_id');
 
-    const validBusinessUnitIds = existingBusinessUnits.map(existingBusinessUnit => existingBusinessUnit._id.toString());
+    const validBusinessUnits = existingBusinessUnits.map(existingBusinessUnit => existingBusinessUnit._id.toString());
 
     // Use spread (...) to add individual elements instead of an array
-    invalidBusinessUnitIds.push(...ids.filter(id => !validBusinessUnitIds.includes(id)));
+    invalidBusinessUnits.push(...ids.filter(id => !validBusinessUnits.includes(id)));
 
-    return Array.from(new Set(invalidBusinessUnitIds));
+    return Array.from(new Set(invalidBusinessUnits));
 };
 
 
@@ -130,7 +130,7 @@ module.exports = {
     enableBusinessUnits,
     disableBusinessUnit,
     disableBusinessUnits,
-    returnInvalidBusinessUnitIds,
+    returnInvalidBusinessUnits,
     deleteBusinessUnit,
     deleteBusinessUnits,
     updateBusinessUnit
