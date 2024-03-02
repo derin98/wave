@@ -5,17 +5,17 @@ const designationSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    businessUnitId: {
+    businessUnit: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "BusinessUnit",
         required: true
     },
-    userTypeId: {
+    userType: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "UserType",
         required: true
     },
-    permissionIds: [{
+    permissions: [{
         type: mongoose.SchemaTypes.ObjectId,
         ref: "Permission",
     }],

@@ -1,71 +1,127 @@
 const User = require('../../../../models/mongoDB/userManagement/user/user.model');
 const mongoose = require('mongoose');
-
+const userReqObjExtractor = require('../../../../utils/objectHandlers/reqObjExtractors/userManagement/user/user.reqObjExtractor');
 async function createUser(userObject) {
     return User.create(userObject);
 }
 
-async function getAllUsers(query, sort, order, page, limit, skip, populateFields) {
-    if (limit > 0) {
-        return User.find(query)
-            .select('name _id')  // Include _id in the select clause for exclusion
-            .sort({[sort]: order})
-            .skip(skip)
-            .limit(limit)
-            .lean()
-            .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
-    } else {
-        return User.find(query)
-            .select('name _id')  // Include _id in the select clause for exclusion
-            .sort({[sort]: order})
-            .lean()
-            .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
+// async function getAllUsers(query, sort, order, page, limit, skip, selectFields, populateFields) {
+//     let data;
+//     if (limit > 0) {
+//         data = User.find(query)
+//             // .select('name _id')  // Include _id in the select clause for exclusion
+//             .sort({[sort]: order})
+//             .skip(skip)
+//             .limit(limit)
+//             // .lean()
+//             // .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
+//     } else {
+//         data = User.find(query)
+//             // .select('name _id')  // Include _id in the select clause for exclusion
+//             .sort({[sort]: order})
+//             // .lean()
+//             // .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
+//     }
+//     // console.log("data", data);
+//     return await userReqObjExtractor.fetchUsers(data, selectFields, populateFields);
+// }
+
+
+async function getAllUsers(query, sort, order, page, limit, skip, selectFields, populateFields) {
+    try {
+        let queryObject
+        if(limit > 0){
+            queryObject = User.find(query)
+                .sort({[sort]: order})
+                .skip(skip)
+                .limit(limit)
+            ;
+        }
+        else{
+            queryObject = User.find(query).sort({[sort]: order});
+        }
+
+        if (selectFields) {
+            queryObject = queryObject.select(selectFields);
+        }
+
+        if (populateFields) {
+            const populateFieldsArray = populateFields.split(' ');
+            const validPopulateFields = populateFieldsArray.filter(field => User.schema.path(field) != null);
+            queryObject = queryObject.populate({
+                path: validPopulateFields.join(' '), // Convert back to a string
+                select: '_id name email employeeId userId password expiredAt shortName userCount',
+                options: {
+                    lean: true, // Ensure the result is in plain JavaScript objects
+                    transform: doc => {
+                        // Rename _id to id within the populated item
+                        const {_id, ...rest} = doc;
+                        return {...rest, id: _id};
+                    },
+                },
+            });
+        }
+
+        const results = await queryObject.lean();
+
+        return results.map(result => {
+            const {_id, ...rest} = result;
+            return {...rest, id: _id};
+        });
+    } catch (error) {
+        console.error('Error in getAllUsers:', error);
+        return null;
     }
 }
+
+async function getUser(query, selectFields, populateFields) {
+    try {
+        let queryObject = User.findOne(query);
+
+        if (selectFields) {
+            queryObject = queryObject.select(selectFields);
+        }
+
+        if (populateFields) {
+            // Convert populateFields string to an array
+            const populateFieldsArray = populateFields.split(' ');
+
+            // Filter out invalid fields
+            const validPopulateFields = populateFieldsArray.filter(field => User.schema.path(field) != null);
+
+
+            queryObject = queryObject.populate({
+                path: validPopulateFields.join(' '), // Convert back to a string
+                select: '_id name email employeeId userId permissions password expiredAt shortName userCount',
+                options: {
+                    lean: true, // Ensure the result is in plain JavaScript objects
+                    transform: doc => {
+                        // Rename _id to id within the populated item
+                        const { _id, ...rest } = doc;
+                        return { ...rest, id: _id };
+                    },
+                },
+            });
+        }
+
+        const result = await queryObject.lean();
+
+        if (result) {
+            const { _id, ...rest } = result;
+            return { ...rest, id: _id };
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Error in getUser:', error);
+        return null;
+    }
+}
+
 
 async function countUsers(query) {
     return User.countDocuments(query);
 }
-
-async function getUser(query, selectFields, populateFields) {
-    let queryObject = User.findOne(query);
-
-    if (selectFields) {
-        queryObject = queryObject.select(selectFields);
-    }
-
-    if (populateFields) {
-        // Convert populateFields string to an array
-        const populateFieldsArray = populateFields.split(',');
-
-        // Remove unwanted fields from populateFields
-        const populateFieldsWithoutSystemFields = populateFieldsArray.filter(field => !['createdAt', 'updatedAt', '__v', 'isEnabled', 'isDeleted', 'createdBy', 'updatedBy', 'userTypeId', 'departmentId', 'businessUnitId'].includes(field.trim()));
-
-        queryObject = queryObject.populate({
-            path: populateFieldsWithoutSystemFields.join(' '), // Convert back to a string
-            select: '-createdAt -updatedAt -__v -isEnabled -isDeleted -createdBy -updatedBy -userTypeId -departmentId -businessUnitId',
-            options: {
-                lean: true, // Ensure the result is in plain JavaScript objects
-                transform: doc => {
-                    // Rename _id to id within the populated item
-                    const { _id, ...rest } = doc;
-                    return { ...rest, id: _id };
-                },
-            },
-        });
-    }
-
-    const result = await queryObject.lean();
-
-    if (result) {
-        const { _id, ...rest } = result;
-        return { ...rest, id: _id };
-    }
-
-    return null;
-}
-
-
 
 
 async function enableUser(query) {
@@ -96,44 +152,44 @@ async function updateUser(query, updateObject) {
     return User.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingUserId(id, businessUnitId) {
+async function checkExistingUserId(id, businessUnit) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
     }
     const query = {_id: id, isDeleted: false}
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingUser = await User.findOne(query);
     return existingUser !== null;
 }
 
-async function checkExistingEmployeeIdForBusinessUnit(employeeId, businessUnitId) {
+async function checkExistingEmployeeIdForBusinessUnit(employeeId, businessUnit) {
     const query = {
         employeeId: {$regex: new RegExp(`^${employeeId}$`, 'i')},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingNameUser = await User.findOne(query);
     return existingNameUser !== null;
 }
 
-async function checkExistingEmailForBusinessUnit(email, businessUnitId) {
+async function checkExistingEmailForBusinessUnit(email, businessUnit) {
     const query = {
         email: {$regex: new RegExp(`^${email}$`, 'i')},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingNameUser = await User.findOne(query);
     return existingNameUser !== null;
 }
 
-const returnInvalidUserIds = async (ids, businessUnitId) => {
+const returnInvalidUserIds = async (ids, businessUnit) => {
 
     let invalidUserIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
@@ -145,8 +201,8 @@ const returnInvalidUserIds = async (ids, businessUnitId) => {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingUsers = await User.find(query).select('_id');
 

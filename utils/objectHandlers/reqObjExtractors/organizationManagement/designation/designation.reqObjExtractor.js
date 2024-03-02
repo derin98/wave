@@ -1,9 +1,9 @@
 exports.createDesignationObject = (req) => {
     return {
         name: req.body.name,
-        userTypeId: req.params.userTypeId,
-        businessUnitId: req.businessUnitId,
-        permissionIds: req.body.permissionIds ? req.body.permissionIds : [],
+        userType: req.params.userType,
+        businessUnit: req.businessUnit,
+        permissions: req.body.permissions ? req.body.permissions : [],
         isEnabled: req.body.isEnabled ? req.body.isEnabled : true,
         createdBy: req.userId,
         updatedBy: req.userId
@@ -20,8 +20,8 @@ exports.updateDesignationObject = (req) => {
     if (req.body.isEnabled !== undefined) {
         updateObject.isEnabled = req.body.isEnabled;
     }
-    if (req.body.permissionIds) {
-        updateObject.permissionIds = req.body.permissionIds;
+    if (req.body.permissions) {
+        updateObject.permissions = req.body.permissions;
     }
     return updateObject;
 }

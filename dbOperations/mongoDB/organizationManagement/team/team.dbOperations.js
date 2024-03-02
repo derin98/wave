@@ -64,32 +64,32 @@ async function updateTeam(query, updateObject) {
     return Team.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingTeamId(id, businessUnitId) {
+async function checkExistingTeamId(id, businessUnit) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
     }
     const query = {_id: id, isDeleted: false}
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingTeam = await Team.findOne(query);
     return existingTeam !== null;
 }
 
-async function checkExistingNameForBusinessUnit(name, businessUnitId) {
+async function checkExistingNameForBusinessUnit(name, businessUnit) {
     const query = {
         name: {$regex: new RegExp(`^${name}$`, 'i')},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingNameTeam = await Team.findOne(query);
     return existingNameTeam !== null;
 }
 
-const returnInvalidTeamIds = async (ids, businessUnitId) => {
+const returnInvalidTeamIds = async (ids, businessUnit) => {
 
     let invalidTeamIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
@@ -101,8 +101,8 @@ const returnInvalidTeamIds = async (ids, businessUnitId) => {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingTeams = await Team.find(query).select('_id');
 

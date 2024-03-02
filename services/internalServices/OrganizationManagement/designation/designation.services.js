@@ -13,8 +13,8 @@ async function getAllDesignations(req) {
         isEnabled: true,
         isDeleted: false
     };
-    if(req.businessUnitId) {
-        query.businessUnitId = req.businessUnitId;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
     if (req.query.name) {
         query.name = {$regex: req.query.name, $options: 'i'};
@@ -38,108 +38,108 @@ async function getAllDesignations(req) {
     return paginationHandler.paginationResObj(page, totalPages, countDesignations, designations);
 }
 
-async function getDesignation(id, businessUnitId) {
+async function getDesignation(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await DesignationOperations.getDesignation(query);
 }
 
-async function getDesignationByName(name, businessUnitId) {
+async function getDesignationByName(name, businessUnit) {
     let query = {
         name: name,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await DesignationOperations.getDesignation(query);
 }
 
-async function enableDesignation(id, businessUnitId) {
+async function enableDesignation(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await DesignationOperations.enableDesignation(query);
 }
 
-async function enableDesignations(ids, businessUnitId) {
+async function enableDesignations(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await DesignationOperations.enableDesignations(query);
 }
 
-async function disableDesignation(id, businessUnitId) {
+async function disableDesignation(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await DesignationOperations.disableDesignation(query);
 }
 
 
-async function disableDesignations(ids, businessUnitId) {
+async function disableDesignations(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await DesignationOperations.disableDesignations(query);
 }
 
-async function deleteDesignation(id, businessUnitId) {
+async function deleteDesignation(id, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await DesignationOperations.deleteDesignation(query);
 }
 
-async function deleteDesignations(ids, businessUnitId) {
+async function deleteDesignations(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await DesignationOperations.deleteDesignations(query);
 }
 
-async function updateDesignation(id, updateObject, businessUnitId) {
+async function updateDesignation(id, updateObject, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await DesignationOperations.updateDesignation(query, updateObject);
 }

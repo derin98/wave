@@ -6,7 +6,7 @@ const permissionGroupSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    businessUnitId: {
+    businessUnit: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "BusinessUnit",
         required: true

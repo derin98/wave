@@ -64,44 +64,44 @@ async function updateUserPasswordHistory(query, updateObject) {
     return UserPasswordHistory.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingUserPasswordHistoryId(id, businessUnitId) {
+async function checkExistingUserPasswordHistoryId(id, businessUnit) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
     }
     const query = {_id: id, isDeleted: false}
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingUserPasswordHistory = await UserPasswordHistory.findOne(query);
     return existingUserPasswordHistory !== null;
 }
 
-async function checkExistingEmployeeIdForBusinessUnit(employeeId, businessUnitId) {
+async function checkExistingEmployeeIdForBusinessUnit(employeeId, businessUnit) {
     const query = {
         employeeId: {$regex: new RegExp(`^${name}$`, 'i')},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingNameUserPasswordHistory = await UserPasswordHistory.findOne(query);
     return existingNameUserPasswordHistory !== null;
 }
 
-async function checkExistingEmailForBusinessUnit(email, businessUnitId) {
+async function checkExistingEmailForBusinessUnit(email, businessUnit) {
     const query = {
         email: {$regex: new RegExp(`^${name}$`, 'i')},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingNameUserPasswordHistory = await UserPasswordHistory.findOne(query);
     return existingNameUserPasswordHistory !== null;
 }
 
-const returnInvalidUserPasswordHistoryIds = async (ids, businessUnitId) => {
+const returnInvalidUserPasswordHistoryIds = async (ids, businessUnit) => {
 
     let invalidUserPasswordHistoryIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
@@ -113,8 +113,8 @@ const returnInvalidUserPasswordHistoryIds = async (ids, businessUnitId) => {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingUserPasswordHistoryHistories = await UserPasswordHistory.find(query).select('_id');
 

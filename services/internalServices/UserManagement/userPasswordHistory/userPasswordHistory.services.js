@@ -13,8 +13,8 @@ async function getAllUserPasswordHistoryPasswords(req) {
         isEnabled: true,
         isDeleted: false,
     };
-    if(req.businessUnitId) {
-        query.businessUnitId = req.businessUnitId;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
     console.log("query", query)
     if (req.query.name) {
@@ -39,96 +39,96 @@ async function getAllUserPasswordHistoryPasswords(req) {
     return paginationHandler.paginationResObj(page, totalPages, countUserPasswordHistoryPasswords, userPasswordHistoryPasswords);
 }
 
-async function getUserPasswordHistory(id, businessUnitId) {
+async function getUserPasswordHistory(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordHistoryOperations.getUserPasswordHistory(query);
 }
 
-async function enableUserPasswordHistory(id, businessUnitId) {
+async function enableUserPasswordHistory(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordHistoryOperations.enableUserPasswordHistory(query);
 }
 
-async function enableUserPasswordHistoryPasswords(ids, businessUnitId) {
+async function enableUserPasswordHistoryPasswords(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordHistoryOperations.enableUserPasswordHistoryPasswords(query);
 }
 
-async function disableUserPasswordHistory(id, businessUnitId) {
+async function disableUserPasswordHistory(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordHistoryOperations.disableUserPasswordHistory(query);
 }
 
 
-async function disableUserPasswordHistoryPasswords(ids, businessUnitId) {
+async function disableUserPasswordHistoryPasswords(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordHistoryOperations.disableUserPasswordHistoryPasswords(query);
 }
 
-async function deleteUserPasswordHistory(id, businessUnitId) {
+async function deleteUserPasswordHistory(id, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordHistoryOperations.deleteUserPasswordHistory(query);
 }
 
-async function deleteUserPasswordHistoryPasswords(ids, businessUnitId) {
+async function deleteUserPasswordHistoryPasswords(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordHistoryOperations.deleteUserPasswordHistoryPasswords(query);
 }
 
-async function updateUserPasswordHistory(id, updateObject, businessUnitId) {
+async function updateUserPasswordHistory(id, updateObject, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserPasswordHistoryOperations.updateUserPasswordHistory(query, updateObject);
 }

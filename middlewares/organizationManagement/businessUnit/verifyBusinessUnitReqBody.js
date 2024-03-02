@@ -114,9 +114,9 @@ validateUpdateBusinessUnitRequestBody = async (req, res, next) => {
     }
     next();
 };
-validateBusinessUnitId = async (req, res, next) => {
+validateBusinessUnit = async (req, res, next) => {
     // Validate request
-    if (!req.params.businessUnitId || typeof req.params.businessUnitId !== 'string') {
+    if (!req.params.businessUnit || typeof req.params.businessUnit !== 'string') {
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit id must be a non-empty string",
@@ -124,7 +124,7 @@ validateBusinessUnitId = async (req, res, next) => {
             null
         );
     }
-    let checkExistingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(req.params.businessUnitId);
+    let checkExistingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(req.params.businessUnit);
     if (checkExistingBusinessUnit) {
         next();
     } else {
@@ -137,9 +137,9 @@ validateBusinessUnitId = async (req, res, next) => {
     }
 };
 
-validateBusinessUnitIds = async (req, res, next) => {
+validateBusinessUnits = async (req, res, next) => {
     // Validate request
-    if (!req.body.businessUnitIds || !Array.isArray(req.body.businessUnitIds) || req.body.businessUnitIds.length === 0) {
+    if (!req.body.businessUnits || !Array.isArray(req.body.businessUnits) || req.body.businessUnits.length === 0) {
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit ids must be a non-empty array of strings",
@@ -148,8 +148,8 @@ validateBusinessUnitIds = async (req, res, next) => {
         );
 
     }
-    for (let i = 0; i < req.body.businessUnitIds.length; i++) {
-        if (typeof req.body.businessUnitIds[i] !== 'string') {
+    for (let i = 0; i < req.body.businessUnits.length; i++) {
+        if (typeof req.body.businessUnits[i] !== 'string') {
             return apiResponseHandler.errorResponse(
                 res,
                 "BusinessUnit ids must be a non-empty array of strings",
@@ -158,13 +158,13 @@ validateBusinessUnitIds = async (req, res, next) => {
             );
         }
     }
-    let invalidBusinessUnitIds = await BusinessUnitDbOperations.returnInvalidBusinessUnitIds(req.body.businessUnitIds);
-    if (invalidBusinessUnitIds.length > 0) {
+    let invalidBusinessUnits = await BusinessUnitDbOperations.returnInvalidBusinessUnits(req.body.businessUnits);
+    if (invalidBusinessUnits.length > 0) {
         return apiResponseHandler.errorResponse(
             res,
             "Failed! BusinessUnits do not exist",
             400,
-            {invalidBusinessUnitIds}
+            {invalidBusinessUnits}
         );
     }
     next();
@@ -172,8 +172,8 @@ validateBusinessUnitIds = async (req, res, next) => {
 
 const verifyBusinessUnitRequest = {
     validateCreateBusinessUnitRequestBody: validateCreateBusinessUnitRequestBody,
-    validateBusinessUnitId: validateBusinessUnitId,
-    validateBusinessUnitIds: validateBusinessUnitIds,
+    validateBusinessUnit: validateBusinessUnit,
+    validateBusinessUnits: validateBusinessUnits,
     validateUpdateBusinessUnitRequestBody: validateUpdateBusinessUnitRequestBody
 
 };

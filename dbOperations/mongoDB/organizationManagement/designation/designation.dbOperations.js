@@ -65,7 +65,7 @@ async function updateDesignation(query, updateObject) {
     return Designation.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingDesignationId(id, businessUnitId, userTypeId) {
+async function checkExistingDesignation(id, businessUnit, userType) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
@@ -73,48 +73,49 @@ async function checkExistingDesignationId(id, businessUnitId, userTypeId) {
 
     const query = {_id: id, isDeleted: false};
 
-    if (businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if (businessUnit) {
+        query.businessUnit = businessUnit;
     }
 
-    if (userTypeId) {
-        query.userTypeId = userTypeId;
+    if (userType) {
+        query.userType = userType;
     }
 
     const existingDesignation = await Designation.findOne(query);
+    console.log('existingDesignation', existingDesignation, userType, id)
     return existingDesignation;
 }
 
-async function checkExistingNameForUserType(name, userTypeId, businessUnitId) {
-    const query = {name: {$regex: new RegExp(`^${name}$`, 'i')}, isDeleted: false, userTypeId: userTypeId }
-    if (businessUnitId) {
-        query.businessUnitId = businessUnitId;
+async function checkExistingNameForUserType(name, userType, businessUnit) {
+    const query = {name: {$regex: new RegExp(`^${name}$`, 'i')}, isDeleted: false, userType: userType }
+    if (businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingNameDesignation = await Designation.findOne(query);
     return existingNameDesignation !== null;
 }
 
-const returnInvalidDesignationIds = async (ids, businessUnitId) => {
+const returnInvalidDesignations = async (ids, businessUnit) => {
 
-    let invalidDesignationIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
+    let invalidDesignations = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
-    if (invalidDesignationIds.length > 0) {
-        return invalidDesignationIds;
+    if (invalidDesignations.length > 0) {
+        return invalidDesignations;
     }
     const query = {
         _id: {$in: ids},
         isDeleted: false
     };
-    if (businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if (businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingDesignations = await Designation.find(query).select('_id');
 
-    const existingDesignationIds = existingDesignations.map(designation => designation._id.toString());
+    const filterIds = existingDesignations.map(designation => designation._id.toString());
 
-    invalidDesignationIds.push(...ids.filter(id => !existingDesignationIds.includes(id)));
+    invalidDesignations.push(...ids.filter(id => !filterIds.includes(id)));
 
-    return Array.from(new Set(invalidDesignationIds));
+    return Array.from(new Set(invalidDesignations));
 }
 
 module.exports = {
@@ -129,7 +130,7 @@ module.exports = {
     deleteDesignation,
     deleteDesignations,
     updateDesignation,
-    checkExistingDesignationId,
+    checkExistingDesignation,
     checkExistingNameForUserType,
-    returnInvalidDesignationIds
+    returnInvalidDesignations
 };

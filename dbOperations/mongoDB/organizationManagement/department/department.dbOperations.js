@@ -64,53 +64,53 @@ async function updateDepartment(query, updateObject) {
     return Department.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingDepartmentId(id, businessUnitId) {
+async function checkExistingDepartment(id, businessUnit) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
     }
     const query = {_id: id, isDeleted: false}
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingDepartment = await Department.findOne(query);
     return existingDepartment !== null;
 }
 
-async function checkExistingNameForBusinessUnit(name, businessUnitId) {
+async function checkExistingNameForBusinessUnit(name, businessUnit) {
     const query = {
         name: {$regex: new RegExp(`^${name}$`, 'i')},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingNameDepartment = await Department.findOne(query);
     return existingNameDepartment !== null;
 }
 
-const returnInvalidDepartmentIds = async (ids, businessUnitId) => {
+const returnInvalidDepartments = async (ids, businessUnit) => {
 
-    let invalidDepartmentIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
+    let invalidDepartments = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
-    if (invalidDepartmentIds.length > 0) {
-        return invalidDepartmentIds;
+    if (invalidDepartments.length > 0) {
+        return invalidDepartments;
     }
 
     const query = {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingDepartments = await Department.find(query).select('_id');
 
-    const existingDepartmentIds = existingDepartments.map(department => department._id.toString());
+    const filterIds = existingDepartments.map(department => department._id.toString());
 
-    invalidDepartmentIds.push(...ids.filter(id => !existingDepartmentIds.includes(id)));
+    invalidDepartments.push(...ids.filter(id => !filterIds.includes(id)));
 
-    return Array.from(new Set(invalidDepartmentIds));
+    return Array.from(new Set(invalidDepartments));
 }
 
 module.exports = {
@@ -125,7 +125,7 @@ module.exports = {
     deleteDepartment,
     deleteDepartments,
     updateDepartment,
-    checkExistingDepartmentId,
+    checkExistingDepartment,
     checkExistingNameForBusinessUnit,
-    returnInvalidDepartmentIds
+    returnInvalidDepartments
 };

@@ -13,8 +13,8 @@ async function getAllTeams(req) {
         isEnabled: true,
         isDeleted: false,
     };
-    if(req.businessUnitId) {
-        query.businessUnitId = req.businessUnitId;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
     console.log("query", query)
     if (req.query.name) {
@@ -39,96 +39,96 @@ async function getAllTeams(req) {
     return paginationHandler.paginationResObj(page, totalPages, countTeams, teams);
 }
 
-async function getTeam(id, businessUnitId) {
+async function getTeam(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await TeamOperations.getTeam(query);
 }
 
-async function enableTeam(id, businessUnitId) {
+async function enableTeam(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await TeamOperations.enableTeam(query);
 }
 
-async function enableTeams(ids, businessUnitId) {
+async function enableTeams(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await TeamOperations.enableTeams(query);
 }
 
-async function disableTeam(id, businessUnitId) {
+async function disableTeam(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await TeamOperations.disableTeam(query);
 }
 
 
-async function disableTeams(ids, businessUnitId) {
+async function disableTeams(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await TeamOperations.disableTeams(query);
 }
 
-async function deleteTeam(id, businessUnitId) {
+async function deleteTeam(id, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await TeamOperations.deleteTeam(query);
 }
 
-async function deleteTeams(ids, businessUnitId) {
+async function deleteTeams(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await TeamOperations.deleteTeams(query);
 }
 
-async function updateTeam(id, updateObject, businessUnitId) {
+async function updateTeam(id, updateObject, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await TeamOperations.updateTeam(query, updateObject);
 }

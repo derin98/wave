@@ -23,7 +23,7 @@ verifyToken = (req, res, next) => {
         const businessUnit = decoded.businessUnit
         req.userId = decoded.id;
         req.isSuperAdmin = decoded.isSuperAdmin;
-        req.businessUnitId = businessUnit.id;
+        req.businessUnit = businessUnit.id;
         console.log("decoded", decoded)
         next();
     });

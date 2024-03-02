@@ -1,6 +1,7 @@
 const PermissionGroupOperations = require('../../../../dbOperations/mongoDB/organizationManagement/permissionGroup/permissionGroup.dbOperations');
 const paginationHandler = require('../../../../utils/objectHandlers/paginationHandler');
 const permissionGroupResObjConverter = require('../../../../utils/objectHandlers/resObjConverters/organizationManagement/permissionGroup/permissionGroup.resObjConverter');
+const DepartmentOperations = require("../../../../dbOperations/mongoDB/organizationManagement/department/department.dbOperations");
 
 
 async function createPermissionGroup(permissionGroupObject) {
@@ -13,8 +14,8 @@ async function getAllPermissionGroups(req) {
         isEnabled: true,
         isDeleted: false,
     };
-    if(req.businessUnitId) {
-        query.businessUnitId = req.businessUnitId;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
     console.log("query", query)
     if (req.query.name) {
@@ -39,96 +40,109 @@ async function getAllPermissionGroups(req) {
     return paginationHandler.paginationResObj(page, totalPages, countPermissionGroups, permissionGroups);
 }
 
-async function getPermissionGroup(id, businessUnitId) {
+async function getPermissionGroup(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionGroupOperations.getPermissionGroup(query);
 }
 
-async function enablePermissionGroup(id, businessUnitId) {
+async function getPermissionGroupByName(name, businessUnit) {
+
+    let query = {
+        // isEnabled : true,
+        isDeleted : false,
+        name : name
+    };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
+    return await PermissionGroupOperations.getPermissionGroup(query);
+}
+
+async function enablePermissionGroup(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionGroupOperations.enablePermissionGroup(query);
 }
 
-async function enablePermissionGroups(ids, businessUnitId) {
+async function enablePermissionGroups(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionGroupOperations.enablePermissionGroups(query);
 }
 
-async function disablePermissionGroup(id, businessUnitId) {
+async function disablePermissionGroup(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionGroupOperations.disablePermissionGroup(query);
 }
 
 
-async function disablePermissionGroups(ids, businessUnitId) {
+async function disablePermissionGroups(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionGroupOperations.disablePermissionGroups(query);
 }
 
-async function deletePermissionGroup(id, businessUnitId) {
+async function deletePermissionGroup(id, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionGroupOperations.deletePermissionGroup(query);
 }
 
-async function deletePermissionGroups(ids, businessUnitId) {
+async function deletePermissionGroups(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionGroupOperations.deletePermissionGroups(query);
 }
 
-async function updatePermissionGroup(id, updateObject, businessUnitId) {
+async function updatePermissionGroup(id, updateObject, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await PermissionGroupOperations.updatePermissionGroup(query, updateObject);
 }
@@ -137,6 +151,7 @@ module.exports = {
     createPermissionGroup,
     getAllPermissionGroups,
     getPermissionGroup,
+    getPermissionGroupByName,
     enablePermissionGroup,
     enablePermissionGroups,
     disablePermissionGroup,

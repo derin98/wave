@@ -13,8 +13,8 @@ async function getAllUserTypes(req) {
         isEnabled: true,
         isDeleted: false
     };
-    if(req.businessUnitId) {
-        query.businessUnitId = req.businessUnitId;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
     if (req.query.name) {
         query.name = {$regex: req.query.name, $options: 'i'};
@@ -38,108 +38,108 @@ async function getAllUserTypes(req) {
     return paginationHandler.paginationResObj(page, totalPages, countUserTypes, userTypes);
 }
 
-async function getUserType(id, businessUnitId) {
+async function getUserType(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserTypeOperations.getUserType(query);
 }
 
-async function getUserTypeByName(name, businessUnitId) {
+async function getUserTypeByName(name, businessUnit) {
     let query = {
         name: name,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserTypeOperations.getUserType(query);
 }
 
-async function enableUserType(id, businessUnitId) {
+async function enableUserType(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserTypeOperations.enableUserType(query);
 }
 
-async function enableUserTypes(ids, businessUnitId) {
+async function enableUserTypes(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserTypeOperations.enableUserTypes(query);
 }
 
-async function disableUserType(id, businessUnitId) {
+async function disableUserType(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserTypeOperations.disableUserType(query);
 }
 
 
-async function disableUserTypes(ids, businessUnitId) {
+async function disableUserTypes(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserTypeOperations.disableUserTypes(query);
 }
 
-async function deleteUserType(id, businessUnitId) {
+async function deleteUserType(id, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserTypeOperations.deleteUserType(query);
 }
 
-async function deleteUserTypes(ids, businessUnitId) {
+async function deleteUserTypes(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserTypeOperations.deleteUserTypes(query);
 }
 
-async function updateUserType(id, updateObject, businessUnitId) {
+async function updateUserType(id, updateObject, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserTypeOperations.updateUserType(query, updateObject);
 }
