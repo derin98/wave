@@ -17,7 +17,7 @@ validateCreateTeamRequestBody = async (req, res, next) => {
     }
 
     // Check if the provided name already exists in the database
-    const existingNameTeam = await TeamDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnitId);
+    const existingNameTeam = await TeamDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnit);
     if (existingNameTeam) {
         return apiResponseHandler.errorResponse(
             res,
@@ -52,7 +52,7 @@ validateUpdateTeamRequestBody = async (req, res, next) => {
             );
         }
 
-        const existingNameTeam = await TeamDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnitId);
+        const existingNameTeam = await TeamDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnit);
         if (existingNameTeam) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -85,7 +85,7 @@ validateTeamId = async (req, res, next) => {
     else if (req.body.teamId && typeof req.body.teamId === 'string') {
         req.teamId = req.body.teamId;
     }
-    // If departmentId is not in req.params or req.body, return an error response
+    // If department is not in req.params or req.body, return an error response
     else {
         return apiResponseHandler.errorResponse(
             res,
@@ -96,7 +96,7 @@ validateTeamId = async (req, res, next) => {
     }
 
 
-    let checkExistingTeam = await TeamDbOperations.checkExistingTeamId(req.teamId, req.businessUnitId);
+    let checkExistingTeam = await TeamDbOperations.checkExistingTeamId(req.teamId, req.businessUnit);
     if (checkExistingTeam) {
         next();
     } else {
@@ -130,7 +130,7 @@ validateTeamIds = async (req, res, next) => {
         }
     }
 
-    let invalidTeamIds = await TeamDbOperations.returnInvalidTeamIds(req.body.teamIds, req.businessUnitId);
+    let invalidTeamIds = await TeamDbOperations.returnInvalidTeamIds(req.body.teamIds, req.businessUnit);
     if (invalidTeamIds.length > 0) {
         return apiResponseHandler.errorResponse(
             res,

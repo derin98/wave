@@ -65,7 +65,7 @@ async function updatePermission(query, updateObject) {
     return Permission.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingPermissionId(id, businessUnitId, permissionGroupId) {
+async function checkExistingPermission(id, businessUnit, permissionGroup) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
@@ -73,22 +73,22 @@ async function checkExistingPermissionId(id, businessUnitId, permissionGroupId) 
 
     const query = {_id: id, isDeleted: false};
 
-    if (businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if (businessUnit) {
+        query.businessUnit = businessUnit;
     }
 
-    if (permissionGroupId) {
-        query.permissionGroupId = permissionGroupId;
+    if (permissionGroup) {
+        query.permissionGroup = permissionGroup;
     }
 
     const existingPermission = await Permission.findOne(query);
     return existingPermission;
 }
 
-async function checkExistingNameForPermissionGroup(name, permissionGroupId, businessUnitId) {
-    const query = {name: {$regex: new RegExp(`^${name}$`, 'i')}, isDeleted: false, permissionGroupId: permissionGroupId }
-    if (businessUnitId) {
-        query.businessUnitId = businessUnitId;
+async function checkExistingNameForPermissionGroup(name, permissionGroup, businessUnit) {
+    const query = {name: {$regex: new RegExp(`^${name}$`, 'i')}, isDeleted: false, permissionGroup: permissionGroup }
+    if (businessUnit) {
+        query.businessUnit = businessUnit;
     }
     console.log("query", query)
     const existingNamePermission = await Permission.findOne(query);
@@ -96,27 +96,27 @@ async function checkExistingNameForPermissionGroup(name, permissionGroupId, busi
     return existingNamePermission !== null;
 }
 
-const returnInvalidPermissionIds = async (ids, businessUnitId) => {
+const returnInvalidPermissions = async (ids, businessUnit) => {
 
-    let invalidPermissionIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
+    let invalidPermissions = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
-    if (invalidPermissionIds.length > 0) {
-        return invalidPermissionIds;
+    if (invalidPermissions.length > 0) {
+        return invalidPermissions;
     }
     const query = {
         _id: {$in: ids},
         isDeleted: false
     };
-    if (businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if (businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingPermissions = await Permission.find(query).select('_id');
 
-    const existingPermissionIds = existingPermissions.map(permission => permission._id.toString());
+    const filterIds = existingPermissions.map(permission => permission._id.toString());
 
-    invalidPermissionIds.push(...ids.filter(id => !existingPermissionIds.includes(id)));
+    invalidPermissions.push(...ids.filter(id => !filterIds.includes(id)));
 
-    return Array.from(new Set(invalidPermissionIds));
+    return Array.from(new Set(invalidPermissions));
 }
 
 module.exports = {
@@ -131,7 +131,7 @@ module.exports = {
     deletePermission,
     deletePermissions,
     updatePermission,
-    checkExistingPermissionId,
+    checkExistingPermission,
     checkExistingNameForPermissionGroup,
-    returnInvalidPermissionIds
+    returnInvalidPermissions
 };

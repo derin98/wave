@@ -121,7 +121,7 @@ async function init() {
         try{
             const departmentObj = {
                 name: departmentCreation.name,
-                businessUnitId: businessUnit.id,
+                businessUnit: businessUnit.id,
                 isEnabled: true,
                 createdBy: user.id,
                 updatedBy: user.id
@@ -137,8 +137,8 @@ async function init() {
         try{
             const userTypeObj = {
                 name: userTypeCreation.name,
-                businessUnitId: businessUnit.id,
-                departmentId: department.id,
+                businessUnit: businessUnit.id,
+                department: department.id,
                 isEnabled: true,
                 createdBy: user.id,
                 updatedBy: user.id
@@ -155,9 +155,9 @@ async function init() {
         try{
             const designationObj = {
                 name: designationCreation.name,
-                businessUnitId: businessUnit.id,
-                departmentId: department.id,
-                userTypeId: userType.id,
+                businessUnit: businessUnit.id,
+                department: department.id,
+                userType: userType.id,
                 isEnabled: true,
                 createdBy: user.id,
                 updatedBy: user.id

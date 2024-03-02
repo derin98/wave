@@ -90,7 +90,7 @@ validateUserRequestBody = async (req, res, next) => {
 validateCreateUserRequestBody = async (req, res, next) => {
     // Validate request
 
-    if (!req.businessUnitId){
+    if (!req.businessUnit){
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit Id must be a non-empty string",
@@ -118,7 +118,7 @@ validateCreateUserRequestBody = async (req, res, next) => {
     }
 
     // Check if the provided name already exists in the database
-    const existingEmployeeIdUser = await UserDbOperations.checkExistingEmployeeIdForBusinessUnit(req.body.employeeId, req.businessUnitId);
+    const existingEmployeeIdUser = await UserDbOperations.checkExistingEmployeeIdForBusinessUnit(req.body.employeeId, req.businessUnit);
     if (existingEmployeeIdUser) {
         return apiResponseHandler.errorResponse(
             res,
@@ -137,7 +137,7 @@ validateCreateUserRequestBody = async (req, res, next) => {
         )
     }
     // Check if the provided name already exists in the database
-    const existingEmailUser = await UserDbOperations.checkExistingEmailForBusinessUnit(req.body.email, req.businessUnitId);
+    const existingEmailUser = await UserDbOperations.checkExistingEmailForBusinessUnit(req.body.email, req.businessUnit);
     if (existingEmailUser) {
         return apiResponseHandler.errorResponse(
             res,
@@ -163,7 +163,7 @@ validateCreateUserRequestBody = async (req, res, next) => {
 validateUpdateUserRequestBody = async (req, res, next) => {
     // Validate request
 
-    if (!req.businessUnitId){
+    if (!req.businessUnit){
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit Id must be a non-empty string",
@@ -183,7 +183,7 @@ validateUpdateUserRequestBody = async (req, res, next) => {
             );
         }
 
-        const existingNameUser = await UserDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnitId);
+        const existingNameUser = await UserDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnit);
         if (existingNameUser) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -227,7 +227,7 @@ validateUserId = async (req, res, next) => {
     }
 
     // Check if the user with the given ID exists
-    let checkExistingUser = await UserDbOperations.checkExistingUserId(req.userId, req.businessUnitId);
+    let checkExistingUser = await UserDbOperations.checkExistingUserId(req.userId, req.businessUnit);
 
     if (checkExistingUser) {
         next();
@@ -262,7 +262,7 @@ validateUserIds = async (req, res, next) => {
         }
     }
 
-    let invalidUserIds = await UserDbOperations.returnInvalidUserIds(req.body.userIds, req.businessUnitId);
+    let invalidUserIds = await UserDbOperations.returnInvalidUserIds(req.body.userIds, req.businessUnit);
     if (invalidUserIds.length > 0) {
         return apiResponseHandler.errorResponse(
             res,

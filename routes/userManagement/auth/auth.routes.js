@@ -31,9 +31,9 @@ module.exports = function (app) {
 app.post("/api/v1/auth/signin", authController.signin);
     app.post("/api/v1/auth/signup", [
         // authJwt.verifyToken,
-        verifyBusinessUnitAfterAuth.verifyBusinessUnitId,
-        verifyDepartmentReqBody.validateDepartmentId, verifyUserTypeReqBody.validateUserTypeId,
-        verifyDesignationReqBody.validateDesignationId, verifyTeamReqBody.validateTeamId,
+        verifyBusinessUnitAfterAuth.verifyBusinessUnit,
+        verifyDepartmentReqBody.validateDepartment, verifyUserTypeReqBody.validateUserType,
+        verifyDesignationReqBody.validateDesignation, verifyTeamReqBody.validateTeamId,
         verifyUserReqBody.validateCreateUserRequestBody
     ], authController.signup);
 

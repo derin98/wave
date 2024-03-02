@@ -92,7 +92,7 @@ async function getUser(query, selectFields, populateFields) {
 
             queryObject = queryObject.populate({
                 path: validPopulateFields.join(' '), // Convert back to a string
-                select: '_id name email employeeId userId permissionIds password expiredAt shortName userCount',
+                select: '_id name email employeeId userId permissions password expiredAt shortName userCount',
                 options: {
                     lean: true, // Ensure the result is in plain JavaScript objects
                     transform: doc => {
@@ -152,44 +152,44 @@ async function updateUser(query, updateObject) {
     return User.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingUserId(id, businessUnitId) {
+async function checkExistingUserId(id, businessUnit) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
     }
     const query = {_id: id, isDeleted: false}
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingUser = await User.findOne(query);
     return existingUser !== null;
 }
 
-async function checkExistingEmployeeIdForBusinessUnit(employeeId, businessUnitId) {
+async function checkExistingEmployeeIdForBusinessUnit(employeeId, businessUnit) {
     const query = {
         employeeId: {$regex: new RegExp(`^${employeeId}$`, 'i')},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingNameUser = await User.findOne(query);
     return existingNameUser !== null;
 }
 
-async function checkExistingEmailForBusinessUnit(email, businessUnitId) {
+async function checkExistingEmailForBusinessUnit(email, businessUnit) {
     const query = {
         email: {$regex: new RegExp(`^${email}$`, 'i')},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingNameUser = await User.findOne(query);
     return existingNameUser !== null;
 }
 
-const returnInvalidUserIds = async (ids, businessUnitId) => {
+const returnInvalidUserIds = async (ids, businessUnit) => {
 
     let invalidUserIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
@@ -201,8 +201,8 @@ const returnInvalidUserIds = async (ids, businessUnitId) => {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingUsers = await User.find(query).select('_id');
 

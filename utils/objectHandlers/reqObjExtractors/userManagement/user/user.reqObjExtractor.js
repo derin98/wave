@@ -12,10 +12,10 @@ exports.createUserObject = (req) => {
         isEnabled: req.body.isEnabled ? req.body.isEnabled : true,
         userImage: req.body.imageId,
         eSignature: req.body.eSignatureId,
-        businessUnit: req.businessUnitId,
-        department: req.body.departmentId,
-        userType: req.body.userTypeId,
-        designation: req.body.designationId,
+        businessUnit: req.businessUnit,
+        department: req.body.department,
+        userType: req.body.userType,
+        designation: req.body.designation,
         team: req.body.teamId,
         createdBy: req.userId,
         updatedBy: req.userId
@@ -86,11 +86,11 @@ exports.fetchUser = async (data, selectFields, populateFields) => {
 
 exports.applyPopulate = async (queryObject, populateFields) => {
     const populateFieldsArray = populateFields.split(',');
-    const populateFieldsWithoutSystemFields = populateFieldsArray.filter(field => !['createdAt', 'updatedAt', '__v', 'isEnabled', 'isDeleted', 'createdBy', 'updatedBy', 'userTypeId', 'departmentId', 'businessUnitId'].includes(field.trim()));
+    const populateFieldsWithoutSystemFields = populateFieldsArray.filter(field => !['createdAt', 'updatedAt', '__v', 'isEnabled', 'isDeleted', 'createdBy', 'updatedBy', 'userType', 'department', 'businessUnit'].includes(field.trim()));
 
     return await queryObject.populate({
         path: populateFieldsWithoutSystemFields.join(' '),
-        select: '-createdAt -updatedAt -__v -isEnabled -isDeleted -createdBy -updatedBy -userTypeId -departmentId -businessUnitId',
+        select: '-createdAt -updatedAt -__v -isEnabled -isDeleted -createdBy -updatedBy -userType -department -businessUnit',
         options: {
             lean: true,
             transform: doc => {

@@ -1,8 +1,8 @@
 exports.createUserTypeObject = (req) => {
     return {
         name: req.body.name,
-        departmentId: req.params.departmentId,
-        businessUnitId: req.businessUnitId,
+        department: req.params.department,
+        businessUnit: req.businessUnit,
         isEnabled: req.body.isEnabled ? req.body.isEnabled : true,
         createdBy: req.userId,
         updatedBy: req.userId

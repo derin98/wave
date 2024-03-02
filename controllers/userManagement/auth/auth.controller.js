@@ -89,7 +89,7 @@ exports.signin = async (req, res)=> {
             delete businessUnit.userCount;
         }
     if(designation){
-        delete designation.permissionIds;
+        delete designation.permissions;
     }
       let token = jwt.sign({ id: user._id, isSuperAdmin: user.isSuperAdmin, businessUnit }, config.secret, {
         expiresIn: 60*60*60 // 1 hour

@@ -16,7 +16,7 @@ validateCreateUserTypeRequestBody = async (req, res, next) => {
         );
     }
 
-    if (!req.businessUnitId) {
+    if (!req.businessUnit) {
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit Id must be a non-empty string",
@@ -25,7 +25,7 @@ validateCreateUserTypeRequestBody = async (req, res, next) => {
         );
     }
     // Check if the provided name already exists in the database
-    const existingNameUserType = await UserTypeDbOperations.checkExistingNameForDepartment(req.body.name, req.params.departmentId, req.businessUnitId);
+    const existingNameUserType = await UserTypeDbOperations.checkExistingNameForDepartment(req.body.name, req.params.department, req.businessUnit);
     if (existingNameUserType) {
         return apiResponseHandler.errorResponse(
             res,
@@ -60,7 +60,7 @@ validateUpdateUserTypeRequestBody = async (req, res, next) => {
             );
         }
 
-        const existingNameUserType = await UserTypeDbOperations.checkExistingNameForDepartment(req.body.name, req.departmentId, req.businessUnitId);
+        const existingNameUserType = await UserTypeDbOperations.checkExistingNameForDepartment(req.body.name, req.department, req.businessUnit);
         if (existingNameUserType) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -83,17 +83,17 @@ validateUpdateUserTypeRequestBody = async (req, res, next) => {
     next();
 }
 
-validateUserTypeId = async (req, res, next) => {
+validateUserType = async (req, res, next) => {
 
-    // Check if userTypeId is in req.params
-    if (req.params.userTypeId && typeof req.params.userTypeId === 'string') {
-        req.userTypeId = req.params.userTypeId;
+    // Check if userType is in req.params
+    if (req.params.userType && typeof req.params.userType === 'string') {
+        req.userType = req.params.userType;
     }
-    // If not, check if userTypeId is in req.body
-    else if (req.body.userTypeId && typeof req.body.userTypeId === 'string') {
-        req.userTypeId = req.body.userTypeId;
+    // If not, check if userType is in req.body
+    else if (req.body.userType && typeof req.body.userType === 'string') {
+        req.userType = req.body.userType;
     }
-    // If userTypeId is not in req.params or req.body, return an error response
+    // If userType is not in req.params or req.body, return an error response
     else {
         return apiResponseHandler.errorResponse(
             res,
@@ -104,10 +104,10 @@ validateUserTypeId = async (req, res, next) => {
     }
 
     // Check if the department with the given ID exists
-    let checkExistingUserType = await UserTypeDbOperations.checkExistingUserTypeId(req.userTypeId, req.businessUnitId, req.departmentId);
+    let checkExistingUserType = await UserTypeDbOperations.checkExistingUserType(req.userType, req.businessUnit, req.department);
 
     if (checkExistingUserType) {
-        req.departmentId = checkExistingUserType.departmentId;
+        req.department = checkExistingUserType.department;
         next();
     } else {
         return apiResponseHandler.errorResponse(
@@ -119,9 +119,9 @@ validateUserTypeId = async (req, res, next) => {
     }
 }
 
-validateUserTypeIds = async (req, res, next) => {
+validateUserTypes = async (req, res, next) => {
 
-    if (!req.body.userTypeIds || !Array.isArray(req.body.userTypeIds) || req.body.userTypeIds.length === 0) {
+    if (!req.body.userTypes || !Array.isArray(req.body.userTypes) || req.body.userTypes.length === 0) {
         return apiResponseHandler.errorResponse(
             res,
             "UserType ids must be a non-empty array of strings",
@@ -129,8 +129,8 @@ validateUserTypeIds = async (req, res, next) => {
             null
         );
     }
-    for (let i = 0; i < req.body.userTypeIds.length; i++) {
-        if (typeof req.body.userTypeIds[i] !== 'string') {
+    for (let i = 0; i < req.body.userTypes.length; i++) {
+        if (typeof req.body.userTypes[i] !== 'string') {
             return apiResponseHandler.errorResponse(
                 res,
                 "UserType ids must be a non-empty array of strings",
@@ -139,13 +139,13 @@ validateUserTypeIds = async (req, res, next) => {
             );
         }
     }
-    let invalidUserTypeIds = await UserTypeDbOperations.returnInvalidUserTypeIds(req.body.userTypeIds, req.businessUnitId);
-    if (invalidUserTypeIds.length > 0) {
+    let invalidUserTypes = await UserTypeDbOperations.returnInvalidUserTypes(req.body.userTypes, req.businessUnit);
+    if (invalidUserTypes.length > 0) {
         return apiResponseHandler.errorResponse(
             res,
             "Failed! Invalid UserType ids",
             400,
-            { invalidUserTypeIds }
+            { invalidUserTypes }
         );
     }
     next();
@@ -154,8 +154,8 @@ validateUserTypeIds = async (req, res, next) => {
 const verifyUserTypeReqBody = {
     validateCreateUserTypeRequestBody: validateCreateUserTypeRequestBody,
     validateUpdateUserTypeRequestBody: validateUpdateUserTypeRequestBody,
-    validateUserTypeId: validateUserTypeId,
-    validateUserTypeIds: validateUserTypeIds
+    validateUserType: validateUserType,
+    validateUserTypes: validateUserTypes
 };
 
 

@@ -6,11 +6,11 @@ const BusinessUnitDbOperations = require('../../../dbOperations/mongoDB/organiza
 const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
 
 
-const verifyBusinessUnitId = async (req, res, next) => {
+const verifyBusinessUnit = async (req, res, next) => {
     // Validate request
-    req.businessUnitId = req.isSuperAdmin ? req.query.businessUnitId : req.businessUnitId ? req.businessUnitId : req.query.businessUnitId;
+    req.businessUnit = req.isSuperAdmin ? req.query.businessUnit : req.businessUnit ? req.businessUnit : req.query.businessUnit;
     if (!req.isSuperAdmin) {
-        if (!req.businessUnitId) {
+        if (!req.businessUnit) {
             return apiResponseHandler.errorResponse(
                 res,
                 "BusinessUnit Id must be a non-empty string",
@@ -20,7 +20,7 @@ const verifyBusinessUnitId = async (req, res, next) => {
         }
     }
     if(req.isSuperAdmin === false){
-        const existingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(req.businessUnitId);
+        const existingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(req.businessUnit);
         if (!existingBusinessUnit) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -30,8 +30,8 @@ const verifyBusinessUnitId = async (req, res, next) => {
             );
         }
     }
-    else if(req.businessUnitId !== undefined && req.isSuperAdmin === true){
-        const existingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(req.businessUnitId);
+    else if(req.businessUnit !== undefined && req.isSuperAdmin === true){
+        const existingBusinessUnit = await BusinessUnitDbOperations.checkExistingBusinessUnit(req.businessUnit);
         if (!existingBusinessUnit) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -47,6 +47,6 @@ const verifyBusinessUnitId = async (req, res, next) => {
 
 
 const verifyBusinessUnitAfterAuth = {
-    verifyBusinessUnitId: verifyBusinessUnitId
+    verifyBusinessUnit: verifyBusinessUnit
 };
 module.exports = verifyBusinessUnitAfterAuth;

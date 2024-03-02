@@ -64,44 +64,44 @@ async function updateUserPassword(query, updateObject) {
     return UserPassword.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingUserPasswordId(id, businessUnitId) {
+async function checkExistingUserPasswordId(id, businessUnit) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
     }
     const query = {_id: id, isDeleted: false}
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingUserPassword = await UserPassword.findOne(query);
     return existingUserPassword !== null;
 }
 
-async function checkExistingEmployeeIdForBusinessUnit(employeeId, businessUnitId) {
+async function checkExistingEmployeeIdForBusinessUnit(employeeId, businessUnit) {
     const query = {
         employeeId: {$regex: new RegExp(`^${name}$`, 'i')},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingNameUserPassword = await UserPassword.findOne(query);
     return existingNameUserPassword !== null;
 }
 
-async function checkExistingEmailForBusinessUnit(email, businessUnitId) {
+async function checkExistingEmailForBusinessUnit(email, businessUnit) {
     const query = {
         email: {$regex: new RegExp(`^${name}$`, 'i')},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingNameUserPassword = await UserPassword.findOne(query);
     return existingNameUserPassword !== null;
 }
 
-const returnInvalidUserPasswordIds = async (ids, businessUnitId) => {
+const returnInvalidUserPasswordIds = async (ids, businessUnit) => {
 
     let invalidUserPasswordIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
@@ -113,8 +113,8 @@ const returnInvalidUserPasswordIds = async (ids, businessUnitId) => {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     const existingUserPasswords = await UserPassword.find(query).select('_id');
 

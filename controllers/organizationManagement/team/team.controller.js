@@ -46,7 +46,7 @@ exports.getAllTeams = async (req, res) => {
 
 exports.getTeam = async (req, res) => {
     try {
-        const team = await teamService.getTeam(req.params.teamId, req.businessUnitId);
+        const team = await teamService.getTeam(req.params.teamId, req.businessUnit);
 
         if (!team) {
             return apiResponseHandler.errorResponse(res, "Team not found", 404, null);
@@ -67,7 +67,7 @@ exports.getTeam = async (req, res) => {
 
 exports.enableTeam = async (req, res) => {
     try {
-        const team = await teamService.enableTeam(req.params.teamId, req.businessUnitId);
+        const team = await teamService.enableTeam(req.params.teamId, req.businessUnit);
         const message = "Team enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -85,7 +85,7 @@ exports.enableTeam = async (req, res) => {
 
 exports.disableTeam = async (req, res) => {
     try {
-        const team = await teamService.disableTeam(req.params.teamId, req.businessUnitId);
+        const team = await teamService.disableTeam(req.params.teamId, req.businessUnit);
         const message = "Team disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -102,7 +102,7 @@ exports.disableTeam = async (req, res) => {
 
 exports.enableTeams = async (req, res) => {
     try {
-        await teamService.enableTeams(req.body.teamIds, req.businessUnitId, req.businessUnitId);
+        await teamService.enableTeams(req.body.teamIds, req.businessUnit, req.businessUnit);
         const message = "Teams enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -120,7 +120,7 @@ exports.enableTeams = async (req, res) => {
 
 exports.disableTeams = async (req, res) => {
     try {
-        await teamService.disableTeams(req.body.teamIds, req.businessUnitId);
+        await teamService.disableTeams(req.body.teamIds, req.businessUnit);
         const message = "Teams disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -137,7 +137,7 @@ exports.disableTeams = async (req, res) => {
 
 exports.deleteTeam = async (req, res) => {
     try {
-        await teamService.deleteTeam(req.params.teamId, req.businessUnitId);
+        await teamService.deleteTeam(req.params.teamId, req.businessUnit);
         const message = "Team deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -153,7 +153,7 @@ exports.deleteTeam = async (req, res) => {
 
 exports.deleteTeams = async (req, res) => {
     try {
-        await teamService.deleteTeams(req.body.teamIds, req.businessUnitId);
+        await teamService.deleteTeams(req.body.teamIds, req.businessUnit);
         const message = "Teams deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -170,7 +170,7 @@ exports.deleteTeams = async (req, res) => {
 exports.updateTeam = async (req, res) => {
     try {
         const teamReqObj = teamReqObjExtractor.updateTeamObject(req);
-        const team = await teamService.updateTeam(req.params.teamId, teamReqObj, req.businessUnitId);
+        const team = await teamService.updateTeam(req.params.teamId, teamReqObj, req.businessUnit);
         const message = "Team updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {

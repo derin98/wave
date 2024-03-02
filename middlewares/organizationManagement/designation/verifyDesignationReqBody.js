@@ -17,7 +17,7 @@ validateCreateDesignationRequestBody = async (req, res, next) => {
         );
     }
 
-    if (!req.businessUnitId) {
+    if (!req.businessUnit) {
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit Id must be a non-empty string",
@@ -26,7 +26,7 @@ validateCreateDesignationRequestBody = async (req, res, next) => {
         );
     }
     // Check if the provided name already exists in the database
-    const existingNameDesignation = await DesignationDbOperations.checkExistingNameForUserType(req.body.name, req.params.userTypeId, req.businessUnitId);
+    const existingNameDesignation = await DesignationDbOperations.checkExistingNameForUserType(req.body.name, req.params.userType, req.businessUnit);
     if (existingNameDesignation) {
         return apiResponseHandler.errorResponse(
             res,
@@ -61,7 +61,7 @@ validateUpdateDesignationRequestBody = async (req, res, next) => {
             );
         }
 
-        const existingNameDesignation = await DesignationDbOperations.checkExistingNameForUserType(req.body.name, req.userTypeId, req.businessUnitId);
+        const existingNameDesignation = await DesignationDbOperations.checkExistingNameForUserType(req.body.name, req.userType, req.businessUnit);
         if (existingNameDesignation) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -84,16 +84,16 @@ validateUpdateDesignationRequestBody = async (req, res, next) => {
     next();
 }
 
-validateDesignationId = async (req, res, next) => {
-    // Check if designationId is in req.params
-    if (req.params.designationId && typeof req.params.designationId === 'string') {
-        req.designationId = req.params.designationId;
+validateDesignation = async (req, res, next) => {
+    // Check if designation is in req.params
+    if (req.params.designation && typeof req.params.designation === 'string') {
+        req.designation = req.params.designation;
     }
-    // If not, check if designationId is in req.body
-    else if (req.body.designationId && typeof req.body.designationId === 'string') {
-        req.designationId = req.body.designationId;
+    // If not, check if designation is in req.body
+    else if (req.body.designation && typeof req.body.designation === 'string') {
+        req.designation = req.body.designation;
     }
-    // If userTypeId is not in req.params or req.body, return an error response
+    // If userType is not in req.params or req.body, return an error response
     else {
         return apiResponseHandler.errorResponse(
             res,
@@ -103,9 +103,9 @@ validateDesignationId = async (req, res, next) => {
         );
     }
 
-    let checkExistingDesignation = await DesignationDbOperations.checkExistingDesignationId(req.designationId, req.businessUnitId, req.userTypeId);
+    let checkExistingDesignation = await DesignationDbOperations.checkExistingDesignation(req.designation, req.businessUnit, req.userType);
     if (checkExistingDesignation) {
-        req.userTypeId = checkExistingDesignation.userTypeId;
+        req.userType = checkExistingDesignation.userType;
         next();
     } else {
         return apiResponseHandler.errorResponse(
@@ -117,9 +117,9 @@ validateDesignationId = async (req, res, next) => {
     }
 }
 
-validateDesignationIds = async (req, res, next) => {
+validateDesignations = async (req, res, next) => {
 
-    if (!req.body.designationsIds || !Array.isArray(req.body.designationsIds) || req.body.designationsIds.length === 0) {
+    if (!req.body.designations || !Array.isArray(req.body.designations) || req.body.designations.length === 0) {
         return apiResponseHandler.errorResponse(
             res,
             "Designation ids must be a non-empty array of strings",
@@ -127,8 +127,8 @@ validateDesignationIds = async (req, res, next) => {
             null
         );
     }
-    for (let i = 0; i < req.body.designationsIds.length; i++) {
-        if (typeof req.body.designationsIds[i] !== 'string') {
+    for (let i = 0; i < req.body.designations.length; i++) {
+        if (typeof req.body.designations[i] !== 'string') {
             return apiResponseHandler.errorResponse(
                 res,
                 "Designation ids must be a non-empty array of strings",
@@ -137,13 +137,13 @@ validateDesignationIds = async (req, res, next) => {
             );
         }
     }
-    let invalidDesignationIds = await DesignationDbOperations.returnInvalidDesignationIds(req.body.designationsIds, req.businessUnitId);
-    if (invalidDesignationIds.length > 0) {
+    let invalidDesignations = await DesignationDbOperations.returnInvalidDesignations(req.body.designations, req.businessUnit);
+    if (invalidDesignations.length > 0) {
         return apiResponseHandler.errorResponse(
             res,
             "Failed! Invalid Designation ids",
             400,
-            { invalidDesignationIds }
+            { invalidDesignations }
         );
     }
     next();
@@ -152,8 +152,8 @@ validateDesignationIds = async (req, res, next) => {
 const verifyDesignationReqBody = {
     validateCreateDesignationRequestBody: validateCreateDesignationRequestBody,
     validateUpdateDesignationRequestBody: validateUpdateDesignationRequestBody,
-    validateDesignationId: validateDesignationId,
-    validateDesignationIds: validateDesignationIds
+    validateDesignation: validateDesignation,
+    validateDesignations: validateDesignations
 };
 
 

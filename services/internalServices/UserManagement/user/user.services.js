@@ -13,8 +13,11 @@ async function getAllUsers(req) {
         isEnabled: true,
         isDeleted: false,
     };
-    if(req.businessUnitId) {
-        query.businessUnitId = req.businessUnitId;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
+    }
+    if(department) {
+        query.department = { $in: req.query.departments };
     }
     console.log("query", query)
     if (req.query.name) {
@@ -49,15 +52,15 @@ async function getAllUsers(req) {
     return paginationHandler.paginationResObj(page, totalPages, countUsers, users);
 }
 
-async function getUser(_id, selectFields, populateFields, businessUnitId) {
+async function getUser(_id, selectFields, populateFields, businessUnit) {
     let query = {
         _id: _id,
         // isEnabled: true,
         isDeleted: false
     };
     console.log("query", query, selectFields, populateFields)
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     populateFields = populateFields
         ? [...new Set(populateFields.split(','))].filter(field => field !== 'userPassword').join(' ')
@@ -71,14 +74,14 @@ async function getUser(_id, selectFields, populateFields, businessUnitId) {
 }
 
 
-async function getUserByEmail(email, selectFields, populateFields, businessUnitId) {
+async function getUserByEmail(email, selectFields, populateFields, businessUnit) {
     let query = {
         email: email,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     populateFields = populateFields
         ? [...new Set(populateFields.split(','))].filter(field => field !== 'userPassword').join(' ')
@@ -91,14 +94,14 @@ async function getUserByEmail(email, selectFields, populateFields, businessUnitI
     return await UserOperations.getUser(query, selectFields, populateFields);
 }
 
-async function getUserByEmployeeId(employeeId, selectFields, populateFields, businessUnitId) {
+async function getUserByEmployeeId(employeeId, selectFields, populateFields, businessUnit) {
     let query = {
         employeeId: employeeId,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     populateFields = populateFields
         ? [...new Set(populateFields.split(','))].filter(field => field !== 'userPassword').join(' ')
@@ -111,14 +114,14 @@ async function getUserByEmployeeId(employeeId, selectFields, populateFields, bus
     return await UserOperations.getUser(query, selectFields, populateFields);
 }
 
-async function getUserByUserId(userId, selectFields, populateFields, businessUnitId) {
+async function getUserByUserId(userId, selectFields, populateFields, businessUnit) {
     let query = {
         userId: userId,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     populateFields = populateFields
         ? [...new Set(populateFields.split(','))].filter(field => field !== 'userPassword').join(' ')
@@ -132,7 +135,7 @@ async function getUserByUserId(userId, selectFields, populateFields, businessUni
     return await UserOperations.getUser(query, selectFields, populateFields);
 }
 
-async function getUserForSignIn(userDetails, selectFields, populateFields, businessUnitId) {
+async function getUserForSignIn(userDetails, selectFields, populateFields, businessUnit) {
     let query = {
         // isEnabled: true,
         isDeleted: false
@@ -146,8 +149,8 @@ async function getUserForSignIn(userDetails, selectFields, populateFields, busin
     else if (userDetails.employeeId) {
         query.employeeId = userDetails.employeeId;
     }
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     populateFields = populateFields
         ? [...new Set(populateFields.split(','))].join(' ')
@@ -159,84 +162,84 @@ async function getUserForSignIn(userDetails, selectFields, populateFields, busin
     return await UserOperations.getUser(query, selectFields, populateFields);
 }
 
-async function enableUser(id, businessUnitId) {
+async function enableUser(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserOperations.enableUser(query);
 }
 
-async function enableUsers(ids, businessUnitId) {
+async function enableUsers(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserOperations.enableUsers(query);
 }
 
-async function disableUser(id, businessUnitId) {
+async function disableUser(id, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserOperations.disableUser(query);
 }
 
 
-async function disableUsers(ids, businessUnitId) {
+async function disableUsers(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         // isEnabled: true,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserOperations.disableUsers(query);
 }
 
-async function deleteUser(id, businessUnitId) {
+async function deleteUser(id, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserOperations.deleteUser(query);
 }
 
-async function deleteUsers(ids, businessUnitId) {
+async function deleteUsers(ids, businessUnit) {
     let query = {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserOperations.deleteUsers(query);
 }
 
-async function updateUser(id, updateObject, businessUnitId) {
+async function updateUser(id, updateObject, businessUnit) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    if(businessUnitId) {
-        query.businessUnitId = businessUnitId;
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
     }
     return await UserOperations.updateUser(query, updateObject);
 }

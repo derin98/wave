@@ -8,7 +8,7 @@ const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHan
 validateCreateDepartmentRequestBody = async (req, res, next) => {
     // Validate request
 
-    if (!req.businessUnitId){
+    if (!req.businessUnit){
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit Id must be a non-empty string",
@@ -27,7 +27,7 @@ validateCreateDepartmentRequestBody = async (req, res, next) => {
     }
 
     // Check if the provided name already exists in the database
-    const existingNameDepartment = await DepartmentDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnitId);
+    const existingNameDepartment = await DepartmentDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnit);
     if (existingNameDepartment) {
         return apiResponseHandler.errorResponse(
             res,
@@ -53,7 +53,7 @@ validateCreateDepartmentRequestBody = async (req, res, next) => {
 validateUpdateDepartmentRequestBody = async (req, res, next) => {
     // Validate request
 
-    if (!req.businessUnitId){
+    if (!req.businessUnit){
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit Id must be a non-empty string",
@@ -73,7 +73,7 @@ validateUpdateDepartmentRequestBody = async (req, res, next) => {
             );
         }
 
-        const existingNameDepartment = await DepartmentDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnitId);
+        const existingNameDepartment = await DepartmentDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnit);
         if (existingNameDepartment) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -96,17 +96,17 @@ validateUpdateDepartmentRequestBody = async (req, res, next) => {
     next();
 }
 
-validateDepartmentId = async (req, res, next) => {
+validateDepartment = async (req, res, next) => {
 
-    // Check if departmentId is in req.params
-    if (req.params.departmentId && typeof req.params.departmentId === 'string') {
-        req.departmentId = req.params.departmentId;
+    // Check if department is in req.params
+    if (req.params.department && typeof req.params.department === 'string') {
+        req.department = req.params.department;
     }
-    // If not, check if departmentId is in req.body
-    else if (req.body.departmentId && typeof req.body.departmentId === 'string') {
-        req.departmentId = req.body.departmentId;
+    // If not, check if department is in req.body
+    else if (req.body.department && typeof req.body.department === 'string') {
+        req.department = req.body.department;
     }
-    // If departmentId is not in req.params or req.body, return an error response
+    // If department is not in req.params or req.body, return an error response
     else {
         return apiResponseHandler.errorResponse(
             res,
@@ -117,7 +117,7 @@ validateDepartmentId = async (req, res, next) => {
     }
 
     // Check if the department with the given ID exists
-    let checkExistingDepartment = await DepartmentDbOperations.checkExistingDepartmentId(req.departmentId, req.businessUnitId);
+    let checkExistingDepartment = await DepartmentDbOperations.checkExistingDepartment(req.department, req.businessUnit);
 
     if (checkExistingDepartment) {
         next();
@@ -131,9 +131,9 @@ validateDepartmentId = async (req, res, next) => {
     }
 }
 
-validateDepartmentIds = async (req, res, next) => {
+validateDepartments = async (req, res, next) => {
 
-    if (!req.body.departmentIds || !Array.isArray(req.body.departmentIds) || req.body.departmentIds.length === 0) {
+    if (!req.body.departments || !Array.isArray(req.body.departments) || req.body.departments.length === 0) {
         return apiResponseHandler.errorResponse(
             res,
             "Department ids must be a non-empty array of strings",
@@ -141,8 +141,8 @@ validateDepartmentIds = async (req, res, next) => {
             null
         );
     }
-    for (let i = 0; i < req.body.departmentIds.length; i++) {
-        if (typeof req.body.departmentIds[i] !== 'string') {
+    for (let i = 0; i < req.body.departments.length; i++) {
+        if (typeof req.body.departments[i] !== 'string') {
             return apiResponseHandler.errorResponse(
                 res,
                 "Department ids must be a non-empty array of strings",
@@ -152,13 +152,13 @@ validateDepartmentIds = async (req, res, next) => {
         }
     }
 
-    let invalidDepartmentIds = await DepartmentDbOperations.returnInvalidDepartmentIds(req.body.departmentIds, req.businessUnitId);
-    if (invalidDepartmentIds.length > 0) {
+    let invalidDepartments = await DepartmentDbOperations.returnInvalidDepartments(req.body.departments, req.businessUnit);
+    if (invalidDepartments.length > 0) {
         return apiResponseHandler.errorResponse(
             res,
             "Failed! Invalid Department ids",
             400,
-            { invalidDepartmentIds }
+            { invalidDepartments }
         );
     }
     next();
@@ -167,8 +167,8 @@ validateDepartmentIds = async (req, res, next) => {
 const verifyDepartmentReqBody = {
     validateCreateDepartmentRequestBody: validateCreateDepartmentRequestBody,
     validateUpdateDepartmentRequestBody: validateUpdateDepartmentRequestBody,
-    validateDepartmentId: validateDepartmentId,
-    validateDepartmentIds: validateDepartmentIds
+    validateDepartment: validateDepartment,
+    validateDepartments: validateDepartments
 };
 
 
