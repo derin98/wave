@@ -1,6 +1,7 @@
 const Permission = require('../../../../models/mongoDB/organizationManagement/permission/permission.model');
 const mongoose = require('mongoose');
 const {query} = require("express");
+const UserPermission = require("../../../../models/mongoDB/userManagement/userPermission/userPermission.model");
 
 async function createPermission(permissionObject) {
     return Permission.create(permissionObject);
@@ -28,13 +29,103 @@ async function countPermissions(query) {
     return Permission.countDocuments(query);
 }
 
-async function getPermission(query) {
-    const result = await Permission.findOne(query).select('name _id').lean();
-    if (result) {
-        const {_id, ...rest} = result;
-        return {...rest, id: _id};
+// async function getPermission(query) {
+//     const result = await Permission.findOne(query).select('name _id').lean();
+//     if (result) {
+//         const {_id, ...rest} = result;
+//         return {...rest, id: _id};
+//     }
+//     return null;
+// }
+async function getPermission(query, selectFields, populateFields) {
+    try {
+        let queryObject = Permission.findOne(query);
+
+        if (selectFields) {
+            queryObject = queryObject.select(selectFields);
+        }
+
+        if (populateFields) {
+            // Convert populateFields string to an array
+            const populateFieldsArray = populateFields.split(' ');
+
+            // Filter out invalid fields
+            const validPopulateFields = populateFieldsArray.filter(field => Permission.schema.path(field) != null);
+
+
+            queryObject = queryObject.populate({
+                path: validPopulateFields.join(' '), // Convert back to a string
+                select: '_id name',
+                options: {
+                    lean: true, // Ensure the result is in plain JavaScript objects
+                    transform: doc => {
+                        // Rename _id to id within the populated item
+                        const { _id, ...rest } = doc;
+                        return { ...rest, id: _id };
+                    },
+                },
+            });
+        }
+
+        const result = await queryObject.lean();
+
+        if (result) {
+            const { _id, ...rest } = result;
+            return { ...rest, id: _id };
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Error in getPermission:', error);
+        return null;
     }
-    return null;
+}
+
+async function getPermissions(query, selectFields, populateFields) {
+    try {
+        let queryObject = Permission.find(query);
+
+        if (selectFields) {
+            queryObject = queryObject.select(selectFields);
+        }
+
+        if (populateFields) {
+            // Convert populateFields string to an array
+            const populateFieldsArray = populateFields.split(' ');
+
+            // Filter out invalid fields
+            const validPopulateFields = populateFieldsArray.filter(field => Permission.schema.path(field) != null);
+
+            queryObject = queryObject.populate({
+                path: validPopulateFields.join(' '), // Convert back to a string
+                select: '_id name',
+                options: {
+                    lean: true, // Ensure the result is in plain JavaScript objects
+                    transform: doc => {
+                        // Rename _id to id within the populated item
+                        const { _id, ...rest } = doc;
+                        return { ...rest, id: _id };
+                    },
+                },
+            });
+        }
+
+        const results = await queryObject.lean();
+
+        if (results && results.length > 0) {
+            const formattedResults = results.map(result => {
+                const { _id, ...rest } = result;
+                return { ...rest, id: _id };
+            });
+
+            return formattedResults;
+        }
+
+        return [];
+    } catch (error) {
+        console.error('Error in getPermissions:', error);
+        return [];
+    }
 }
 
 async function enablePermission(query) {
@@ -124,6 +215,7 @@ module.exports = {
     getAllPermissions,
     countPermissions,
     getPermission,
+    getPermissions,
     enablePermission,
     enablePermissions,
     disablePermission,

@@ -63,17 +63,17 @@ const userSchema = new mongoose.Schema({
     },
     userImage: {
         type: String,
-        required: function() {
-            return !this.isSuperAdmin;
-        },
+        // required: function() {
+        //     return !this.isSuperAdmin;
+        // },
         ref: "UserImage",
         // default: "default"
     },
     eSignature: {
         type: String,
-        required: function() {
-            return !this.isSuperAdmin;
-        },
+        // required: function() {
+        //     return !this.isSuperAdmin;
+        // },
         ref: "ESignature",
         // default: "default"
     },
@@ -108,9 +108,9 @@ const userSchema = new mongoose.Schema({
     userPermission: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "UserPermission",
-        required: function() {
-            return !this.isSuperAdmin;
-        },
+        // required: function() {
+        //     return !this.isSuperAdmin;
+        // },
     },
     userPassword: {
         type: mongoose.SchemaTypes.ObjectId,

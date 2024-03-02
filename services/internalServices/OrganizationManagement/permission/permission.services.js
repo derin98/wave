@@ -2,6 +2,7 @@ const PermissionOperations = require('../../../../dbOperations/mongoDB/organizat
 const paginationHandler = require('../../../../utils/objectHandlers/paginationHandler');
 const permissionResObjConverter = require('../../../../utils/objectHandlers/resObjConverters/organizationManagement/permission/permission.resObjConverter');
 const DepartmentOperations = require("../../../../dbOperations/mongoDB/organizationManagement/department/department.dbOperations");
+const UserPermissionOperations = require("../../../../dbOperations/mongoDB/userManagement/userPermission/userPermission.dbOperations");
 
 
 async function createPermission(permissionObject) {
@@ -49,6 +50,26 @@ async function getPermission(id, businessUnit) {
         query.businessUnit = businessUnit;
     }
     return await PermissionOperations.getPermission(query);
+}
+
+async function getPermissions(ids, selectFields, populateFields, businessUnit) {
+    let query = {
+        _id: { $in: ids },
+    };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
+    populateFields = populateFields
+        ? [...new Set(populateFields.split(','))]
+            // .filter(field => field !== 'userPassword')
+            .join(' ')
+        : "";
+
+    selectFields = selectFields
+        ? [...new Set(selectFields.split(',')), 'name', '_id'].filter(field => field !== 'userPassword').join(' ')
+        : ['name', '_id'];
+
+    return await PermissionOperations.getPermissions(query, selectFields, populateFields);
 }
 
 async function getPermissionByName(name, businessUnit) {
@@ -150,6 +171,7 @@ module.exports = {
     createPermission,
     getAllPermissions,
     getPermission,
+    getPermissions,
     getPermissionByName,
     enablePermission,
     enablePermissions,

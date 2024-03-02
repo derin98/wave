@@ -16,7 +16,7 @@ exports.createUserObject = (req) => {
         department: req.body.department,
         userType: req.body.userType,
         designation: req.body.designation,
-        team: req.body.teamId,
+        team: req.body.team,
         createdBy: req.userId,
         updatedBy: req.userId
     };

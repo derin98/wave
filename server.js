@@ -38,15 +38,14 @@ const db = mongoose.connection;
 db.on("error", ()=>{
     console.log("error while connecting to DB");
 });
-db.once("open",()=>{
+db.once("open",async () => {
     console.log("connected to Mongo DB ")
-    init();
+    await init();
 });
 
 /**
  *
  * @returns
- * This method is for the demonstration purpose,
  * ideally one ADMIN userManagement should have been created in the backend
  */
 async function init() {
@@ -168,7 +167,7 @@ async function init() {
             const permissionObj = {
                 name: permissionCreation.name,
                 businessUnit: businessUnit.id,
-                department: department.id,
+                permissionGroup: permissionGroup.id,
                 isEnabled: true,
                 createdBy: user.id,
                 updatedBy: user.id
@@ -176,7 +175,7 @@ async function init() {
 
             permission = await permissionServices.getPermissionByName(permissionObj.name, businessUnit.id);
             if(!permission){
-                permission = await userTypeServices.createUserType(permissionObj);
+                permission = await permissionServices.createPermission(permissionObj);
                 console.log("Default permission created successfully  =====>  ", permission);
             }
         } catch (e) {
