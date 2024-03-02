@@ -12,7 +12,7 @@ module.exports = function (app) {
         // authJwt.verifyToken,
         verifyBusinessUnitAfterAuth.verifyBusinessUnit,
         verifyDepartmentReqBody.validateDepartment, verifyUserTypeReqBody.validateUserType,
-        verifyDesignationReqBody.validateDesignation, verifyTeamReqBody.validateTeamId,
+        verifyDesignationReqBody.validateDesignation, verifyTeamReqBody.validateTeam,
         verifyUserReqBody.validateCreateUserRequestBody
     ], userController.createUser);
 

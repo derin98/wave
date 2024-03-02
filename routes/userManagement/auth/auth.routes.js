@@ -29,11 +29,14 @@ module.exports = function (app) {
     // app.post("/api/v1/auth/signup", authController.signup);
 
 app.post("/api/v1/auth/signin", authController.signin);
+
+
+
     app.post("/api/v1/auth/signup", [
-        // authJwt.verifyToken,
+        authJwt.verifyToken,
         verifyBusinessUnitAfterAuth.verifyBusinessUnit,
         verifyDepartmentReqBody.validateDepartment, verifyUserTypeReqBody.validateUserType,
-        verifyDesignationReqBody.validateDesignation, verifyTeamReqBody.validateTeamId,
+        verifyDesignationReqBody.validateDesignation, verifyTeamReqBody.validateTeam,
         verifyUserReqBody.validateCreateUserRequestBody
     ], authController.signup);
 
