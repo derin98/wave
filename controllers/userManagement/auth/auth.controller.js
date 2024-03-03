@@ -10,7 +10,11 @@ const passwordHasher = require('../../../utils/auth/passwordHasher');
 const {createUserPasswordObject} = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/userPassword/userPassword.reqObjExtractor");
 const {createUserPasswordHistoryObject} = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/userPasswordHistory/userPasswordHistory.reqObjExtractor");
 const userPasswordHistoryService = require("../../../services/internalServices/UserManagement/userPasswordHistory/userPasswordHistory.services");
-// const {createUserObject} = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/auth/auth.reqObjExtractor");
+const {createUserPermission} = require("../../../services/internalServices/UserManagement/userPermission/userPermission.services");
+const {createUserPermissionObject} = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/userPermission/userPermission.reqObjExtractor");
+const userPermissionService = require("../../../services/internalServices/UserManagement/userPermission/userPermission.services");
+const permissionService = require("../../../services/internalServices/OrganizationManagement/permission/permission.services");
+const {sendEmail} = require("../../../utils/mailer/mailer");
 /**
  * Controller for the signup flow
  */
@@ -41,7 +45,7 @@ exports.signin = async (req, res)=> {
     //Validating the userId
     let user = null;
     const selectFields = "userId,email,isSuperAdmin,employeeId"
-    const populateFields = "userPassword,businessUnit,department,userType,designation";
+    const populateFields = "userPassword,businessUnit,department,userType,designation,userPermission";
     if(req.body.userId) {
         let userDetails = {userId: req.body.userId}
         user = await userService.getUserForSignIn(userDetails, selectFields, populateFields);
@@ -82,6 +86,29 @@ exports.signin = async (req, res)=> {
         });
       }
     console.log(user, "user")
+
+
+// Concatenate and filter permissions
+    const allPermissions = [...user.designation.permissions, ...user.userPermission.positivePermissions];
+    const negativePermissionsSet = new Set(user.userPermission.negativePermissions.map(String));
+
+    const filteredPermissions = allPermissions.filter(permission => !negativePermissionsSet.has(String(permission)));
+
+// Extract unique elements
+    const uniquePermissions = [...new Set(filteredPermissions)];
+
+// const userPermission = await userPermissionService.getUserPermissions(filteredPermissions, "", "permissionGroup")
+    const userPermission = await permissionService.getPermissions(uniquePermissions, "", "permissionGroup")
+    console.log('userPermission', userPermission)
+
+
+    const permission = userPermission.reduce((acc, { name: permissionName, permissionGroup: { name: groupName } }) => {
+        acc[groupName] ??= {};
+        acc[groupName][permissionName] = true;
+        return acc;
+    }, {});
+
+    console.log('resultObject', permission)
     let businessUnit = user.businessUnit;
     let designation = user.designation;
 //delete userCount key in businessUnit
@@ -91,9 +118,10 @@ exports.signin = async (req, res)=> {
     if(designation){
         delete designation.permissions;
     }
-      let token = jwt.sign({ id: user._id, isSuperAdmin: user.isSuperAdmin, businessUnit }, config.secret, {
-        expiresIn: 60*60*60 // 1 hour
+      let token = jwt.sign({ id: user.id, isSuperAdmin: user.isSuperAdmin, businessUnit, permission }, config.secret, {
+        expiresIn: 60*60*60 // 24 hours
       });
+
 
       res.status(200).send({
           userId: user.userId,
@@ -120,9 +148,25 @@ exports.signup = async (req, res) => {
 
         const userPasswordHistoryReqObj = createUserPasswordHistoryObject(userPassword.id, hashedPassword);
         await userPasswordHistoryService.createUserPasswordHistory(userPasswordHistoryReqObj);
-       await userService.updateUserPassword(user.id, userPassword.id);
 
+        const userPermissionReqObj = createUserPermissionObject(req, user.id);
+        const userPermission = await createUserPermission(userPermissionReqObj);
+        await userService.updateUserPasswordAndPermission(user.id, userPassword.id, userPermission.id);
         const message = "User created successfully";
+        const recipientEmail = 'lalit@criontech.com';
+        const emailSubject = 'Login';
+        const emailText = 'Testing! You have logged in successfully!';
+
+           if(req.body.email){
+               const userCredentials = {
+                   employeeId: req.body.employeeId,
+                   email: req.body.email,
+                   password: generatedPassword,
+               };
+               await sendEmail(req.body.email, "Welcome to Wave!", userCredentials);
+           }
+
+        user.userPermission = userPermission.id;
         return apiResponseHandler.successResponse(res, message, user, 201);
     } catch (err) {
         console.log("Error while creating the user", err.message);
@@ -138,7 +182,9 @@ exports.initSignup = async (userReqObj, password) => {
         const userPassword = await userPasswordService.createUserPassword(userPasswordReqObj);
         const userPasswordHistoryReqObj = createUserPasswordHistoryObject(userPassword.id, hashedPassword);
         await userPasswordHistoryService.createUserPasswordHistory(userPasswordHistoryReqObj);
-        await userService.updateUserPassword(user.id, userPassword.id);
+        const userPermissionReqObj = createUserPermissionObject(req, user.id);
+        const userPermission = await createUserPermission(userPermissionReqObj);
+        await userService.updateUserPasswordAndPermission(user.id, userPassword.id, userPermission.id);
         return  user;
     } catch (err) {
         console.log("Error while creating the user", err.message);

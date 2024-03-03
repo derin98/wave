@@ -64,7 +64,7 @@ async function updateTeam(query, updateObject) {
     return Team.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingTeamId(id, businessUnit) {
+async function checkExistingTeam(id, businessUnit) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
@@ -89,12 +89,12 @@ async function checkExistingNameForBusinessUnit(name, businessUnit) {
     return existingNameTeam !== null;
 }
 
-const returnInvalidTeamIds = async (ids, businessUnit) => {
+const returnInvalidTeams = async (ids, businessUnit) => {
 
-    let invalidTeamIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
+    let invalidTeams = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
-    if (invalidTeamIds.length > 0) {
-        return invalidTeamIds;
+    if (invalidTeams.length > 0) {
+        return invalidTeams;
     }
 
     const query = {
@@ -106,11 +106,11 @@ const returnInvalidTeamIds = async (ids, businessUnit) => {
     }
     const existingTeams = await Team.find(query).select('_id');
 
-    const existingTeamIds = existingTeams.map(team => team._id.toString());
+    const filterIds = existingTeams.map(team => team._id.toString());
 
-    invalidTeamIds.push(...ids.filter(id => !existingTeamIds.includes(id)));
+    invalidTeams.push(...ids.filter(id => !filterIds.includes(id)));
 
-    return Array.from(new Set(invalidTeamIds));
+    return Array.from(new Set(invalidTeams));
 }
 
 module.exports = {
@@ -125,7 +125,7 @@ module.exports = {
     deleteTeam,
     deleteTeams,
     updateTeam,
-    checkExistingTeamId,
+    checkExistingTeam,
     checkExistingNameForBusinessUnit,
-    returnInvalidTeamIds
+    returnInvalidTeams
 };

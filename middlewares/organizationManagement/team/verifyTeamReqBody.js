@@ -75,43 +75,46 @@ validateUpdateTeamRequestBody = async (req, res, next) => {
     next();
 }
 
-validateTeamId = async (req, res, next) => {
+validateTeam = async (req, res, next) => {
 
-    // Check if teamId is in req.params
-    if (req.params.teamId && typeof req.params.teamId === 'string') {
-        req.teamId = req.params.teamId;
-    }
-    // If not, check if teamId is in req.body
-    else if (req.body.teamId && typeof req.body.teamId === 'string') {
-        req.teamId = req.body.teamId;
-    }
-    // If department is not in req.params or req.body, return an error response
-    else {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Team id must be a non-empty string in req.params or req.body",
-            400,
-            null
-        );
-    }
+    // Check if team is in req.params
+    if(req.params.team || req.body.team){
+        if (req.params.team && typeof req.params.team === 'string') {
+            req.team = req.params.team;
+        }
+        // If not, check if team is in req.body
+        else if (req.body.team && typeof req.body.team === 'string') {
+            req.team = req.body.team;
+        }
+        // If department is not in req.params or req.body, return an error response
+        else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Team id must be a non-empty string in req.params or req.body",
+                400,
+                null
+            );
+        }
+        console.log("req.team", req.team, req.businessUnit)
 
-
-    let checkExistingTeam = await TeamDbOperations.checkExistingTeamId(req.teamId, req.businessUnit);
-    if (checkExistingTeam) {
-        next();
-    } else {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! Team does not exist",
-            400,
-            null
-        );
+        let checkExistingTeam = await TeamDbOperations.checkExistingTeam(req.team, req.businessUnit);
+        if (checkExistingTeam) {
+            next();
+        } else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Team does not exist",
+                400,
+                null
+            );
+        }
     }
+    next()
 }
 
-validateTeamIds = async (req, res, next) => {
+validateTeams = async (req, res, next) => {
 
-    if (!req.body.teamIds || !Array.isArray(req.body.teamIds) || req.body.teamIds.length === 0) {
+    if (!req.body.teams || !Array.isArray(req.body.teams) || req.body.teams.length === 0) {
         return apiResponseHandler.errorResponse(
             res,
             "Team ids must be a non-empty array of strings",
@@ -119,8 +122,8 @@ validateTeamIds = async (req, res, next) => {
             null
         );
     }
-    for (let i = 0; i < req.body.teamIds.length; i++) {
-        if (typeof req.body.teamIds[i] !== 'string') {
+    for (let i = 0; i < req.body.teams.length; i++) {
+        if (typeof req.body.teams[i] !== 'string') {
             return apiResponseHandler.errorResponse(
                 res,
                 "Team ids must be a non-empty array of strings",
@@ -130,13 +133,13 @@ validateTeamIds = async (req, res, next) => {
         }
     }
 
-    let invalidTeamIds = await TeamDbOperations.returnInvalidTeamIds(req.body.teamIds, req.businessUnit);
-    if (invalidTeamIds.length > 0) {
+    let invalidTeams = await TeamDbOperations.returnInvalidTeams(req.body.teams, req.businessUnit);
+    if (invalidTeams.length > 0) {
         return apiResponseHandler.errorResponse(
             res,
             "Failed! Invalid Team ids",
             400,
-            { invalidTeamIds }
+            { invalidTeams }
         );
     }
     next();
@@ -145,8 +148,8 @@ validateTeamIds = async (req, res, next) => {
 const verifyTeamReqBody = {
     validateCreateTeamRequestBody: validateCreateTeamRequestBody,
     validateUpdateTeamRequestBody: validateUpdateTeamRequestBody,
-    validateTeamId: validateTeamId,
-    validateTeamIds: validateTeamIds
+    validateTeam: validateTeam,
+    validateTeams: validateTeams
 };
 
 

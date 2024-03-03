@@ -243,12 +243,12 @@ async function updateUser(id, updateObject, businessUnit) {
     }
     return await UserOperations.updateUser(query, updateObject);
 }
-async function updateUserPassword(id, userPasswordId) {
+async function updateUserPasswordAndPermission(id, userPassword, userPermission) {
     let query = {
         _id: id,
         isDeleted: false
     };
-    return await UserOperations.updateUser(query, {userPassword: userPasswordId});
+    return await UserOperations.updateUser(query, {userPassword, userPermission});
 }
 
 module.exports = {
@@ -266,5 +266,5 @@ module.exports = {
     deleteUser,
     deleteUsers,
     updateUser,
-    updateUserPassword
+    updateUserPasswordAndPermission
 };
