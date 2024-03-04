@@ -5,6 +5,7 @@ const { verifyUserReq, verifyBusinessUnitAfterAuth, authJwt,
     verifyDesignationReqBody,
     verifyTeamReqBody
 } = require("../../../middlewares");
+const verifyTimeStamp = require("../../../middlewares/common/verifyTimeStamp");
 
 module.exports = function (app) {
 
@@ -24,6 +25,8 @@ module.exports = function (app) {
             verifyDesignationReqBody.validateDesignationsFromQuery,
             verifyTeamReqBody.validateTeamsFromQuery,
             verifyUserReq.validateReportsTosFromQuery,
+            verifyTimeStamp.validateCreatedAtFromQueryForSearch,
+            verifyTimeStamp.validateUpdatedAtFromQueryForSearch
         ],
         userController.getAllUsers);
 

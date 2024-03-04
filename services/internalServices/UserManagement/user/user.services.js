@@ -34,6 +34,12 @@ async function getAllUsers(req) {
     if(req.reportsTos) {
         query.reportsTo = { $in: req.reportsTos };
     }
+    if (req.query.createdAt) {
+        query.createdAt = new Date(req.query.createdAt);
+    }
+    if (req.query.updatedAt) {
+        query.updatedAt = new Date(req.query.updatedAt);
+    }
     console.log("query", query)
     if (req.query.name) {
         query.name = {$regex: req.query.name, $options: 'i'};
