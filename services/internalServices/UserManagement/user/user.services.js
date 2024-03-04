@@ -16,8 +16,23 @@ async function getAllUsers(req) {
     if(req.businessUnit) {
         query.businessUnit = req.businessUnit;
     }
-    if(department) {
-        query.department = { $in: req.query.departments };
+    if(req.departments) {
+        query.department = { $in: req.departments };
+    }
+    if(req.userTypes) {
+        query.userType = { $in: req.userTypes };
+    }
+    if(req.designations) {
+        query.designation = { $in: req.designations };
+    }
+    if(req.userTypes) {
+        query.userType = { $in: req.userTypes };
+    }
+    if(req.teams) {
+        query.team = { $in: req.teams };
+    }
+    if(req.reportsTos) {
+        query.reportsTo = { $in: req.reportsTos };
     }
     console.log("query", query)
     if (req.query.name) {

@@ -153,9 +153,6 @@ exports.signup = async (req, res) => {
         const userPermission = await createUserPermission(userPermissionReqObj);
         await userService.updateUserPasswordAndPermission(user.id, userPassword.id, userPermission.id);
         const message = "User created successfully";
-        const recipientEmail = 'lalit@criontech.com';
-        const emailSubject = 'Login';
-        const emailText = 'Testing! You have logged in successfully!';
 
            if(req.body.email){
                const userCredentials = {

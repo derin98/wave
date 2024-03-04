@@ -5,9 +5,10 @@ const User = require("../../../models/mongoDB/userManagement/user/user.model");
 const constants = require("../../../utils/constants");
 const UserDbOperations = require('../../../dbOperations/mongoDB/userManagement/user/user.dbOperations');
 const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler");
+const TeamDbOperations = require("../../../dbOperations/mongoDB/organizationManagement/team/team.dbOperations");
 
 
-validateUserRequestBody = async (req, res, next) => {
+validateUserRequest = async (req, res, next) => {
     // Validate request
 
     //Validating the userName
@@ -87,7 +88,7 @@ validateUserRequestBody = async (req, res, next) => {
 
 
 
-validateCreateUserRequestBody = async (req, res, next) => {
+validateCreateUserRequest = async (req, res, next) => {
     // Validate request
 
     if (!req.businessUnit){
@@ -160,7 +161,7 @@ validateCreateUserRequestBody = async (req, res, next) => {
     next();
 }
 
-validateUpdateUserRequestBody = async (req, res, next) => {
+validateUpdateUserRequest = async (req, res, next) => {
     // Validate request
 
     if (!req.businessUnit){
@@ -273,6 +274,37 @@ validateUserIds = async (req, res, next) => {
     }
     next();
 }
+
+validateReportsTosFromQuery = async (req, res, next) => {
+
+    if(req.query.reportsTos){
+        //convert the string to array
+
+        let reportsTos = req.query.reportsTos.split(",");
+
+        if (!reportsTos || !Array.isArray(reportsTos) || reportsTos.length === 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "ReportsTo ids must be a non-empty string with comma separated values",
+                400,
+                null
+            );
+        }
+
+        let invalidReportsTos = await UserDbOperations.returnInvalidUserIds(reportsTos, req.businessUnit);
+        if (invalidReportsTos.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Invalid ReportsTo ids",
+                400,
+                { invalidReportsTos }
+            );
+        }
+
+        req.reportsTos = reportsTos;
+    }
+    next();
+}
 const isValidEmail = (email) => {
     return String(email)
         .toLowerCase()
@@ -283,15 +315,16 @@ const isValidEmail = (email) => {
 
 
 
-const verifyUserRequestBody = {
-    validateUserRequestBody: validateUserRequestBody,
-    validateCreateUserRequestBody: validateCreateUserRequestBody,
-    validateUpdateUserRequestBody: validateUpdateUserRequestBody,
+const verifyUserRequest = {
+    validateUserRequest: validateUserRequest,
+    validateCreateUserRequest: validateCreateUserRequest,
+    validateUpdateUserRequest: validateUpdateUserRequest,
     validateUserId: validateUserId,
-    validateUserIds: validateUserIds
+    validateUserIds: validateUserIds,
+    validateReportsTosFromQuery: validateReportsTosFromQuery
 
 };
-module.exports = verifyUserRequestBody
+module.exports = verifyUserRequest
 
 
 

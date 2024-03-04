@@ -3,6 +3,7 @@
  */
 const TeamDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/team/team.dbOperations');
 const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
+const DesignationDbOperations = require("../../../dbOperations/mongoDB/organizationManagement/designation/designation.dbOperations");
 
 
 validateCreateTeamRequestBody = async (req, res, next) => {
@@ -144,12 +145,43 @@ validateTeams = async (req, res, next) => {
     }
     next();
 }
+validateTeamsFromQuery = async (req, res, next) => {
+
+    if(req.query.teams){
+        //convert the string to array
+
+        let teams = req.query.teams.split(",");
+
+        if (!teams || !Array.isArray(teams) || teams.length === 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Team ids must be a non-empty string with comma separated values",
+                400,
+                null
+            );
+        }
+
+        let invalidTeams = await TeamDbOperations.returnInvalidTeams(teams, req.businessUnit);
+        if (invalidTeams.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Invalid Team ids",
+                400,
+                { invalidTeams }
+            );
+        }
+
+        req.teams = teams;
+    }
+    next();
+}
 
 const verifyTeamReqBody = {
     validateCreateTeamRequestBody: validateCreateTeamRequestBody,
     validateUpdateTeamRequestBody: validateUpdateTeamRequestBody,
     validateTeam: validateTeam,
-    validateTeams: validateTeams
+    validateTeams: validateTeams,
+    validateTeamsFromQuery: validateTeamsFromQuery
 };
 
 

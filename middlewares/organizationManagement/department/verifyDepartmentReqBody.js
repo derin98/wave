@@ -164,11 +164,43 @@ validateDepartments = async (req, res, next) => {
     next();
 }
 
+validateDepartmentsFromQuery = async (req, res, next) => {
+
+    if(req.query.departments){
+        //convert the string to array
+
+        let departments = req.query.departments.split(",");
+
+        if (!departments || !Array.isArray(departments) || departments.length === 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Department ids must be a non-empty string with comma separated values",
+                400,
+                null
+            );
+        }
+
+        let invalidDepartments = await DepartmentDbOperations.returnInvalidDepartments(departments, req.businessUnit);
+        if (invalidDepartments.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Invalid Department ids",
+                400,
+                { invalidDepartments }
+            );
+        }
+
+    req.departments = departments;
+    }
+    next();
+}
+
 const verifyDepartmentReqBody = {
     validateCreateDepartmentRequestBody: validateCreateDepartmentRequestBody,
     validateUpdateDepartmentRequestBody: validateUpdateDepartmentRequestBody,
     validateDepartment: validateDepartment,
-    validateDepartments: validateDepartments
+    validateDepartments: validateDepartments,
+    validateDepartmentsFromQuery: validateDepartmentsFromQuery
 };
 
 

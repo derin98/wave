@@ -1,8 +1,8 @@
 // const authController = require('../../../controllers/userManagement/auth/auth.controller');
-// const { verifyUserReqBody } = require("../../../middlewares");
+// const { verifyUserReq } = require("../../../middlewares");
 // module.exports = function (app) {
 //
-//     app.post("/api/v1/auth/signup", [verifyUserReqBody.validateUserRequestBody], authController.signup);
+//     app.post("/api/v1/auth/signup", [verifyUserReq.validateUserRequest], authController.signup);
 //
 //     app.post("/api/v1/auth/signin", authController.signin);
 //
@@ -19,7 +19,7 @@ const {       verifyBusinessUnitRequest,
     verifyDesignationReqBody,
     verifyPermissionGroupReqBody,
     verifyPermissionReqBody,
-    verifyUserReqBody,
+    verifyUserReq,
     verifyTeamReqBody, authJwt } = require("../../../middlewares");
 const departmentController = require("../../../controllers/organizationManagement/department/department.controller");
 const userController = require("../../../controllers/userManagement/user/user.controller");
@@ -37,7 +37,7 @@ app.post("/api/v1/auth/signin", authController.signin);
         verifyBusinessUnitAfterAuth.verifyBusinessUnit,
         verifyDepartmentReqBody.validateDepartment, verifyUserTypeReqBody.validateUserType,
         verifyDesignationReqBody.validateDesignation, verifyTeamReqBody.validateTeam,
-        verifyUserReqBody.validateCreateUserRequestBody
+        verifyUserReq.validateCreateUserRequest
     ], authController.signup);
 
 }
