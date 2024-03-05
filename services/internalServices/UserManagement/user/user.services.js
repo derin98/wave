@@ -35,10 +35,10 @@ async function getAllUsers(req) {
         query.reportsTo = { $in: req.reportsTos };
     }
     if (req.query.createdAt) {
-        query.createdAt = new Date(req.query.createdAt);
+        query.createdAt = req.createdAt;
     }
     if (req.query.updatedAt) {
-        query.updatedAt = new Date(req.query.updatedAt);
+        query.updatedAt = req.updatedAt;
     }
     console.log("query", query)
     if (req.query.name) {

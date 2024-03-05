@@ -6,30 +6,39 @@ validateCreatedAtFromQueryForSearch = async (req, res, next) => {
     if(req.query.createdAt) {
         //convert the string to array
 
-          let createdAt = req.query.createdAt.split(",");
+        let createdAt = req.query.createdAt.split(",");
 
-            if (!createdAt || !Array.isArray(createdAt) || createdAt.length === 0) {
-                return errorResponse(
-                    res,
-                    "CreatedAt must be a non-empty string with comma separated values",
-                    400,
-                    null
-                );
-            }
-            let createdAtStart = new Date(createdAt[0]);
-            let createdAtEnd = new Date(createdAt[1]);
+        if (!createdAt || !Array.isArray(createdAt) || createdAt.length === 0) {
+            return errorResponse(
+                res,
+                "CreatedAt must be a non-empty string with comma separated values",
+                400,
+                null
+            );
+        }
+        let createdAtStart = new Date(createdAt[0]);
+        let createdAtEnd = new Date(createdAt[1]);
 
         createdAt = {};
 
         if (createdAtStart) {
-            createdAt.$gte = new Date(createdAtStart);
+            createdAt.$gte = createdAtStart;
         }
         if (createdAtEnd) {
-            createdAt.$lte = new Date(createdAtEnd);
+            createdAt.$lte = createdAtEnd;
         }
-
+        console.log("createdAt", createdAt)
+        if (createdAtStart == "Invalid Date" || createdAtEnd == "Invalid Date") {
+            return errorResponse(
+                res,
+                "CreatedAt must be a non-empty string of date with comma separated values",
+                400,
+                null
+            );
+        }
         req.createdAt = createdAt;
     }
+
 
 
     next();
@@ -56,18 +65,27 @@ validateUpdatedAtFromQueryForSearch = async (req, res, next) => {
         updatedAt = {};
 
         if (updatedAtStart) {
-            updatedAt.$gte = new Date(updatedAtStart);
+            updatedAt.$gte = updatedAtStart;
         }
         if (updatedAtEnd) {
-            updatedAt.$lte = new Date(updatedAtEnd);
+            updatedAt.$lte = updatedAtEnd;
         }
-
+        console.log("updatedAt", updatedAt)
+            if (updatedAtStart == "Invalid Date" || updatedAtEnd == "Invalid Date") {
+                return errorResponse(
+                    res,
+                    "UpdatedAt must be a non-empty string of date with comma separated values",
+                    400,
+                    null
+                );
+            }
         req.updatedAt = updatedAt;
     }
 
 
     next();
 }
+
 
 
 const verifyTimeStamp = {
