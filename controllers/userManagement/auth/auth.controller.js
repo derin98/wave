@@ -141,7 +141,7 @@ exports.signup = async (req, res) => {
         const user = await userService.createUser(userReqObj);
         let generatedPassword = passwordGenerator.generateRandomPasswordString(8)
         console.log('generatedPassword', generatedPassword)
-        let hashedPassword = await passwordHasher.hashPassword(generatedPassword);
+        let hashedPassword = passwordHasher.hashPassword(generatedPassword);
 
         const userPasswordReqObj = createUserPasswordObject(user.id, hashedPassword);
         const userPassword = await userPasswordService.createUserPassword(userPasswordReqObj);
@@ -174,6 +174,9 @@ exports.signup = async (req, res) => {
 exports.initSignup = async (userReqObj, password) => {
     try {
         const user = await userService.createUser(userReqObj);
+        const req = {
+            userId : user.id
+        }
         let hashedPassword = await passwordHasher.hashPassword(password);
         const userPasswordReqObj = createUserPasswordObject(user.id, hashedPassword);
         const userPassword = await userPasswordService.createUserPassword(userPasswordReqObj);

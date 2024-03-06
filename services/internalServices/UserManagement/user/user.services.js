@@ -135,9 +135,9 @@ async function getUserByEmployeeId(employeeId, selectFields, populateFields, bus
     return await UserOperations.getUser(query, selectFields, populateFields);
 }
 
-async function getUserByUserId(userId, selectFields, populateFields, businessUnit) {
+async function getUserByBuUserId(buUserId, selectFields, populateFields, businessUnit) {
     let query = {
-        userId: userId,
+        buUserId: buUserId,
         // isEnabled: true,
         isDeleted: false
     };
@@ -278,7 +278,7 @@ module.exports = {
     getUser,
     getUserByEmail,
     getUserByEmployeeId,
-    getUserByUserId,
+    getUserByBuUserId,
     getUserForSignIn,
     enableUser,
     enableUsers,

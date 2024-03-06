@@ -47,9 +47,9 @@ validateUserRequest = async (req, res, next) => {
         });
         return;
     }
-    //Validating the userId 
-    const existingUserId = await UserDbOperations.getUser({ userId: req.body.userId });
-    if (existingUserId != null) {
+    //Validating the buUserId 
+    const existingBuUserId = await UserDbOperations.getUser({ buUserId: req.body.buUserId });
+    if (existingBuUserId != null) {
         res.status(400).send({
             message: "Failed! Userid  already exists!"
         });
@@ -158,7 +158,7 @@ validateCreateUserRequest = async (req, res, next) => {
             );
         }
     }
-    next();
+next();
 }
 
 validateUpdateUserRequest = async (req, res, next) => {

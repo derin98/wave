@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    userId: {
+    buUserId: {
         type: String,
         required: function() {
             return !this.isSuperAdmin;
