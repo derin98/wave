@@ -117,6 +117,47 @@ validateCreateUserRequest = async (req, res, next) => {
             null
         );
     }
+    if (!req.body.countryCode || typeof req.body.countryCode !== 'string' || req.body.countryCode.length > 4) {
+        return apiResponseHandler.errorResponse(
+            res,
+            "Failed! Country code must be a non-empty number with a maximum length of 4 characters",
+            400,
+            null
+        );
+    }
+    if (!req.body.contactNumber || typeof req.body.contactNumber !== 'number') {
+        return apiResponseHandler.errorResponse(
+            res,
+            "Failed! Contact number must be a non-empty number",
+            400,
+            null
+        );
+    }
+
+    if (!req.body.buUserId || typeof req.body.buUserId !== 'string' ) {
+
+        res.status(400).send({
+            message: "Failed! buUserId must be a non empty string !"
+        });
+        return;
+    }
+    //Validating the buUserId
+    const existingBuUserId = await UserDbOperations.getUser({ buUserId: req.body.buUserId });
+    if (existingBuUserId != null) {
+        res.status(400).send({
+            message: "Failed! BuUserId  already exists!"
+        });
+        return;
+    }
+
+    if (!req.body.employeeId || typeof req.body.employeeId !== 'string'){
+        return apiResponseHandler.errorResponse(
+            res,
+            "EmployeeId must be a non-empty string",
+            400,
+            null
+        );
+    }
 
     // Check if the provided name already exists in the database
     const existingEmployeeIdUser = await UserDbOperations.checkExistingEmployeeIdForBusinessUnit(req.body.employeeId, req.businessUnit);
@@ -164,46 +205,61 @@ next();
 validateUpdateUserRequest = async (req, res, next) => {
     // Validate request
 
-    if (!req.businessUnit){
+    if (req.body.firstName) {
+        if(typeof req.body.firstName !== 'string'){
         return apiResponseHandler.errorResponse(
             res,
-            "BusinessUnit Id must be a non-empty string",
+            "Failed! First name must be a non empty string !",
             400,
             null
         );
+        }
     }
-
-
-    if (req.body.name){
-        if (typeof req.body.name !== 'string') {
+    if (req.body.lastName) {
+        if(typeof req.body.lastName !== 'string'){
             return apiResponseHandler.errorResponse(
                 res,
-                "BusinessUnit name must be a non-empty string",
+                "Failed! Last name must be a non empty string !",
                 400,
                 null
             );
         }
+    }
 
-        const existingNameUser = await UserDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnit);
-        if (existingNameUser) {
+    if (req.body.employeeId){
+        const existingEmployeeIdUser = await UserDbOperations.checkExistingEmployeeIdForBusinessUnit(req.body.employeeId, req.businessUnit);
+        if (existingEmployeeIdUser) {
             return apiResponseHandler.errorResponse(
                 res,
-                "Failed! User name already exists for the business unit",
+                "Failed! User employeeId already exists for the business unit",
                 400,
                 null
             );
         }
-        if (req.body.isEnabled !== undefined) {
-            if (typeof req.body.isEnabled !== 'boolean') {
-                return apiResponseHandler.errorResponse(
-                    res,
-                    "Failed! BusinessUnit isEnabled should be a boolean",
-                    400,
-                    null
-                );
-            }
+    }
+
+    if(req.body.countryCode){
+        if (typeof req.body.countryCode !== 'string' || req.body.countryCode.length > 4) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Country code must be a non-empty number with a maximum length of 4 characters",
+                400,
+                null
+            );
         }
     }
+
+    if (req.body.contactNumber){
+        if (typeof req.body.contactNumber !== 'number') {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Contact number must be a non-empty number",
+                400,
+                null
+            );
+        }
+    }
+
     next();
 }
 
