@@ -99,15 +99,13 @@ validateTeam = async (req, res, next) => {
         console.log("req.team", req.team, req.businessUnit)
 
         let checkExistingTeam = await TeamDbOperations.checkExistingTeam(req.team, req.businessUnit);
-        if (checkExistingTeam) {
-            next();
-        } else {
+        if (!checkExistingTeam) {
             return apiResponseHandler.errorResponse(
-                res,
-                "Failed! Team does not exist",
-                400,
-                null
-            );
+                    res,
+                    "Failed! Team does not exist",
+                    400,
+                    null
+                );
         }
     }
     next()
