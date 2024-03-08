@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
 module.exports = {
-    secret: "Derin-secret-key"
+    secret: process.env.JWT_SECRET
 };

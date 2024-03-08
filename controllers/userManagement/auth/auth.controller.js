@@ -12,9 +12,10 @@ const {createUserPasswordHistoryObject} = require("../../../utils/objectHandlers
 const userPasswordHistoryService = require("../../../services/internalServices/UserManagement/userPasswordHistory/userPasswordHistory.services");
 const {createUserPermission} = require("../../../services/internalServices/UserManagement/userPermission/userPermission.services");
 const {createUserPermissionObject} = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/userPermission/userPermission.reqObjExtractor");
-const userPermissionService = require("../../../services/internalServices/UserManagement/userPermission/userPermission.services");
 const permissionService = require("../../../services/internalServices/OrganizationManagement/permission/permission.services");
 const {sendEmail} = require("../../../utils/mailer/mailer");
+const {CRYPTO_SECRET_KEY_VR, CRYPTO_SECRET_KEY_DEVICE_SHADOW, CRYPTO_SECRET_KEY_WEB, CRYPTO_SECRET_KEY_AR} = require('../../../configs/encryption/crypto.config.js');
+const {encrypt, decrypt} = require('../../../utils/encryption/crypto');
 /**
  * Controller for the signup flow
  */
@@ -61,6 +62,30 @@ exports.signin = async (req, res)=> {
     else {
         return apiResponseHandler.errorResponse(res, "Failed! email or userId or employeeId is required", 400, null);
     }
+    let encPass = req.body.encPass || "";
+    let dcrptPass;
+    const source = req.body.source
+    if (source === "#CLONOS@web") {
+        encPass = encrypt(req.body.password, CRYPTO_SECRET_KEY_WEB)
+        console.log('encPass', encPass)
+        dcrptPass = decrypt(encPass, CRYPTO_SECRET_KEY_WEB)
+    }
+    else if (source === "#CLONOS@deviceShadow") {
+        dcrptPass = decrypt(encPass, CRYPTO_SECRET_KEY_DEVICE_SHADOW);
+    }
+    else if (source === "#CLONOS@ar") {
+        dcrptPass = decrypt(encPass, CRYPTO_SECRET_KEY_AR);
+    }
+    else if (source === "#CLONOS@vr") {
+        dcrptPass = decrypt(encPass, CRYPTO_SECRET_KEY_VR);
+    }
+    else if (source === "#CLONOS@postman") {
+        dcrptPass = req.body.password;
+    }
+    else {
+        return apiResponseHandler.errorResponse(res, "Failed! Invalid source", 400, null);
+    }
+
     
     if (user == null) {
         res.status(400).send({
@@ -68,15 +93,18 @@ exports.signin = async (req, res)=> {
         });
         return;
     }
-    if(!req.body.password){
+    if(!dcrptPass){
         res.status(400).send({
             message : "Failed! Password is required"
         })
         return ;
     }
-    let passwordIsValid = bcrypt.compareSync(
-        req.body.password,
-        user.userPassword.password
+
+    console.log("password", dcrptPass)
+
+        let passwordIsValid = bcrypt.compareSync(
+            dcrptPass,
+            user.userPassword.password
       );
 
       if (!passwordIsValid) {
