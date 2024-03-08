@@ -30,6 +30,7 @@ async function createUser(userObject) {
 async function getAllUsers(query, sort, order, page, limit, skip, selectFields, populateFields) {
     try {
         let queryObject
+        console.log("query", query)
         if(limit > 0){
             queryObject = User.find(query)
                 .sort({[sort]: order})

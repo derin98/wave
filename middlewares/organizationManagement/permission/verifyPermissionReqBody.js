@@ -119,8 +119,7 @@ validatePermission = async (req, res, next) => {
 
 
 validatePermissions = async (req, res, next) => {
-
-    if(req.body.permissions){
+    if (req.body.permissions) {
         if (!req.body.permissions || !Array.isArray(req.body.permissions) || req.body.permissions.length === 0) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -129,8 +128,14 @@ validatePermissions = async (req, res, next) => {
                 null
             );
         }
+
+        const uniquePermissions = new Set();
+        const duplicatePermissions = [];
+
         for (let i = 0; i < req.body.permissions.length; i++) {
-            if (typeof req.body.permissions[i] !== 'string') {
+            const permissionId = req.body.permissions[i];
+
+            if (typeof permissionId !== 'string') {
                 return apiResponseHandler.errorResponse(
                     res,
                     "Permission ids must be a non-empty array of strings",
@@ -138,19 +143,39 @@ validatePermissions = async (req, res, next) => {
                     null
                 );
             }
+
+            // Check for duplicate permission IDs
+            if (uniquePermissions.has(permissionId)) {
+                duplicatePermissions.push(permissionId);
+            } else {
+                uniquePermissions.add(permissionId);
+            }
         }
-        let invalidPermissions = await PermissionDbOperations.returnInvalidPermissions(req.body.permissions, req.businessUnit);
+
+        if (duplicatePermissions.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Duplicate permission ids are not allowed",
+                400,
+                { duplicatePermissions }
+            );
+        }
+
+        let invalidPermissions = await PermissionDbOperations.returnInvalidPermissions(Array.from(uniquePermissions), req.businessUnit);
+
         if (invalidPermissions.length > 0) {
             return apiResponseHandler.errorResponse(
                 res,
                 "Failed! Invalid Permission ids",
                 400,
-                {invalidPermissions}
+                { invalidPermissions }
             );
         }
     }
+
     next();
 }
+
 
 const verifyPermissionReqBody = {
     validateCreatePermissionRequestBody: validateCreatePermissionRequestBody,
