@@ -14,8 +14,7 @@ const {createUserPermission} = require("../../../services/internalServices/UserM
 const {createUserPermissionObject} = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/userPermission/userPermission.reqObjExtractor");
 const permissionService = require("../../../services/internalServices/OrganizationManagement/permission/permission.services");
 const {sendEmail} = require("../../../utils/mailer/mailer");
-const {CRYPTO_SECRET_KEY_SRC_4, CRYPTO_SECRET_KEY_SRC_2, CRYPTO_SECRET_KEY_SRC_1, CRYPTO_SECRET_KEY_SRC_3, CRYPTO_SRC_4_NAME, CRYPTO_SRC_3_NAME
-        ,CRYPTO_SRC_2_NAME, CRYPTO_SRC_1_NAME, CRYPTO_SRC_5_NAME} = require('../../../configs/encryption/crypto.config.js');
+const cryptoConfigs = require('../../../configs/encryption/crypto.config.js');
 const {encrypt, decrypt} = require('../../../utils/encryption/crypto');
 /**
  * Controller for the signup flow
@@ -35,109 +34,77 @@ const {encrypt, decrypt} = require('../../../utils/encryption/crypto');
 // }
 
 
-
-
 /**
  * Controller for the sign in flow
  */
 
-exports.signin = async (req, res)=> {
-
-    //Fetch the userManagement based on the userId
-    //Validating the userId
-    let user = null;
-    const selectFields = "userId,email,isSuperAdmin,employeeId"
+exports.signin = async (req, res) => {
+    const selectFields = "userId,email,isSuperAdmin,employeeId";
     const populateFields = "userPassword,businessUnit,department,userType,designation,userPermission";
-    if(req.body.userId) {
-        let userDetails = {userId: req.body.userId}
-        user = await userService.getUserForSignIn(userDetails, selectFields, populateFields);
+
+    async function getUserByField(field, value) {
+        let userDetails = { [field]: value };
+        return await userService.getUserForSignIn(userDetails, selectFields, populateFields);
     }
-    else if (req.body.email) {
-        let userDetails = {email: req.body.email}
-        user = await userService.getUserForSignIn(userDetails, selectFields, populateFields);
+
+    function decryptPassword(encPass, secretKey) {
+        if (!encPass) {
+            return apiResponseHandler.errorResponse(res, "Failed! Encrypted password is required", 400, null);
+        }
+        return decrypt(encPass, secretKey);
     }
-    else if (req.body.employeeId){
-        let userDetails = {employeeId: req.body.employeeId}
-        user = await userService.getUserForSignIn(userDetails, selectFields, populateFields);
-    }
-    else {
+
+    let user = null;
+    if (req.body.userId) {
+        user = await getUserByField('userId', req.body.userId);
+    } else if (req.body.email) {
+        user = await getUserByField('email', req.body.email);
+    } else if (req.body.employeeId) {
+        user = await getUserByField('employeeId', req.body.employeeId);
+    } else {
         return apiResponseHandler.errorResponse(res, "Failed! email or userId or employeeId is required", 400, null);
     }
-    let encPass;
+
     let dcrptPass;
-    const source = req.body.source
-    if (source === CRYPTO_SRC_1_NAME) {
-        if (!req.body.encPass) {
-            return apiResponseHandler.errorResponse(res, "Failed! Encrypted password is required", 400, null);
-        }
-        encPass = req.body.encPass;
-        encPass = encrypt(req.body.password, CRYPTO_SECRET_KEY_SRC_1)
-        console.log('encPass', encPass)
-        dcrptPass = decrypt(encPass, CRYPTO_SECRET_KEY_SRC_1)
-        console.log('dcrptPass', dcrptPass)
-    }
-    else if (source === CRYPTO_SRC_2_NAME) {
-        if (!req.body.encPass) {
-            return apiResponseHandler.errorResponse(res, "Failed! Encrypted password is required", 400, null);
-        }
-        encPass = req.body.encPass;
-        dcrptPass = decrypt(encPass, CRYPTO_SECRET_KEY_SRC_2);
-    }
-    else if (source === CRYPTO_SRC_3_NAME) {
-        if (!req.body.encPass) {
-            return apiResponseHandler.errorResponse(res, "Failed! Encrypted password is required", 400, null);
-        }
-        encPass = req.body.encPass;
-        dcrptPass = decrypt(encPass, CRYPTO_SECRET_KEY_SRC_3);
-    }
-    else if (source === CRYPTO_SRC_4_NAME) {
-        if (!req.body.encPass) {
-            return apiResponseHandler.errorResponse(res, "Failed! Encrypted password is required", 400, null);
-        }
-        encPass = req.body.encPass;
-        dcrptPass = decrypt(encPass, CRYPTO_SECRET_KEY_SRC_4);
-    }
-    else if (source === CRYPTO_SRC_5_NAME) {
-        if (!req.body.password) {
-            return apiResponseHandler.errorResponse(res, "Failed! Password is required", 400, null);
-        }
-        dcrptPass = req.body.password;
-    }
-    else {
-        return apiResponseHandler.errorResponse(res, "Failed! Invalid source", 400, null);
+    const source = req.body.source;
+    switch (source) {
+        case cryptoConfigs.CRYPTO_SRC_0_NAME:
+            dcrptPass = req.body.password;
+            break;
+        case cryptoConfigs.CRYPTO_SRC_1_NAME:
+            dcrptPass = decryptPassword(req.body.encPass, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_1);
+            break;
+        case cryptoConfigs.CRYPTO_SRC_2_NAME:
+            dcrptPass = decryptPassword(req.body.encPass, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_2);
+            break;
+        case cryptoConfigs.CRYPTO_SRC_3_NAME:
+            dcrptPass = decryptPassword(req.body.encPass, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_3);
+            break;
+        case cryptoConfigs.CRYPTO_SRC_4_NAME:
+            dcrptPass = decryptPassword(req.body.encPass, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_4);
+            break;
+        default:
+            return apiResponseHandler.errorResponse(res, "Failed! Invalid source", 400, null);
     }
 
-    
     if (user == null) {
-        res.status(400).send({
-            message: "Failed! User doesn't exist!"
-        });
-        return;
-    }
-    if(!dcrptPass){
-        res.status(400).send({
-            message : "Failed! Password is required"
-        })
-        return ;
+        return apiResponseHandler.errorResponse(res, "Failed! User doesn't exist!", 400, null);
     }
 
-    console.log("password", dcrptPass)
+    if (!dcrptPass) {
+        return apiResponseHandler.errorResponse(res, "Failed! Password is required", 400, null);
+    }
 
-        let passwordIsValid = bcrypt.compareSync(
-            dcrptPass,
-            user.userPassword.password
-      );
+    let passwordIsValid = bcrypt.compareSync(dcrptPass, user.userPassword.password);
 
-      if (!passwordIsValid) {
+    if (!passwordIsValid) {
         return res.status(401).send({
-          accessToken: null,
-          message: "Invalid Password!"
+            accessToken: null,
+            message: "Invalid Password!"
         });
-      }
-    console.log(user, "user")
+    }
 
-
-// Concatenate and filter permissions
+    // Concatenate and filter permissions
     const allPermissions = [...user.designation.permissions, ...user.userPermission.positivePermissions];
     const negativePermissionsSet = new Set(user.userPermission.negativePermissions.map(String));
 
@@ -148,8 +115,6 @@ exports.signin = async (req, res)=> {
 
 // const userPermission = await userPermissionService.getUserPermissions(filteredPermissions, "", "permissionGroup")
     const userPermission = await permissionService.getPermissions(uniquePermissions, "", "permissionGroup")
-    console.log('userPermission', userPermission)
-
 
     const permission = userPermission.reduce((acc, { name: permissionName, permissionGroup: { name: groupName } }) => {
         acc[groupName] ??= {};
@@ -157,32 +122,32 @@ exports.signin = async (req, res)=> {
         return acc;
     }, {});
 
-    console.log('resultObject', permission)
     let businessUnit = user.businessUnit;
     let designation = user.designation;
-//delete userCount key in businessUnit
-        if(businessUnit){
-            delete businessUnit.userCount;
-        }
-    if(designation){
+
+    if (businessUnit) {
+        delete businessUnit.userCount;
+    }
+
+    if (designation) {
         delete designation.permissions;
     }
-      let token = jwt.sign({ id: user.id, isSuperAdmin: user.isSuperAdmin, businessUnit, permission }, config.secret, {
-        expiresIn: 60*60*60 // 24 hours
-      });
 
+    let token = jwt.sign({ id: user.id, isSuperAdmin: user.isSuperAdmin, businessUnit, permission }, config.secret, {
+        expiresIn: 60 * 60 * 60 // 24 hours
+    });
 
-      res.status(200).send({
-          userId: user.userId,
-          employeeId: user.employeeId,
-        name : user.name,
+    return apiResponseHandler.successResponse(res, "User signed in successfully", {
+        userId: user.userId,
+        employeeId: user.employeeId,
+        name: user.name,
         email: user.email,
-        accessToken : token,
-          designation,
-          department: user.department, userType: user.department
-      })
-   
-}
+        accessToken: token,
+        designation,
+        department: user.department,
+        userType: user.department
+    }, 200);
+};
 
 exports.signup = async (req, res) => {
     try {
@@ -203,14 +168,14 @@ exports.signup = async (req, res) => {
         await userService.updateUserPasswordAndPermission(user.id, userPassword.id, userPermission.id);
         const message = "User created successfully";
 
-           if(req.body.email){
-               const userCredentials = {
-                   employeeId: req.body.employeeId,
-                   email: req.body.email,
-                   password: generatedPassword,
-               };
-               await sendEmail(req.body.email, "Welcome to Wave!", userCredentials);
-           }
+        if (req.body.email) {
+            const userCredentials = {
+                employeeId: req.body.employeeId,
+                email: req.body.email,
+                password: generatedPassword,
+            };
+            await sendEmail(req.body.email, "Welcome to Wave!", userCredentials);
+        }
 
         user.userPermission = userPermission.id;
         return apiResponseHandler.successResponse(res, message, user, 201);
@@ -224,7 +189,7 @@ exports.initSignup = async (userReqObj, password) => {
     try {
         const user = await userService.createUser(userReqObj);
         const req = {
-            userId : user.id
+            userId: user.id
         }
         let hashedPassword = await passwordHasher.hashPassword(password);
         const userPasswordReqObj = createUserPasswordObject(user.id, hashedPassword);
@@ -234,7 +199,7 @@ exports.initSignup = async (userReqObj, password) => {
         const userPermissionReqObj = createUserPermissionObject(req, user.id);
         const userPermission = await createUserPermission(userPermissionReqObj);
         await userService.updateUserPasswordAndPermission(user.id, userPassword.id, userPermission.id);
-        return  user;
+        return user;
     } catch (err) {
         console.log("Error while creating the user", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
