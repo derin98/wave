@@ -16,8 +16,29 @@ async function getAllUsers(req) {
     if(req.businessUnit) {
         query.businessUnit = req.businessUnit;
     }
-    if(department) {
-        query.department = { $in: req.query.departments };
+    if(req.departments) {
+        query.department = { $in: req.departments };
+    }
+    if(req.userTypes) {
+        query.userType = { $in: req.userTypes };
+    }
+    if(req.designations) {
+        query.designation = { $in: req.designations };
+    }
+    if(req.userTypes) {
+        query.userType = { $in: req.userTypes };
+    }
+    if(req.teams) {
+        query.team = { $in: req.teams };
+    }
+    if(req.reportsTos) {
+        query.reportsTo = { $in: req.reportsTos };
+    }
+    if (req.query.createdAt) {
+        query.createdAt = req.createdAt;
+    }
+    if (req.query.updatedAt) {
+        query.updatedAt = req.updatedAt;
     }
     console.log("query", query)
     if (req.query.name) {
@@ -114,9 +135,9 @@ async function getUserByEmployeeId(employeeId, selectFields, populateFields, bus
     return await UserOperations.getUser(query, selectFields, populateFields);
 }
 
-async function getUserByUserId(userId, selectFields, populateFields, businessUnit) {
+async function getUserByBuUserId(buUserId, selectFields, populateFields, businessUnit) {
     let query = {
-        userId: userId,
+        buUserId: buUserId,
         // isEnabled: true,
         isDeleted: false
     };
@@ -257,7 +278,7 @@ module.exports = {
     getUser,
     getUserByEmail,
     getUserByEmployeeId,
-    getUserByUserId,
+    getUserByBuUserId,
     getUserForSignIn,
     enableUser,
     enableUsers,

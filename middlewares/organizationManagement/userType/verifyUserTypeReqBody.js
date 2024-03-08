@@ -4,6 +4,7 @@
 const UserTypeDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/userType/userType.dbOperations');
 const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
 const BusinessUnitDbOperations = require("../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations");
+const DepartmentDbOperations = require("../../../dbOperations/mongoDB/organizationManagement/department/department.dbOperations");
 
 validateCreateUserTypeRequestBody = async (req, res, next) => {
     // Validate request
@@ -151,11 +152,43 @@ validateUserTypes = async (req, res, next) => {
     next();
 }
 
+validateUserTypesFromQuery = async (req, res, next) => {
+
+    if(req.query.userTypes){
+        //convert the string to array
+
+        let userTypes = req.query.userTypes.split(",");
+
+        if (!userTypes || !Array.isArray(userTypes) || userTypes.length === 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "UserType ids must be a non-empty string with comma separated values",
+                400,
+                null
+            );
+        }
+
+        let invalidUserTypes = await UserTypeDbOperations.returnInvalidUserTypes(userTypes, req.businessUnit);
+        if (invalidUserTypes.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Invalid UserType ids",
+                400,
+                { invalidUserTypes }
+            );
+        }
+
+        req.userTypes = userTypes;
+    }
+    next();
+}
+
 const verifyUserTypeReqBody = {
     validateCreateUserTypeRequestBody: validateCreateUserTypeRequestBody,
     validateUpdateUserTypeRequestBody: validateUpdateUserTypeRequestBody,
     validateUserType: validateUserType,
-    validateUserTypes: validateUserTypes
+    validateUserTypes: validateUserTypes,
+    validateUserTypesFromQuery: validateUserTypesFromQuery
 };
 
 

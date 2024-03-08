@@ -4,6 +4,7 @@
 const DesignationDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/designation/designation.dbOperations');
 const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
 const BusinessUnitDbOperations = require("../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations");
+const UserTypeDbOperations = require("../../../dbOperations/mongoDB/organizationManagement/userType/userType.dbOperations");
 
 
 validateCreateDesignationRequestBody = async (req, res, next) => {
@@ -148,12 +149,43 @@ validateDesignations = async (req, res, next) => {
     }
     next();
 }
+validateDesignationsFromQuery = async (req, res, next) => {
+
+    if(req.query.designations){
+        //convert the string to array
+
+        let designations = req.query.designations.split(",");
+
+        if (!designations || !Array.isArray(designations) || designations.length === 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Designation ids must be a non-empty string with comma separated values",
+                400,
+                null
+            );
+        }
+
+        let invalidDesignations = await DesignationDbOperations.returnInvalidDesignations(designations, req.businessUnit);
+        if (invalidDesignations.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Invalid Designation ids",
+                400,
+                { invalidDesignations }
+            );
+        }
+
+        req.designations = designations;
+    }
+    next();
+}
 
 const verifyDesignationReqBody = {
     validateCreateDesignationRequestBody: validateCreateDesignationRequestBody,
     validateUpdateDesignationRequestBody: validateUpdateDesignationRequestBody,
     validateDesignation: validateDesignation,
-    validateDesignations: validateDesignations
+    validateDesignations: validateDesignations,
+    validateDesignationsFromQuery: validateDesignationsFromQuery
 };
 
 

@@ -5,9 +5,10 @@ const User = require("../../../models/mongoDB/userManagement/user/user.model");
 const constants = require("../../../utils/constants");
 const UserDbOperations = require('../../../dbOperations/mongoDB/userManagement/user/user.dbOperations');
 const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler");
+const TeamDbOperations = require("../../../dbOperations/mongoDB/organizationManagement/team/team.dbOperations");
 
 
-validateUserRequestBody = async (req, res, next) => {
+validateUserRequest = async (req, res, next) => {
     // Validate request
 
     //Validating the userName
@@ -46,9 +47,9 @@ validateUserRequestBody = async (req, res, next) => {
         });
         return;
     }
-    //Validating the userId 
-    const existingUserId = await UserDbOperations.getUser({ userId: req.body.userId });
-    if (existingUserId != null) {
+    //Validating the buUserId 
+    const existingBuUserId = await UserDbOperations.getUser({ buUserId: req.body.buUserId });
+    if (existingBuUserId != null) {
         res.status(400).send({
             message: "Failed! Userid  already exists!"
         });
@@ -87,7 +88,7 @@ validateUserRequestBody = async (req, res, next) => {
 
 
 
-validateCreateUserRequestBody = async (req, res, next) => {
+validateCreateUserRequest = async (req, res, next) => {
     // Validate request
 
     if (!req.businessUnit){
@@ -112,6 +113,47 @@ validateCreateUserRequestBody = async (req, res, next) => {
         return apiResponseHandler.errorResponse(
             res,
             "Failed! Last name must be a non empty string !",
+            400,
+            null
+        );
+    }
+    if (!req.body.countryCode || typeof req.body.countryCode !== 'string' || req.body.countryCode.length > 4) {
+        return apiResponseHandler.errorResponse(
+            res,
+            "Failed! Country code must be a non-empty number with a maximum length of 4 characters",
+            400,
+            null
+        );
+    }
+    if (!req.body.contactNumber || typeof req.body.contactNumber !== 'number') {
+        return apiResponseHandler.errorResponse(
+            res,
+            "Failed! Contact number must be a non-empty number",
+            400,
+            null
+        );
+    }
+
+    if (!req.body.buUserId || typeof req.body.buUserId !== 'string' ) {
+
+        res.status(400).send({
+            message: "Failed! buUserId must be a non empty string !"
+        });
+        return;
+    }
+    //Validating the buUserId
+    const existingBuUserId = await UserDbOperations.getUser({ buUserId: req.body.buUserId });
+    if (existingBuUserId != null) {
+        res.status(400).send({
+            message: "Failed! BuUserId  already exists!"
+        });
+        return;
+    }
+
+    if (!req.body.employeeId || typeof req.body.employeeId !== 'string'){
+        return apiResponseHandler.errorResponse(
+            res,
+            "EmployeeId must be a non-empty string",
             400,
             null
         );
@@ -157,64 +199,79 @@ validateCreateUserRequestBody = async (req, res, next) => {
             );
         }
     }
-    next();
+next();
 }
 
-validateUpdateUserRequestBody = async (req, res, next) => {
+validateUpdateUserRequest = async (req, res, next) => {
     // Validate request
 
-    if (!req.businessUnit){
+    if (req.body.firstName) {
+        if(typeof req.body.firstName !== 'string'){
         return apiResponseHandler.errorResponse(
             res,
-            "BusinessUnit Id must be a non-empty string",
+            "Failed! First name must be a non empty string !",
             400,
             null
         );
+        }
     }
-
-
-    if (req.body.name){
-        if (typeof req.body.name !== 'string') {
+    if (req.body.lastName) {
+        if(typeof req.body.lastName !== 'string'){
             return apiResponseHandler.errorResponse(
                 res,
-                "BusinessUnit name must be a non-empty string",
+                "Failed! Last name must be a non empty string !",
                 400,
                 null
             );
         }
+    }
 
-        const existingNameUser = await UserDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnit);
-        if (existingNameUser) {
+    if (req.body.employeeId){
+        const existingEmployeeIdUser = await UserDbOperations.checkExistingEmployeeIdForBusinessUnit(req.body.employeeId, req.businessUnit);
+        if (existingEmployeeIdUser) {
             return apiResponseHandler.errorResponse(
                 res,
-                "Failed! User name already exists for the business unit",
+                "Failed! User employeeId already exists for the business unit",
                 400,
                 null
             );
         }
-        if (req.body.isEnabled !== undefined) {
-            if (typeof req.body.isEnabled !== 'boolean') {
-                return apiResponseHandler.errorResponse(
-                    res,
-                    "Failed! BusinessUnit isEnabled should be a boolean",
-                    400,
-                    null
-                );
-            }
+    }
+
+    if(req.body.countryCode){
+        if (typeof req.body.countryCode !== 'string' || req.body.countryCode.length > 4) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Country code must be a non-empty number with a maximum length of 4 characters",
+                400,
+                null
+            );
         }
     }
+
+    if (req.body.contactNumber){
+        if (typeof req.body.contactNumber !== 'number') {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Contact number must be a non-empty number",
+                400,
+                null
+            );
+        }
+    }
+
     next();
 }
 
 validateUserId = async (req, res, next) => {
 
     // Check if userId is in req.params
-    if (req.params.userId && typeof req.params.userId === 'string') {
-        req.userId = req.params.userId;
+    if (req.params.user && typeof req.params.user === 'string') {
+        req.userId = req.params.user;
     }
     // If not, check if userId is in req.body
-    else if (req.body.userId && typeof req.body.userId === 'string') {
-        req.userId = req.body.userId;
+    else if (req.body.user && typeof req.body.user === 'string') {
+        req.userId = req.body.user;
     }
     // If userId is not in req.params or req.body, return an error response
     else {
@@ -273,6 +330,37 @@ validateUserIds = async (req, res, next) => {
     }
     next();
 }
+
+validateReportsTosFromQuery = async (req, res, next) => {
+
+    if(req.query.reportsTos){
+        //convert the string to array
+
+        let reportsTos = req.query.reportsTos.split(",");
+
+        if (!reportsTos || !Array.isArray(reportsTos) || reportsTos.length === 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "ReportsTo ids must be a non-empty string with comma separated values",
+                400,
+                null
+            );
+        }
+
+        let invalidReportsTos = await UserDbOperations.returnInvalidUserIds(reportsTos, req.businessUnit);
+        if (invalidReportsTos.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Invalid ReportsTo ids",
+                400,
+                { invalidReportsTos }
+            );
+        }
+
+        req.reportsTos = reportsTos;
+    }
+    next();
+}
 const isValidEmail = (email) => {
     return String(email)
         .toLowerCase()
@@ -283,15 +371,16 @@ const isValidEmail = (email) => {
 
 
 
-const verifyUserRequestBody = {
-    validateUserRequestBody: validateUserRequestBody,
-    validateCreateUserRequestBody: validateCreateUserRequestBody,
-    validateUpdateUserRequestBody: validateUpdateUserRequestBody,
+const verifyUserRequest = {
+    validateUserRequest: validateUserRequest,
+    validateCreateUserRequest: validateCreateUserRequest,
+    validateUpdateUserRequest: validateUpdateUserRequest,
     validateUserId: validateUserId,
-    validateUserIds: validateUserIds
+    validateUserIds: validateUserIds,
+    validateReportsTosFromQuery: validateReportsTosFromQuery
 
 };
-module.exports = verifyUserRequestBody
+module.exports = verifyUserRequest
 
 
 
