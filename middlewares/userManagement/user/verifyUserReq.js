@@ -266,12 +266,12 @@ validateUpdateUserRequest = async (req, res, next) => {
 validateUserId = async (req, res, next) => {
 
     // Check if userId is in req.params
-    if (req.params.userId && typeof req.params.userId === 'string') {
-        req.userId = req.params.userId;
+    if (req.params.user && typeof req.params.user === 'string') {
+        req.userId = req.params.user;
     }
     // If not, check if userId is in req.body
-    else if (req.body.userId && typeof req.body.userId === 'string') {
-        req.userId = req.body.userId;
+    else if (req.body.user && typeof req.body.user === 'string') {
+        req.userId = req.body.user;
     }
     // If userId is not in req.params or req.body, return an error response
     else {
