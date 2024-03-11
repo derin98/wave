@@ -2,6 +2,7 @@ exports.createTeamObject = (req) => {
     return {
         name: req.body.name,
         businessUnit: req.businessUnit,
+        department: req.department,
         isEnabled: req.body.isEnabled ? req.body.isEnabled : true,
         createdBy: req.userId,
         updatedBy: req.userId

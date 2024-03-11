@@ -1,9 +1,9 @@
 const teamController = require('../../../controllers/organizationManagement/team/team.controller');
-const { verifyTeamReqBody, verifyBusinessUnitAfterAuth, authJwt } = require("../../../middlewares");
+const { verifyTeamReqBody, verifyBusinessUnitAfterAuth, authJwt, verifyDepartmentReqBody} = require("../../../middlewares");
 
 module.exports = function (app) {
 
-    app.post("/api/v1/teams", [  authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyTeamReqBody.validateCreateTeamRequestBody], teamController.createTeam);
+    app.post("/api/v1/teams", [  authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyDepartmentReqBody.validateDepartment, verifyTeamReqBody.validateCreateTeamRequestBody], teamController.createTeam);
 
     app.get("/api/v1/teams", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, ], teamController.getAllTeams);
 

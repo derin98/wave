@@ -8,6 +8,15 @@ const DesignationDbOperations = require("../../../dbOperations/mongoDB/organizat
 
 validateCreateTeamRequestBody = async (req, res, next) => {
     // Validate request
+    if (!req.department || typeof req.department !== 'string') {
+        return apiResponseHandler.errorResponse(
+            res,
+            "Designation id must be a non-empty string",
+            400,
+            null
+        );
+    }
+
     if (!req.body.name || typeof req.body.name !== 'string') {
         return apiResponseHandler.errorResponse(
             res,

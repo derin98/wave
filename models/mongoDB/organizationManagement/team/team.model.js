@@ -11,6 +11,11 @@ const teamSchema = new mongoose.Schema({
         ref: "BusinessUnit",
         required: true
     },
+    department: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "Department",
+        required: true
+    },
     isEnabled: {
         type: Boolean,
         default: true
