@@ -164,8 +164,8 @@ async function getUserForSignIn(userDetails, selectFields, populateFields, busin
     if (userDetails.email) {
         query.email = userDetails.email;
     }
-    else if (userDetails.userId) {
-        query.userId = userDetails.userId;
+    else if (userDetails.buUserId) {
+        query.buUserId = userDetails.buUserId;
     }
     else if (userDetails.employeeId) {
         query.employeeId = userDetails.employeeId;

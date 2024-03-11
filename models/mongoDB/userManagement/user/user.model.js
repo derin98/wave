@@ -161,5 +161,13 @@ const userSchema = new mongoose.Schema({
 
 })
 
+// Pre-save hook to update name field
+userSchema.pre('save', function(next) {
+    if (this.isNew || this.isModified('firstName') || this.isModified('lastName')) {
+        this.name = `${this.firstName} ${this.lastName}`.trim() || this.name;
+    }
+    next();
+});
+
 
 module.exports = mongoose.model("User", userSchema);

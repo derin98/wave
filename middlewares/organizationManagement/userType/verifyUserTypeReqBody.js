@@ -86,37 +86,41 @@ validateUpdateUserTypeRequestBody = async (req, res, next) => {
 
 validateUserType = async (req, res, next) => {
 
-    // Check if userType is in req.params
-    if (req.params.userType && typeof req.params.userType === 'string') {
-        req.userType = req.params.userType;
+    if (req.body.userType || req.params.userType){// Check if userType is in req.params
+        if (req.params.userType && typeof req.params.userType === 'string') {
+            req.userType = req.params.userType;
+        }
+        // If not, check if userType is in req.body
+        else if (req.body.userType && typeof req.body.userType === 'string') {
+            req.userType = req.body.userType;
+        }
+        // If userType is not in req.params or req.body, return an error response
+        else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "UserType id must be a non-empty string in req.params or req.body",
+                400,
+                null
+            );
+        }
+
+        // Check if the department with the given ID exists
+        let checkExistingUserType = await UserTypeDbOperations.checkExistingUserType(req.userType, req.businessUnit, req.department);
+
+        if (checkExistingUserType) {
+            req.department = checkExistingUserType.department;
+            next();
+        } else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! User Type does not exist",
+                400,
+                null
+            );
+        }
     }
-    // If not, check if userType is in req.body
-    else if (req.body.userType && typeof req.body.userType === 'string') {
-        req.userType = req.body.userType;
-    }
-    // If userType is not in req.params or req.body, return an error response
     else {
-        return apiResponseHandler.errorResponse(
-            res,
-            "UserType id must be a non-empty string in req.params or req.body",
-            400,
-            null
-        );
-    }
-
-    // Check if the department with the given ID exists
-    let checkExistingUserType = await UserTypeDbOperations.checkExistingUserType(req.userType, req.businessUnit, req.department);
-
-    if (checkExistingUserType) {
-        req.department = checkExistingUserType.department;
         next();
-    } else {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! User Type does not exist",
-            400,
-            null
-        );
     }
 }
 

@@ -86,35 +86,40 @@ validateUpdateDesignationRequestBody = async (req, res, next) => {
 }
 
 validateDesignation = async (req, res, next) => {
-    // Check if designation is in req.params
-    if (req.params.designation && typeof req.params.designation === 'string') {
-        req.designation = req.params.designation;
-    }
-    // If not, check if designation is in req.body
-    else if (req.body.designation && typeof req.body.designation === 'string') {
-        req.designation = req.body.designation;
-    }
-    // If userType is not in req.params or req.body, return an error response
-    else {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Designation id must be a non-empty string in req.params or req.body",
-            400,
-            null
-        );
-    }
+    if(req.params.designation || req.body.designation){
+        // Check if designation is in req.params
+        if (req.params.designation && typeof req.params.designation === 'string') {
+            req.designation = req.params.designation;
+        }
+        // If not, check if designation is in req.body
+        else if (req.body.designation && typeof req.body.designation === 'string') {
+            req.designation = req.body.designation;
+        }
+        // If userType is not in req.params or req.body, return an error response
+        else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Designation id must be a non-empty string in req.params or req.body",
+                400,
+                null
+            );
+        }
 
-    let checkExistingDesignation = await DesignationDbOperations.checkExistingDesignation(req.designation, req.businessUnit, req.userType);
-    if (checkExistingDesignation) {
-        req.userType = checkExistingDesignation.userType;
+        let checkExistingDesignation = await DesignationDbOperations.checkExistingDesignation(req.designation, req.businessUnit, req.userType);
+        if (checkExistingDesignation) {
+            req.userType = checkExistingDesignation.userType;
+            next();
+        } else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Designation does not exist",
+                400,
+                null
+            );
+        }
+    }
+    else {
         next();
-    } else {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! Designation does not exist",
-            400,
-            null
-        );
     }
 }
 

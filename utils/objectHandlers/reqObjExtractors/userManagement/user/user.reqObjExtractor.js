@@ -3,7 +3,7 @@ exports.createUserObject = (req) => {
     return {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        name: req.body.firstName + " " + req.body.lastName,
+        // name: req.body.firstName + " " + req.body.lastName,
         buUserId: req.body.buUserId,
         employeeId: req.body.employeeId,
         email: req.body.email,
@@ -26,11 +26,11 @@ exports.updateUserObject = (req) => {
     const updateObject = {
         updatedBy: req.userId
     };
-    if (req.body.buUserId) {
-        updateObject.buUserId = req.body.buUserId;
+    if (req.body.firstName) {
+        updateObject.firstName = req.body.firstName;
     }
-    if (req.body.employeeId) {
-        updateObject.employeeId = req.body.employeeId;
+    if (req.body.lastName) {
+        updateObject.lastName = req.body.lastName;
     }
     if (req.body.contactNumber) {
         updateObject.contactNumber = req.body.contactNumber;

@@ -51,7 +51,7 @@ async function getAllUsers(query, sort, order, page, limit, skip, selectFields, 
             const validPopulateFields = populateFieldsArray.filter(field => User.schema.path(field) != null);
             queryObject = queryObject.populate({
                 path: validPopulateFields.join(' '), // Convert back to a string
-                select: '_id name email employeeId userId password expiredAt shortName userCount',
+                select: '_id name email employeeId buUserId password expiredAt shortName userCount',
                 options: {
                     lean: true, // Ensure the result is in plain JavaScript objects
                     transform: doc => {
@@ -93,7 +93,7 @@ async function getUser(query, selectFields, populateFields) {
 
             queryObject = queryObject.populate({
                 path: validPopulateFields.join(' '), // Convert back to a string
-                select: '_id name email employeeId userId permissions password expiredAt shortName userCount positivePermissions negativePermissions',
+                select: '_id name email employeeId buUserId permissions password expiredAt shortName userCount positivePermissions negativePermissions',
                 options: {
                     lean: true, // Ensure the result is in plain JavaScript objects
                     transform: doc => {
@@ -150,10 +150,24 @@ async function deleteUsers(query) {
 }
 
 async function updateUser(query, updateObject) {
-    return User.updateOne(query, {$set: updateObject});
+    // Retrieve the existing document from the database
+    const existingUser = await User.findOne(query);
+
+    // Construct the update object
+    const update = {};
+    if (updateObject.firstName || updateObject.lastName) {
+        // If firstName or lastName is present in updateObject, construct the name field
+        update.name = `${updateObject.firstName || existingUser.name.firstName} ${updateObject.lastName || existingUser.name.lastName}`;
+    }
+
+    // Merge the updateObject with the constructed update
+    const finalUpdateObject = { ...updateObject, ...update };
+
+    // Update the document using User.updateOne
+    return User.updateOne(query, { $set: finalUpdateObject });
 }
 
-async function checkExistingUserId(id, businessUnit) {
+async function checkExistingUser(id, businessUnit) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
@@ -226,7 +240,7 @@ module.exports = {
     deleteUser,
     deleteUsers,
     updateUser,
-    checkExistingUserId,
+    checkExistingUser,
     checkExistingEmailForBusinessUnit,
     checkExistingEmployeeIdForBusinessUnit,
     returnInvalidUserIds

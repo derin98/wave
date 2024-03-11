@@ -39,7 +39,7 @@ const {encrypt, decrypt} = require('../../../utils/encryption/crypto');
  */
 
 exports.signin = async (req, res) => {
-    const selectFields = "userId,email,isSuperAdmin,employeeId";
+    const selectFields = "buUserId,email,isSuperAdmin,employeeId";
     const populateFields = "userPassword,businessUnit,department,userType,designation,userPermission";
 
     async function getUserByField(field, value) {
@@ -48,43 +48,41 @@ exports.signin = async (req, res) => {
     }
 
     function decryptPassword(encPass, secretKey) {
-        if (!encPass) {
-            return apiResponseHandler.errorResponse(res, "Failed! Encrypted password is required", 400, null);
+       try {
+            return decrypt(encPass, secretKey);
         }
-        return decrypt(encPass, secretKey);
+        catch (err) {
+            console.log("Invalid Password!", err.message);
+            return null;
+        }
     }
 
     let user = null;
-    if (req.body.userId) {
-        user = await getUserByField('userId', req.body.userId);
+    if (req.body.buUserId) {
+        user = await getUserByField('buUserId', req.body.buUserId);
     } else if (req.body.email) {
         user = await getUserByField('email', req.body.email);
     } else if (req.body.employeeId) {
         user = await getUserByField('employeeId', req.body.employeeId);
     } else {
-        return apiResponseHandler.errorResponse(res, "Failed! email or userId or employeeId is required", 400, null);
+        return apiResponseHandler.errorResponse(res, "Failed! email or buUserId or employeeId is required", 400, null);
     }
+    let password = req.body.password;
 
     let dcrptPass;
     const source = req.body.source;
-    switch (source) {
-        case cryptoConfigs.CRYPTO_SRC_0_NAME:
-            dcrptPass = req.body.password;
-            break;
-        case cryptoConfigs.CRYPTO_SRC_1_NAME:
-            dcrptPass = decryptPassword(req.body.encPass, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_1);
-            break;
-        case cryptoConfigs.CRYPTO_SRC_2_NAME:
-            dcrptPass = decryptPassword(req.body.encPass, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_2);
-            break;
-        case cryptoConfigs.CRYPTO_SRC_3_NAME:
-            dcrptPass = decryptPassword(req.body.encPass, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_3);
-            break;
-        case cryptoConfigs.CRYPTO_SRC_4_NAME:
-            dcrptPass = decryptPassword(req.body.encPass, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_4);
-            break;
-        default:
-            return apiResponseHandler.errorResponse(res, "Failed! Invalid source", 400, null);
+    if (source === cryptoConfigs.CRYPTO_SRC_0_NAME) {
+        dcrptPass = password;
+    } else if (source === cryptoConfigs.CRYPTO_SRC_1_NAME) {
+        dcrptPass = decryptPassword(password, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_1);
+    } else if (source === cryptoConfigs.CRYPTO_SRC_2_NAME) {
+        dcrptPass = decryptPassword(password, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_2);
+    } else if (source === cryptoConfigs.CRYPTO_SRC_3_NAME) {
+        dcrptPass = decryptPassword(password, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_3);
+    } else if (source === cryptoConfigs.CRYPTO_SRC_4_NAME) {
+        dcrptPass = decryptPassword(password, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_4);
+    } else {
+        return apiResponseHandler.errorResponse(res, "Failed! Invalid source", 400, null);
     }
 
     if (user == null) {
@@ -138,7 +136,7 @@ exports.signin = async (req, res) => {
     });
 
     return apiResponseHandler.successResponse(res, "User signed in successfully", {
-        userId: user.userId,
+        buUserId: user.buUserId,
         employeeId: user.employeeId,
         name: user.name,
         email: user.email,

@@ -39,7 +39,7 @@ exports.getUser = async (req, res) => {
         let populateFields = req.query.populateFields || undefined;
         let selectFields = req.query.selectFields || undefined;
 
-        const user = await userService.getUser(req.params.userId, selectFields, populateFields, req.businessUnit);
+        const user = await userService.getUser(req.params.user, selectFields, populateFields, req.businessUnit);
 
         if (!user) {
             return apiResponseHandler.errorResponse(res, "User not found", 404, null);
@@ -66,7 +66,7 @@ exports.getUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
     try {
         const userReqObj = userReqObjExtractor.updateUserObject(req);
-        const user = await userService.updateUser(req.params.userId, userReqObj, req.businessUnit);
+        const user = await userService.updateUser(req.params.user, userReqObj, req.businessUnit);
         const message = "User updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
