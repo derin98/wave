@@ -72,7 +72,7 @@ exports.getUser = async (req, res) => {
 
 exports.enableUser = async (req, res) => {
     try {
-        const user = await userService.enableUser(req.params.userId, req.businessUnit);
+        const user = await userService.enableUser(req.params.user, req.businessUnit);
         const message = "User enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -90,7 +90,7 @@ exports.enableUser = async (req, res) => {
 
 exports.disableUser = async (req, res) => {
     try {
-        const user = await userService.disableUser(req.params.userId, req.businessUnit);
+        const user = await userService.disableUser(req.params.user, req.businessUnit);
         const message = "User disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -107,7 +107,7 @@ exports.disableUser = async (req, res) => {
 
 exports.enableUsers = async (req, res) => {
     try {
-        await userService.enableUsers(req.body.userIds, req.businessUnit, req.businessUnit);
+        await userService.enableUsers(req.body.users, req.businessUnit, req.businessUnit);
         const message = "Users enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -125,7 +125,7 @@ exports.enableUsers = async (req, res) => {
 
 exports.disableUsers = async (req, res) => {
     try {
-        await userService.disableUsers(req.body.userIds, req.businessUnit);
+        await userService.disableUsers(req.body.users, req.businessUnit);
         const message = "Users disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -142,7 +142,7 @@ exports.disableUsers = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
     try {
-        await userService.deleteUser(req.params.userId, req.businessUnit);
+        await userService.deleteUser(req.params.user, req.businessUnit);
         const message = "User deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -158,7 +158,7 @@ exports.deleteUser = async (req, res) => {
 
 exports.deleteUsers = async (req, res) => {
     try {
-        await userService.deleteUsers(req.body.userIds, req.businessUnit);
+        await userService.deleteUsers(req.body.users, req.businessUnit);
         const message = "Users deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {

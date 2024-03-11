@@ -98,36 +98,40 @@ validateUpdateDepartmentRequestBody = async (req, res, next) => {
 
 validateDepartment = async (req, res, next) => {
 
-    // Check if department is in req.params
-    if (req.params.department && typeof req.params.department === 'string') {
-        req.department = req.params.department;
+    if(req.body.department || req.params.department){// Check if department is in req.params
+        if (req.params.department && typeof req.params.department === 'string') {
+            req.department = req.params.department;
+        }
+        // If not, check if department is in req.body
+        else if (req.body.department && typeof req.body.department === 'string') {
+            req.department = req.body.department;
+        }
+        // If department is not in req.params or req.body, return an error response
+        else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Department id must be a non-empty string in req.params or req.body",
+                400,
+                null
+            );
+        }
+
+        // Check if the department with the given ID exists
+        let checkExistingDepartment = await DepartmentDbOperations.checkExistingDepartment(req.department, req.businessUnit);
+
+        if (checkExistingDepartment) {
+            next();
+        } else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Department does not exist",
+                400,
+                null
+            );
+        }
     }
-    // If not, check if department is in req.body
-    else if (req.body.department && typeof req.body.department === 'string') {
-        req.department = req.body.department;
-    }
-    // If department is not in req.params or req.body, return an error response
     else {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Department id must be a non-empty string in req.params or req.body",
-            400,
-            null
-        );
-    }
-
-    // Check if the department with the given ID exists
-    let checkExistingDepartment = await DepartmentDbOperations.checkExistingDepartment(req.department, req.businessUnit);
-
-    if (checkExistingDepartment) {
         next();
-    } else {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! Department does not exist",
-            400,
-            null
-        );
     }
 }
 

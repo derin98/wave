@@ -40,13 +40,7 @@ validateUserRequest = async (req, res, next) => {
             null
         );
     }
-    if (!req.body.userId) {
 
-        res.status(400).send({
-            message: "Failed! UserId is not provided !"
-        });
-        return;
-    }
     //Validating the buUserId 
     const existingBuUserId = await UserDbOperations.getUser({ buUserId: req.body.buUserId });
     if (existingBuUserId != null) {
@@ -95,6 +89,33 @@ validateCreateUserRequest = async (req, res, next) => {
         return apiResponseHandler.errorResponse(
             res,
             "BusinessUnit Id must be a non-empty string",
+            400,
+            null
+        );
+    }
+
+    if (!req.body.department || typeof req.body.department !== 'string') {
+        return apiResponseHandler.errorResponse(
+            res,
+            "Department must be a non-empty string",
+            400,
+            null
+        );
+    }
+
+    if (!req.body.userType || typeof req.body.userType !== 'string') {
+        return apiResponseHandler.errorResponse(
+            res,
+            "UserType must be a non-empty string",
+            400,
+            null
+        );
+    }
+
+    if (!req.body.designation || typeof req.body.designation !== 'string') {
+        return apiResponseHandler.errorResponse(
+            res,
+            "Designation must be a non-empty string",
             400,
             null
         );
@@ -263,7 +284,7 @@ validateUpdateUserRequest = async (req, res, next) => {
     next();
 }
 
-validateUserId = async (req, res, next) => {
+validateUser = async (req, res, next) => {
 
     // Check if userId is in req.params
     if (req.params.user && typeof req.params.user === 'string') {
@@ -284,7 +305,7 @@ validateUserId = async (req, res, next) => {
     }
 
     // Check if the user with the given ID exists
-    let checkExistingUser = await UserDbOperations.checkExistingUserId(req.userId, req.businessUnit);
+    let checkExistingUser = await UserDbOperations.checkExistingUser(req.userId, req.businessUnit);
 
     if (checkExistingUser) {
         next();
@@ -298,9 +319,9 @@ validateUserId = async (req, res, next) => {
     }
 }
 
-validateUserIds = async (req, res, next) => {
+validateUsers = async (req, res, next) => {
 
-    if (!req.body.userIds || !Array.isArray(req.body.userIds) || req.body.userIds.length === 0) {
+    if (!req.body.users || !Array.isArray(req.body.users) || req.body.users.length === 0) {
         return apiResponseHandler.errorResponse(
             res,
             "User ids must be a non-empty array of strings",
@@ -308,8 +329,8 @@ validateUserIds = async (req, res, next) => {
             null
         );
     }
-    for (let i = 0; i < req.body.userIds.length; i++) {
-        if (typeof req.body.userIds[i] !== 'string') {
+    for (let i = 0; i < req.body.users.length; i++) {
+        if (typeof req.body.users[i] !== 'string') {
             return apiResponseHandler.errorResponse(
                 res,
                 "User ids must be a non-empty array of strings",
@@ -319,7 +340,7 @@ validateUserIds = async (req, res, next) => {
         }
     }
 
-    let invalidUserIds = await UserDbOperations.returnInvalidUserIds(req.body.userIds, req.businessUnit);
+    let invalidUserIds = await UserDbOperations.returnInvalidUserIds(req.body.users, req.businessUnit);
     if (invalidUserIds.length > 0) {
         return apiResponseHandler.errorResponse(
             res,
@@ -375,8 +396,8 @@ const verifyUserRequest = {
     validateUserRequest: validateUserRequest,
     validateCreateUserRequest: validateCreateUserRequest,
     validateUpdateUserRequest: validateUpdateUserRequest,
-    validateUserId: validateUserId,
-    validateUserIds: validateUserIds,
+    validateUser: validateUser,
+    validateUsers: validateUsers,
     validateReportsTosFromQuery: validateReportsTosFromQuery
 
 };

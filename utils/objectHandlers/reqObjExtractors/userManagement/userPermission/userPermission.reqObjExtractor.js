@@ -11,8 +11,8 @@ exports.updateUserPermissionObject = (req) => {
     const updateObject = {
         updatedBy: req.userId
     };
-    if (req.body.userId) {
-        updateObject.userId = req.body.userId;
+    if (req.body.user) {
+        updateObject.user = req.body.user;
     }
     if (req.body.employeeId) {
         updateObject.employeeId = req.body.employeeId;
