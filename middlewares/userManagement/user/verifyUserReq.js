@@ -155,21 +155,21 @@ validateCreateUserRequest = async (req, res, next) => {
         );
     }
 
-    if (!req.body.buUserId || typeof req.body.buUserId !== 'string' ) {
-
-        res.status(400).send({
-            message: "Failed! buUserId must be a non empty string !"
-        });
-        return;
-    }
+    // if (!req.body.buUserId || typeof req.body.buUserId !== 'string' ) {
+    //
+    //     res.status(400).send({
+    //         message: "Failed! buUserId must be a non empty string !"
+    //     });
+    //     return;
+    // }
     //Validating the buUserId
-    const existingBuUserId = await UserDbOperations.getUser({ buUserId: req.body.buUserId });
-    if (existingBuUserId != null) {
-        res.status(400).send({
-            message: "Failed! BuUserId  already exists!"
-        });
-        return;
-    }
+    // const existingBuUserId = await UserDbOperations.getUser({ buUserId: req.body.buUserId });
+    // if (existingBuUserId != null) {
+    //     res.status(400).send({
+    //         message: "Failed! BuUserId  already exists!"
+    //     });
+    //     return;
+    // }
 
     if (!req.body.employeeId || typeof req.body.employeeId !== 'string'){
         return apiResponseHandler.errorResponse(
@@ -223,7 +223,7 @@ validateCreateUserRequest = async (req, res, next) => {
 next();
 }
 
-validateUpdateUserRequest = async (req, res, next) => {
+validatePreUpdateUserRequest = async (req, res, next) => {
     // Validate request
 
     if (req.body.firstName) {
@@ -280,6 +280,46 @@ validateUpdateUserRequest = async (req, res, next) => {
             );
         }
     }
+    if (req.params.department || req.query.department || req.params.userType || req.query.userType || req.params.designation || req.query.designation || req.params.team || req.query.team){
+    // delete department, userType, designation, and team from the request query, params
+        delete req.query.department;
+        delete req.params.department;
+        delete req.query.userType;
+        delete req.params.userType;
+        delete req.query.designation;
+        delete req.params.designation;
+        delete req.query.team;
+        delete req.params.team;
+    }
+    if (req.body.department) {
+        if(!req.body.userType){
+            return apiResponseHandler.errorResponse(
+                res,
+                "UserType is required and must be a non-empty string, while updating department",
+                400,
+                null
+            );
+        }
+        if(!req.body.designation){
+            return apiResponseHandler.errorResponse(
+                res,
+                "Designation is required and must be a non-empty string, while updating department",
+                400,
+                null
+            );
+        }
+    }
+
+    if (req.body.userType) {
+        if(!req.body.designation){
+            return apiResponseHandler.errorResponse(
+                res,
+                "Designation is required and must be a non-empty string, while updating userType",
+                400,
+                null
+            );
+        }
+    }
 
     next();
 }
@@ -308,6 +348,42 @@ validateUser = async (req, res, next) => {
     let checkExistingUser = await UserDbOperations.checkExistingUser(req.userId, req.businessUnit);
 
     if (checkExistingUser) {
+        next();
+    } else {
+        return apiResponseHandler.errorResponse(
+            res,
+            "Failed! User does not exist",
+            400,
+            null
+        );
+    }
+}
+
+validateUserAndReturnObj = async (req, res, next) => {
+
+    // Check if userId is in req.params
+    if (req.params.user && typeof req.params.user === 'string') {
+        req.userId = req.params.user;
+    }
+    // If not, check if userId is in req.body
+    else if (req.body.user && typeof req.body.user === 'string') {
+        req.userId = req.body.user;
+    }
+    // If userId is not in req.params or req.body, return an error response
+    else {
+        return apiResponseHandler.errorResponse(
+            res,
+            "User id must be a non-empty string in req.params or req.body",
+            400,
+            null
+        );
+    }
+
+    // Check if the user with the given ID exists
+    let checkExistingUser = await UserDbOperations.getUser({_id:req.userId, businessUnit: req.businessUnit});
+
+    if (checkExistingUser) {
+        req.userObj = checkExistingUser;
         next();
     } else {
         return apiResponseHandler.errorResponse(
@@ -350,6 +426,41 @@ validateUsers = async (req, res, next) => {
         );
     }
     next();
+}
+
+validateReportsTo = async (req, res, next) => {
+
+    // Check if reportsTo is in req.params
+    if (req.params.reportsTo && typeof req.params.reportsTo === 'string') {
+        req.reportsTo = req.params.reportsTo;
+    }
+    // If not, check if reportsTo is in req.body
+    else if (req.body.reportsTo && typeof req.body.reportsTo === 'string') {
+        req.reportsTo = req.body.reportsTo;
+    }
+    // If reportsTo is not in req.params or req.body, return an error response
+    else {
+        return apiResponseHandler.errorResponse(
+            res,
+            "reportsTo must be a non-empty string in req.params or req.body",
+            400,
+            null
+        );
+    }
+
+    // Check if the user with the given ID exists
+    let checkExistingUser = await UserDbOperations.checkExistingUser(req.userId, req.businessUnit);
+
+    if (checkExistingUser) {
+        next();
+    } else {
+        return apiResponseHandler.errorResponse(
+            res,
+            "Failed! ReportsTo user does not exist",
+            400,
+            null
+        );
+    }
 }
 
 validateReportsTosFromQuery = async (req, res, next) => {
@@ -395,9 +506,11 @@ const isValidEmail = (email) => {
 const verifyUserRequest = {
     validateUserRequest: validateUserRequest,
     validateCreateUserRequest: validateCreateUserRequest,
-    validateUpdateUserRequest: validateUpdateUserRequest,
+    validatePreUpdateUserRequest: validatePreUpdateUserRequest,
     validateUser: validateUser,
+    validateUserAndReturnObj: validateUserAndReturnObj,
     validateUsers: validateUsers,
+    validateReportsTo: validateReportsTo,
     validateReportsTosFromQuery: validateReportsTosFromQuery
 
 };

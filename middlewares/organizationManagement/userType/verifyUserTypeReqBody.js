@@ -86,7 +86,7 @@ validateUpdateUserTypeRequestBody = async (req, res, next) => {
 
 validateUserType = async (req, res, next) => {
 
-    if (req.body.userType || req.params.userType){// Check if userType is in req.params
+    if (req.body.userType || req.params.userType || req.query.userType){// Check if userType is in req.params, req.body or req.query
         if (req.params.userType && typeof req.params.userType === 'string') {
             req.userType = req.params.userType;
         }
@@ -94,16 +94,19 @@ validateUserType = async (req, res, next) => {
         else if (req.body.userType && typeof req.body.userType === 'string') {
             req.userType = req.body.userType;
         }
+
+        else if (req.query.userType && typeof req.query.userType === 'string') {
+            req.userType = req.query.userType;
+        }
         // If userType is not in req.params or req.body, return an error response
         else {
             return apiResponseHandler.errorResponse(
                 res,
-                "UserType id must be a non-empty string in req.params or req.body",
+                "UserType id must be a non-empty string in req.params or req.body or req.query",
                 400,
                 null
             );
         }
-
         // Check if the department with the given ID exists
         let checkExistingUserType = await UserTypeDbOperations.checkExistingUserType(req.userType, req.businessUnit, req.department);
 

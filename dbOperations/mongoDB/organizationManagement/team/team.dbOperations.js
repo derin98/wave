@@ -64,32 +64,32 @@ async function updateTeam(query, updateObject) {
     return Team.updateOne(query, {$set: updateObject});
 }
 
-async function checkExistingTeam(id, businessUnit) {
+async function checkExistingTeam(id, department) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return false;
     }
     const query = {_id: id, isDeleted: false}
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(department) {
+        query.department = department;
     }
     const existingTeam = await Team.findOne(query);
     return existingTeam !== null;
 }
 
-async function checkExistingNameForBusinessUnit(name, businessUnit) {
+async function checkExistingNameForBusinessUnit(name, department) {
     const query = {
         name: {$regex: new RegExp(`^${name}$`, 'i')},
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(department) {
+        query.department = department;
     }
     const existingNameTeam = await Team.findOne(query);
     return existingNameTeam !== null;
 }
 
-const returnInvalidTeams = async (ids, businessUnit) => {
+const returnInvalidTeams = async (ids, department) => {
 
     let invalidTeams = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
@@ -101,8 +101,8 @@ const returnInvalidTeams = async (ids, businessUnit) => {
         _id: {$in: ids},
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(department) {
+        query.department = department;
     }
     const existingTeams = await Team.find(query).select('_id');
 

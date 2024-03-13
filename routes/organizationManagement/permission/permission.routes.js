@@ -5,7 +5,7 @@ module.exports = function (app) {
 
     app.post("/api/v1/permissionGroups/:permissionGroup/permissions", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyPermissionGroupReqBody.validatePermissionGroup, verifyPermissionReqBody.validateCreatePermissionRequestBody], permissionController.createPermission);
 
-    app.get("/api/v1/permissions",  [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit ], permissionController.getAllPermissions);
+    app.get("/api/v1/permissions",  [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyPermissionGroupReqBody.validatePermissionGroup ], permissionController.getAllPermissions);
 
     app.get("/api/v1/permissions/:permission", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyPermissionReqBody.validatePermission], permissionController.getPermission);
 

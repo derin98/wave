@@ -15,7 +15,10 @@ const {createUserPermissionObject} = require("../../../utils/objectHandlers/reqO
 const permissionService = require("../../../services/internalServices/OrganizationManagement/permission/permission.services");
 const {sendEmail} = require("../../../utils/mailer/mailer");
 const cryptoConfigs = require('../../../configs/encryption/crypto.config.js');
-const {encrypt, decrypt} = require('../../../utils/encryption/crypto');
+const {decrypt, dummyDecryptionToken} = require('../../../utils/encryption/crypto');
+const {countBusinessUnits} = require("../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations");
+const businessUnitService = require("../../../services/internalServices/OrganizationManagement/businessUnit/businessUnit.services");
+const {appConstant} = require("../../../utils/constants");
 /**
  * Controller for the signup flow
  */
@@ -74,7 +77,10 @@ exports.signin = async (req, res) => {
     if (source === cryptoConfigs.CRYPTO_SRC_0_NAME) {
         dcrptPass = password;
     } else if (source === cryptoConfigs.CRYPTO_SRC_1_NAME) {
-        dcrptPass = decryptPassword(password, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_1);
+        dcrptPass =password
+        // const encPass = encryptAES_CBC("yWcpqJ4L", cryptoConfigs.CRYPTO_SECRET_KEY_SRC_1)
+        // console.log("password", password, encPass )
+        dcrptPass = dummyDecryptionToken(password, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_1);
     } else if (source === cryptoConfigs.CRYPTO_SRC_2_NAME) {
         dcrptPass = decryptPassword(password, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_2);
     } else if (source === cryptoConfigs.CRYPTO_SRC_3_NAME) {
@@ -113,7 +119,7 @@ exports.signin = async (req, res) => {
 
 // const userPermission = await userPermissionService.getUserPermissions(filteredPermissions, "", "permissionGroup")
     const userPermission = await permissionService.getPermissions(uniquePermissions, "", "permissionGroup")
-
+    //
     const permission = userPermission.reduce((acc, { name: permissionName, permissionGroup: { name: groupName } }) => {
         acc[groupName] ??= {};
         acc[groupName][permissionName] = true;
@@ -150,6 +156,7 @@ exports.signin = async (req, res) => {
 exports.signup = async (req, res) => {
     try {
         const userReqObj = userReqObjExtractor.createUserObject(req);
+        userReqObj.buUserId = await businessUnitService.generateBuUserId(req.businessUnit)
         const user = await userService.createUser(userReqObj);
         let generatedPassword = passwordGenerator.generateRandomPasswordString(8)
         console.log('generatedPassword', generatedPassword)
@@ -172,7 +179,7 @@ exports.signup = async (req, res) => {
                 email: req.body.email,
                 password: generatedPassword,
             };
-            await sendEmail(req.body.email, "Welcome to Wave!", userCredentials);
+            await sendEmail(req.body.email, `Welcome to ${appConstant}!`, userCredentials);
         }
 
         user.userPermission = userPermission.id;

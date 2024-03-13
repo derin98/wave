@@ -17,6 +17,10 @@ async function getAllTeams(req) {
         query.businessUnit = req.businessUnit;
     }
     console.log("query", query)
+
+    if (req.department) {
+        query.department = req.department;
+    }
     if (req.query.name) {
         query.name = {$regex: req.query.name, $options: 'i'};
     }

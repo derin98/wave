@@ -73,6 +73,7 @@ exports.getUser = async (req, res) => {
 exports.enableUser = async (req, res) => {
     try {
         const user = await userService.enableUser(req.params.user, req.businessUnit);
+        console.log("user", user)
         const message = "User enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -175,6 +176,7 @@ exports.deleteUsers = async (req, res) => {
 exports.updateUser = async (req, res) => {
     try {
         const userReqObj = userReqObjExtractor.updateUserObject(req);
+        console.log("userReqObj", userReqObj)
         const user = await userService.updateUser(req.params.user, userReqObj, req.businessUnit);
         const message = "User updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);

@@ -27,7 +27,7 @@ validateCreateTeamRequestBody = async (req, res, next) => {
     }
 
     // Check if the provided name already exists in the database
-    const existingNameTeam = await TeamDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnit);
+    const existingNameTeam = await TeamDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.department);
     if (existingNameTeam) {
         return apiResponseHandler.errorResponse(
             res,
@@ -62,7 +62,7 @@ validateUpdateTeamRequestBody = async (req, res, next) => {
             );
         }
 
-        const existingNameTeam = await TeamDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.businessUnit);
+        const existingNameTeam = await TeamDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.department);
         if (existingNameTeam) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -105,9 +105,9 @@ validateTeam = async (req, res, next) => {
                 null
             );
         }
-        console.log("req.team", req.team, req.businessUnit)
+        console.log("req.team", req.team, req.department)
 
-        let checkExistingTeam = await TeamDbOperations.checkExistingTeam(req.team, req.businessUnit);
+        let checkExistingTeam = await TeamDbOperations.checkExistingTeam(req.team, req.department);
         if (!checkExistingTeam) {
             return apiResponseHandler.errorResponse(
                     res,
@@ -141,7 +141,7 @@ validateTeams = async (req, res, next) => {
         }
     }
 
-    let invalidTeams = await TeamDbOperations.returnInvalidTeams(req.body.teams, req.businessUnit);
+    let invalidTeams = await TeamDbOperations.returnInvalidTeams(req.body.teams, req.department);
     if (invalidTeams.length > 0) {
         return apiResponseHandler.errorResponse(
             res,
@@ -168,7 +168,7 @@ validateTeamsFromQuery = async (req, res, next) => {
             );
         }
 
-        let invalidTeams = await TeamDbOperations.returnInvalidTeams(teams, req.businessUnit);
+        let invalidTeams = await TeamDbOperations.returnInvalidTeams(teams, req.department);
         if (invalidTeams.length > 0) {
             return apiResponseHandler.errorResponse(
                 res,

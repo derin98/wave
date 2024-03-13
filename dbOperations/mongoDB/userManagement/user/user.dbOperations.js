@@ -150,21 +150,8 @@ async function deleteUsers(query) {
 }
 
 async function updateUser(query, updateObject) {
-    // Retrieve the existing document from the database
-    const existingUser = await User.findOne(query);
-
-    // Construct the update object
-    const update = {};
-    if (updateObject.firstName || updateObject.lastName) {
-        // If firstName or lastName is present in updateObject, construct the name field
-        update.name = `${updateObject.firstName || existingUser.name.firstName} ${updateObject.lastName || existingUser.name.lastName}`;
-    }
-
-    // Merge the updateObject with the constructed update
-    const finalUpdateObject = { ...updateObject, ...update };
-
     // Update the document using User.updateOne
-    return User.updateOne(query, { $set: finalUpdateObject });
+    return User.updateOne(query, { $set: updateObject });
 }
 
 async function checkExistingUser(id, businessUnit) {

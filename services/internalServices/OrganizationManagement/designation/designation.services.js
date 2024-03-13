@@ -16,6 +16,9 @@ async function getAllDesignations(req) {
     if(req.businessUnit) {
         query.businessUnit = req.businessUnit;
     }
+    if(req.userType) {
+        query.userType = req.userType;
+    }
     if (req.query.name) {
         query.name = {$regex: req.query.name, $options: 'i'};
     }

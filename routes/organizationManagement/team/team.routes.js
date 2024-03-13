@@ -3,9 +3,9 @@ const { verifyTeamReqBody, verifyBusinessUnitAfterAuth, authJwt, verifyDepartmen
 
 module.exports = function (app) {
 
-    app.post("/api/v1/teams", [  authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyDepartmentReqBody.validateDepartment, verifyTeamReqBody.validateCreateTeamRequestBody], teamController.createTeam);
+    app.post("/api/v1/departments/:department/teams", [  authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyDepartmentReqBody.validateDepartment, verifyTeamReqBody.validateCreateTeamRequestBody], teamController.createTeam);
 
-    app.get("/api/v1/teams", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, ], teamController.getAllTeams);
+    app.get("/api/v1/teams", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyDepartmentReqBody.validateDepartment], teamController.getAllTeams);
 
     app.get("/api/v1/teams/:team", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyTeamReqBody.validateTeam], teamController.getTeam);
 

@@ -98,9 +98,12 @@ validateUpdateDepartmentRequestBody = async (req, res, next) => {
 
 validateDepartment = async (req, res, next) => {
 
-    if(req.body.department || req.params.department){// Check if department is in req.params
+    if(req.body.department || req.params.department || req.query.department){// Check if department is in req.params
         if (req.params.department && typeof req.params.department === 'string') {
             req.department = req.params.department;
+        }
+        else if (req.query.department && typeof req.query.department === 'string') {
+            req.department = req.query.department;
         }
         // If not, check if department is in req.body
         else if (req.body.department && typeof req.body.department === 'string') {
@@ -115,6 +118,8 @@ validateDepartment = async (req, res, next) => {
                 null
             );
         }
+
+
 
         // Check if the department with the given ID exists
         let checkExistingDepartment = await DepartmentDbOperations.checkExistingDepartment(req.department, req.businessUnit);

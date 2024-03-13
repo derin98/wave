@@ -18,6 +18,11 @@ async function getAllPermissions(req) {
     if(req.businessUnit) {
         query.businessUnit = req.businessUnit;
     }
+
+    if(req.permissionGroup) {
+        query.permissionGroup = req.permissionGroup;
+    }
+
     if (req.query.name) {
         query.name = {$regex: req.query.name, $options: 'i'};
     }

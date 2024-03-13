@@ -119,7 +119,7 @@ async function init() {
                 createdBy: user.id,
                 updatedBy: user.id
             }
-            businessUnit = await businessUnitServices.getBusinessUnitByName(businessUnitObj.name, "userCount");
+            businessUnit = await businessUnitServices.getBusinessUnitByName(businessUnitObj.name, undefined,"userCount");
             if(!businessUnit){
                 businessUnit = await businessUnitServices.createBusinessUnit(businessUnitObj);
                 console.log("Default business unit created successfully  =====>  ", businessUnit);

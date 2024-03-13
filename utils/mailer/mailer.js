@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const smtpConfig = require('../../configs/smtp/smtp.config');
+const {appConstant} = require("../../utils/constants");
 // class Mailer {
 //     constructor(config) {
 //         console.log('CONFIG MAILER::', config);
@@ -85,7 +86,7 @@ const sendEmail = (to, subject, credentials) => {
             </head>
             <body>
                 <div class="container">
-                    <h2>Welcome to Wave!</h2>
+                    <h2>Welcome to ${appConstant}!</h2>
                     <p>Your account has been successfully created. Here are your registration details:</p>
                     <ul>
                         <li><strong>EmployeeId:</strong> ${credentials.employeeId}</li>

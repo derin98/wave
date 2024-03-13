@@ -96,26 +96,40 @@ validateUpdatePermissionGroupRequestBody = async (req, res, next) => {
 }
 
 validatePermissionGroup = async (req, res, next) => {
-    console.log("req.params.permissionGroup", req.params.permissionGroup)
-    if (!req.params.permissionGroup || typeof req.params.permissionGroup !== 'string') {
-        return apiResponseHandler.errorResponse(
-            res,
-            "PermissionGroup id must be a non-empty string",
-            400,
-            null
-        );
-    }
 
-    let checkExistingPermissionGroup = await PermissionGroupDbOperations.checkExistingPermissionGroup(req.params.permissionGroup, req.businessUnit);
-    if (checkExistingPermissionGroup) {
+    if(req.params.permissionGroup || req.query.permissionGroup ) {
+        if (!req.params.permissionGroup || typeof req.params.permissionGroup !== 'string') {
+            return apiResponseHandler.errorResponse(
+                res,
+                "PermissionGroup id must be a non-empty string",
+                400,
+                null
+            );
+        }
+
+        if (!req.query.permissionGroup || typeof req.query.permissionGroup !== 'string') {
+            return apiResponseHandler.errorResponse(
+                res,
+                "PermissionGroup id must be a non-empty string",
+                400,
+                null
+            );
+        }
+
+        let checkExistingPermissionGroup = await PermissionGroupDbOperations.checkExistingPermissionGroup(req.params.permissionGroup, req.businessUnit);
+        if (checkExistingPermissionGroup) {
+            next();
+        } else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! PermissionGroup does not exist",
+                400,
+                null
+            );
+        }
+    }
+    else {
         next();
-    } else {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! PermissionGroup does not exist",
-            400,
-            null
-        );
     }
 }
 

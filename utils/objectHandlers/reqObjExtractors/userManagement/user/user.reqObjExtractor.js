@@ -3,7 +3,7 @@ exports.createUserObject = (req) => {
     return {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        // name: req.body.firstName + " " + req.body.lastName,
+        name: req.body.firstName + " " + req.body.lastName,
         buUserId: req.body.buUserId,
         employeeId: req.body.employeeId,
         email: req.body.email,
@@ -26,11 +26,20 @@ exports.updateUserObject = (req) => {
     const updateObject = {
         updatedBy: req.userId
     };
-    if (req.body.firstName) {
-        updateObject.firstName = req.body.firstName;
-    }
-    if (req.body.lastName) {
-        updateObject.lastName = req.body.lastName;
+    if (req.body.firstName || req.body.lastName) {
+        if (req.body.firstName && req.body.lastName) {
+            updateObject.firstName = req.body.firstName;
+            updateObject.lastName = req.body.lastName;
+            updateObject.name = req.body.firstName + " " + req.body.lastName;
+        }
+        else if (req.body.firstName) {
+            updateObject.firstName = req.body.firstName;
+            updateObject.name = req.body.firstName + " " + req.userObj.lastName;
+        }
+        else {
+            updateObject.lastName = req.body.lastName;
+            updateObject.name = req.userObj.firstName + " " + req.body.lastName;
+        }
     }
     if (req.body.contactNumber) {
         updateObject.contactNumber = req.body.contactNumber;
@@ -43,6 +52,21 @@ exports.updateUserObject = (req) => {
     }
     if (req.body.eSignatureId) {
         updateObject.eSignatureId = req.body.eSignatureId;
+    }
+    if (req.department) {
+        updateObject.department = req.department;
+        if(!req.team){
+            updateObject.team = null;
+        }
+    }
+    if (req.userType) {
+        updateObject.userType = req.userType;
+    }
+    if (req.designation) {
+        updateObject.designation = req.designation;
+    }
+    if (req.team) {
+        updateObject.team = req.team;
     }
     if (req.body.isEnabled !== undefined) {
         updateObject.isEnabled = req.body.isEnabled;

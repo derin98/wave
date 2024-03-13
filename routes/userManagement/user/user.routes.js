@@ -45,9 +45,10 @@ module.exports = function (app) {
     app.delete("/api/v1/users/", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUsers], userController.deleteUsers);
 
     app.put("/api/v1/users/:user", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit,
+        verifyUserReq.validatePreUpdateUserRequest, verifyUserReq.validateUserAndReturnObj,
         verifyDepartmentReqBody.validateDepartment, verifyUserTypeReqBody.validateUserType,
         verifyDesignationReqBody.validateDesignation, verifyTeamReqBody.validateTeam,
-        verifyUserReq.validateUpdateUserRequest, verifyUserReq.validateUser], userController.updateUser);
+         ], userController.updateUser);
 //     app.get("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin], const userController.findById);
 //
 //     app.put("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin, verifyBusinessUnitRequestBody.validateCreateBusinessUnitRequestBody], constbusinessUnitController.update);
