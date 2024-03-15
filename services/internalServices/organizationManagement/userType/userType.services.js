@@ -16,8 +16,8 @@ async function getAllUserTypes(req) {
     if(req.businessUnit) {
         query.businessUnit = req.businessUnit;
     }
-    if (req.department) {
-        query.department = req.department;
+    if(req.departments) {
+        query.department = { $in: req.departments };
     }
 
     if (req.query.name) {

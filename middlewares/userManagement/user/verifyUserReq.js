@@ -355,16 +355,8 @@ validateUserAndReturnObj = async (req, res, next) => {
 
 validateUsers = async (req, res, next) => {
 
-    if (!req.body.users || !Array.isArray(req.body.users) || req.body.users.length === 0) {
-        return apiResponseHandler.errorResponse(
-            res,
-            "User ids must be a non-empty array of strings",
-            400,
-            null
-        );
-    }
-    for (let i = 0; i < req.body.users.length; i++) {
-        if (typeof req.body.users[i] !== 'string') {
+    if(req.body.users ){
+        if (!req.body.users || !Array.isArray(req.body.users) || req.body.users.length === 0) {
             return apiResponseHandler.errorResponse(
                 res,
                 "User ids must be a non-empty array of strings",
@@ -372,32 +364,40 @@ validateUsers = async (req, res, next) => {
                 null
             );
         }
-    }
+        for (let i = 0; i < req.body.users.length; i++) {
+            if (typeof req.body.users[i] !== 'string') {
+                return apiResponseHandler.errorResponse(
+                    res,
+                    "User ids must be a non-empty array of strings",
+                    400,
+                    null
+                );
+            }
+        }
 
-    let invalidUserIds = await UserDbOperations.returnInvalidUserIds(req.body.users, req.businessUnit);
-    if (invalidUserIds.length > 0) {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! Invalid User ids",
-            400,
-            { invalidUserIds }
-        );
+        let invalidUserIds = await UserDbOperations.returnInvalidUserIds(req.body.users, req.businessUnit);
+        if (invalidUserIds.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Invalid User ids",
+                400,
+                {invalidUserIds}
+            );
+        }
+        else{
+            next()
+        }
+
     }
-    next();
+    else{
+        next();
+    }
 }
 
 validateUsersWithoutTeam = async (req, res, next) => {
 
-    if (!req.body.users || !Array.isArray(req.body.users) || req.body.users.length === 0) {
-        return apiResponseHandler.errorResponse(
-            res,
-            "User ids must be a non-empty array of strings",
-            400,
-            null
-        );
-    }
-    for (let i = 0; i < req.body.users.length; i++) {
-        if (typeof req.body.users[i] !== 'string') {
+    if(req.body.users){
+        if (!req.body.users || !Array.isArray(req.body.users) || req.body.users.length === 0) {
             return apiResponseHandler.errorResponse(
                 res,
                 "User ids must be a non-empty array of strings",
@@ -405,18 +405,33 @@ validateUsersWithoutTeam = async (req, res, next) => {
                 null
             );
         }
-    }
+        for (let i = 0; i < req.body.users.length; i++) {
+            if (typeof req.body.users[i] !== 'string') {
+                return apiResponseHandler.errorResponse(
+                    res,
+                    "User ids must be a non-empty array of strings",
+                    400,
+                    null
+                );
+            }
+        }
 
-    let invalidUserIdsWithoutTeam = await UserDbOperations.returnUserWithoutTeam(req.body.users, req.businessUnit);
-    if (invalidUserIdsWithoutTeam.length > 0) {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! Invalid User ids",
-            400,
-            { invalidUserIdsWithoutTeam }
-        );
+        let invalidUserIdsWithoutTeam = await UserDbOperations.returnUserWithoutTeam(req.body.users, req.businessUnit);
+        if (invalidUserIdsWithoutTeam.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Invalid User ids",
+                400,
+                {invalidUserIdsWithoutTeam}
+            );
+        }
+        else{
+            next()
+        }
     }
-    next();
+    else {
+        next();
+    }
 }
 
 validateReportsTo = async (req, res, next) => {

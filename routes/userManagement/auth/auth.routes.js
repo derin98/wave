@@ -37,7 +37,7 @@ app.post("/api/v1/auth/signin", authController.signin);
         verifyBusinessUnitAfterAuth.verifyBusinessUnit,
         verifyDepartmentReqBody.validateDepartment, verifyUserTypeReqBody.validateUserType,
         verifyDesignationReqBody.validateDesignation, verifyTeamReqBody.validateTeam,
-        verifyUserReq.validateReportsTo,
+        // verifyUserReq.validateReportsTo,
         verifyUserReq.validateCreateUserRequest
     ], authController.signup);
 

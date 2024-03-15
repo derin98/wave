@@ -62,7 +62,8 @@ validateUpdateTeamRequestBody = async (req, res, next) => {
             );
         }
 
-        const existingNameTeam = await TeamDbOperations.checkExistingNameForBusinessUnit(req.body.name, req.department || req.teamsObj.department);
+        let department = req.teamsObj ? req.teamsObj.department ? req.teamsObj.department : req.department : ""
+        const existingNameTeam = await TeamDbOperations.checkExistingNameForBusinessUnit(req.body.name, department);
         if (existingNameTeam) {
             return apiResponseHandler.errorResponse(
                 res,
@@ -145,9 +146,12 @@ validateTeamAndReturnObj = async (req, res, next) => {
             );
         }
         console.log("req.team", req.team, req.department)
-
-        let checkExistingTeam = await TeamDbOperations.getTeam({_id: req.team, department: req.department}, "users");
-
+        let query = {_id: req.team}
+        if(req.department) {
+            query.department =req.department
+        }
+        let checkExistingTeam = await TeamDbOperations.getTeam(query, "users department");
+        console.log("checkExistingTeam", checkExistingTeam)
         if (checkExistingTeam){
             req.teamObj = checkExistingTeam;
         }
