@@ -3,7 +3,7 @@
 const BusinessUnitOperations = require("../../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations");
 const paginationHandler = require("../../../../utils/objectHandlers/paginationHandler");
 const businessUnitResObjConvertor = require("../../../../utils/objectHandlers/resObjConverters/organizationManagement/businessUnit/businessUnit.resObjConverter");
-const userService = require("../../UserManagement/user/user.services");
+const userService = require("../../userManagement/user/user.services");
 
 
 async function createBusinessUnit(businessUnitObject) {
