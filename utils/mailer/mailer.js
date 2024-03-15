@@ -86,9 +86,10 @@ const sendEmail = (to, subject, credentials) => {
             </head>
             <body>
                 <div class="container">
-                    <h2>Welcome to ${appConstant}!</h2>
+                    <h2>Welcome to ${appConstant.appName}!</h2>
                     <p>Your account has been successfully created. Here are your registration details:</p>
                     <ul>
+                        <li><strong>BuUserId:</strong> ${credentials.buUserId}</li>
                         <li><strong>EmployeeId:</strong> ${credentials.employeeId}</li>
                         <li><strong>Email:</strong> ${credentials.email}</li>
                         <li><strong>Password:</strong> ${credentials.password}</li>

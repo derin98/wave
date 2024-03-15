@@ -154,6 +154,10 @@ async function updateUser(query, updateObject) {
     return User.updateOne(query, { $set: updateObject });
 }
 
+async function updateUsers(query, updateObject) {
+    return User.updateMany(query, { $set: updateObject });
+}
+
 async function checkExistingUser(id, businessUnit) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -215,6 +219,31 @@ const returnInvalidUserIds = async (ids, businessUnit) => {
     return Array.from(new Set(invalidUserIds));
 }
 
+const returnUserWithoutTeam = async (ids, businessUnit) => {
+
+    let invalidUserIdsWithoutTeam = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
+
+    if (invalidUserIdsWithoutTeam.length > 0) {
+        return invalidUserIdsWithoutTeam;
+    }
+
+    const query = {
+        _id: {$in: ids},
+        isDeleted: false,
+        team: null
+    };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
+    const existingUsers = await User.find(query).select('_id');
+
+    const existingUserIds = existingUsers.map(user => user._id.toString());
+
+    invalidUserIdsWithoutTeam.push(...ids.filter(id => !existingUserIds.includes(id)));
+
+    return Array.from(new Set(invalidUserIdsWithoutTeam));
+}
+
 module.exports = {
     createUser,
     getAllUsers,
@@ -227,8 +256,10 @@ module.exports = {
     deleteUser,
     deleteUsers,
     updateUser,
+    updateUsers,
     checkExistingUser,
     checkExistingEmailForBusinessUnit,
     checkExistingEmployeeIdForBusinessUnit,
-    returnInvalidUserIds
+    returnInvalidUserIds,
+    returnUserWithoutTeam
 };

@@ -56,7 +56,7 @@ async function createBusinessUnit(businessUnitObject) {
         return await BusinessUnitOperations.getBusinessUnit(query);
     }
 
-async function generateBuUserId(id, selectFields) {
+async function returnNewBuUserIdAndName(id, selectFields) {
 
     let query = {
         // isEnabled : true,
@@ -78,7 +78,10 @@ async function generateBuUserId(id, selectFields) {
         return;
     }
 
-    return buUserId
+    return {
+        buUserId,
+        name: businessUnit.name,
+    }
 
 }
 
@@ -155,12 +158,22 @@ async function deleteBusinessUnit(id) {
         };
         return await BusinessUnitOperations.updateBusinessUnit(query, businessUnitObject);
     }
+async function updateBusinessUnitUserCountByOne(id) {
+    let query = {
+        isDeleted : false,
+        _id : id
+    };
+    let businessUnitObject = {
+        $inc: { userCount: 1 }
+    };
+    return await BusinessUnitOperations.updateBusinessUnit(query, businessUnitObject);
+}
 
 module.exports = {
     createBusinessUnit,
     getAllBusinessUnits,
     getBusinessUnit,
-    generateBuUserId,
+    returnNewBuUserIdAndName,
     enableBusinessUnit,
     enableBusinessUnits,
     disableBusinessUnit,
@@ -168,5 +181,6 @@ module.exports = {
     deleteBusinessUnit,
     deleteBusinessUnits,
     updateBusinessUnit,
+    updateBusinessUnitUserCountByOne,
     getBusinessUnitByName
 };

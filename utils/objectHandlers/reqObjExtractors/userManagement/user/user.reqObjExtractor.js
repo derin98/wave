@@ -10,6 +10,7 @@ exports.createUserObject = (req) => {
         contactNumber: req.body.contactNumber,
         countryCode: req.body.countryCode,
         isEnabled: req.body.isEnabled ? req.body.isEnabled : true,
+        reportsTo: req.body.reportsTo,
         userImage: req.body.imageId,
         eSignature: req.body.eSignatureId,
         businessUnit: req.businessUnit,
@@ -70,6 +71,9 @@ exports.updateUserObject = (req) => {
     }
     if (req.body.isEnabled !== undefined) {
         updateObject.isEnabled = req.body.isEnabled;
+    }
+    if (req.body.reportsTo) {
+        updateObject.reportsTo = req.body.reportsTo;
     }
     return updateObject;
 }

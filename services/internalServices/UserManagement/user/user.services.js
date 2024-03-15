@@ -34,6 +34,9 @@ async function getAllUsers(req) {
     if(req.reportsTos) {
         query.reportsTo = { $in: req.reportsTos };
     }
+    if (req.query.withoutTeam === 'true') {
+        query.team = null;
+    }
     if (req.query.createdAt) {
         query.createdAt = req.createdAt;
     }
@@ -264,12 +267,31 @@ async function updateUser(id, updateObject, businessUnit) {
     }
     return await UserOperations.updateUser(query, updateObject);
 }
+
+async function updateUsers(ids, updateObject, businessUnit) {
+    let query = {
+        _id: {$in: ids},
+        isDeleted: false
+    };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
+    return await UserOperations.updateUsers(query, updateObject);
+}
 async function updateUserPasswordAndPermission(id, userPassword, userPermission) {
     let query = {
         _id: id,
         isDeleted: false
     };
     return await UserOperations.updateUser(query, {userPassword, userPermission});
+}
+async function removeTeamFromUsers(users, team) {
+    let query = {
+        _id: {$in: users},
+        isDeleted: false
+    };
+    return await UserOperations.updateUsers(query, {team: null});
+
 }
 
 module.exports = {
@@ -287,5 +309,7 @@ module.exports = {
     deleteUser,
     deleteUsers,
     updateUser,
-    updateUserPasswordAndPermission
+    updateUsers,
+    updateUserPasswordAndPermission,
+    removeTeamFromUsers,
 };

@@ -54,10 +54,10 @@ decrypted += decipher.final('utf8');
 }
 
 
-const dummyDecryptionToken = (encryptedText, secretKey) => {
+const decryptCBC = (encryptedText, secretKey) => {
 
   const paddedKey = secretKey.padEnd(32, '0'); // Ensure key length is 32 bytes (256 bits)
-  // const decrypted = CryptoJS.AES.decrypt(encryptedText, paddedKey).toString(CryptoJS.enc.Utf8);
+  const iv = CryptoJS.lib.WordArray.random(32);
   const decrypted = CryptoJS.AES.decrypt(encryptedText, paddedKey, { iv: CryptoJS.enc.Hex.parse(iv), mode: CryptoJS.mode.CBC }).toString(CryptoJS.enc.Utf8);
   console.log(decrypted, "dec pass");
 
@@ -68,5 +68,5 @@ const dummyDecryptionToken = (encryptedText, secretKey) => {
 module.exports = {
   encrypt,
   decrypt,
-  dummyDecryptionToken,
+  decryptCBC,
 };

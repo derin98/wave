@@ -5,6 +5,7 @@ const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHan
 const userReqObjExtractor = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/user/user.reqObjExtractor");
 const userService = require("../../../services/internalServices/UserManagement/user/user.services");
 const userPasswordService = require("../../../services/internalServices/UserManagement/userPassword/userPassword.services");
+const teamService = require("../../../services/internalServices/OrganizationManagement/team/team.services");
 const passwordGenerator = require('../../../utils/auth/passwordGenerator');
 const passwordHasher = require('../../../utils/auth/passwordHasher');
 const {createUserPasswordObject} = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/userPassword/userPassword.reqObjExtractor");
@@ -15,7 +16,7 @@ const {createUserPermissionObject} = require("../../../utils/objectHandlers/reqO
 const permissionService = require("../../../services/internalServices/OrganizationManagement/permission/permission.services");
 const {sendEmail} = require("../../../utils/mailer/mailer");
 const cryptoConfigs = require('../../../configs/encryption/crypto.config.js');
-const {decrypt, dummyDecryptionToken} = require('../../../utils/encryption/crypto');
+const {decrypt, decryptCBC} = require('../../../utils/encryption/crypto');
 const {countBusinessUnits} = require("../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations");
 const businessUnitService = require("../../../services/internalServices/OrganizationManagement/businessUnit/businessUnit.services");
 const {appConstant} = require("../../../utils/constants");
@@ -78,9 +79,7 @@ exports.signin = async (req, res) => {
         dcrptPass = password;
     } else if (source === cryptoConfigs.CRYPTO_SRC_1_NAME) {
         dcrptPass =password
-        // const encPass = encryptAES_CBC("yWcpqJ4L", cryptoConfigs.CRYPTO_SECRET_KEY_SRC_1)
-        // console.log("password", password, encPass )
-        dcrptPass = dummyDecryptionToken(password, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_1);
+        dcrptPass = decryptCBC(password, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_1);
     } else if (source === cryptoConfigs.CRYPTO_SRC_2_NAME) {
         dcrptPass = decryptPassword(password, cryptoConfigs.CRYPTO_SECRET_KEY_SRC_2);
     } else if (source === cryptoConfigs.CRYPTO_SRC_3_NAME) {
@@ -102,10 +101,7 @@ exports.signin = async (req, res) => {
     let passwordIsValid = bcrypt.compareSync(dcrptPass, user.userPassword.password);
 
     if (!passwordIsValid) {
-        return res.status(401).send({
-            accessToken: null,
-            message: "Invalid Password!"
-        });
+        return apiResponseHandler.errorResponse(res, "Failed! Invalid Password!", 401, null);
     }
 
     // Concatenate and filter permissions
@@ -142,48 +138,61 @@ exports.signin = async (req, res) => {
     });
 
     return apiResponseHandler.successResponse(res, "User signed in successfully", {
-        buUserId: user.buUserId,
-        employeeId: user.employeeId,
-        name: user.name,
-        email: user.email,
         accessToken: token,
-        designation,
-        department: user.department,
-        userType: user.department
+        user: {
+            name: user.name,
+            email: user.email,
+            employeeId: user.employeeId,
+            buUserId: user.buUserId,
+            designation,
+            department: user.department,
+            userType: user.userType,
+        }
     }, 200);
 };
 
 exports.signup = async (req, res) => {
     try {
         const userReqObj = userReqObjExtractor.createUserObject(req);
-        userReqObj.buUserId = await businessUnitService.generateBuUserId(req.businessUnit)
+        const buUserIdAndName = await businessUnitService.returnNewBuUserIdAndName(req.businessUnit)
+        const businessUnitName = buUserIdAndName.name;
+        userReqObj.buUserId = buUserIdAndName.buUserId;
         const user = await userService.createUser(userReqObj);
-        let generatedPassword = passwordGenerator.generateRandomPasswordString(8)
-        console.log('generatedPassword', generatedPassword)
-        let hashedPassword = passwordHasher.hashPassword(generatedPassword);
+        if (user) {
+            await businessUnitService.updateBusinessUnitUserCountByOne(req.businessUnit);
+            if(req.team){
+            await teamService.appendUsersToTeam(req.team, [user.id]);
+            }
+            let generatedPassword = passwordGenerator.generateRandomPasswordString(8)
+            console.log('generatedPassword', generatedPassword)
+            let hashedPassword = passwordHasher.hashPassword(generatedPassword);
+            const userPasswordReqObj = createUserPasswordObject(user.id, hashedPassword);
+            const userPassword = await userPasswordService.createUserPassword(userPasswordReqObj);
 
-        const userPasswordReqObj = createUserPasswordObject(user.id, hashedPassword);
-        const userPassword = await userPasswordService.createUserPassword(userPasswordReqObj);
+            const userPasswordHistoryReqObj = createUserPasswordHistoryObject(userPassword.id, hashedPassword);
+            await userPasswordHistoryService.createUserPasswordHistory(userPasswordHistoryReqObj);
 
-        const userPasswordHistoryReqObj = createUserPasswordHistoryObject(userPassword.id, hashedPassword);
-        await userPasswordHistoryService.createUserPasswordHistory(userPasswordHistoryReqObj);
+            const userPermissionReqObj = createUserPermissionObject(req, user.id);
+            const userPermission = await createUserPermission(userPermissionReqObj);
+            await userService.updateUserPasswordAndPermission(user.id, userPassword.id, userPermission.id);
+            const message = "User created successfully";
 
-        const userPermissionReqObj = createUserPermissionObject(req, user.id);
-        const userPermission = await createUserPermission(userPermissionReqObj);
-        await userService.updateUserPasswordAndPermission(user.id, userPassword.id, userPermission.id);
-        const message = "User created successfully";
+            if (req.body.email) {
+                const userCredentials = {
+                    buUserId: userReqObj.buUserId,
+                    employeeId: req.body.employeeId,
+                    email: req.body.email,
+                    password: generatedPassword,
+                };
+                await sendEmail(req.body.email, `Welcome to ${appConstant.appName} ${businessUnitName}!`, userCredentials);
+            }
 
-        if (req.body.email) {
-            const userCredentials = {
-                employeeId: req.body.employeeId,
-                email: req.body.email,
-                password: generatedPassword,
-            };
-            await sendEmail(req.body.email, `Welcome to ${appConstant}!`, userCredentials);
+            user.userPermission = userPermission.id;
+            return apiResponseHandler.successResponse(res, message, user, 201);
         }
-
-        user.userPermission = userPermission.id;
-        return apiResponseHandler.successResponse(res, message, user, 201);
+        else {
+            return apiResponseHandler.errorResponse(res, "Failed! User not created", 400, null);
+        }
     } catch (err) {
         console.log("Error while creating the user", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);

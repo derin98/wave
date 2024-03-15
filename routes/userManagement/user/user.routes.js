@@ -32,13 +32,13 @@ module.exports = function (app) {
 
     app.get("/api/v1/users/:user", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser], userController.getUser);
 
-    app.patch("/api/v1/users/:user/enable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser], userController.enableUser);
+    app.put("/api/v1/users/:user/enable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser], userController.enableUser);
 
-    app.patch("/api/v1/users/:user/disable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser], userController.disableUser);
+    app.put("/api/v1/users/:user/disable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser], userController.disableUser);
 
-    app.patch("/api/v1/users/enable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUsers], userController.enableUsers);
+    app.put("/api/v1/users/enable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUsers], userController.enableUsers);
 
-    app.patch("/api/v1/users/disable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUsers], userController.disableUsers);
+    app.put("/api/v1/users/disable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUsers], userController.disableUsers);
 
     app.delete("/api/v1/users/:user", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser], userController.deleteUser);
 
@@ -48,6 +48,7 @@ module.exports = function (app) {
         verifyUserReq.validatePreUpdateUserRequest, verifyUserReq.validateUserAndReturnObj,
         verifyDepartmentReqBody.validateDepartment, verifyUserTypeReqBody.validateUserType,
         verifyDesignationReqBody.validateDesignation, verifyTeamReqBody.validateTeam,
+        verifyUserReq.validateReportsTo,
          ], userController.updateUser);
 //     app.get("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin], const userController.findById);
 //

@@ -16,14 +16,23 @@ async function getAllTeams(req) {
     if(req.businessUnit) {
         query.businessUnit = req.businessUnit;
     }
-    console.log("query", query)
 
-    if (req.department) {
-        query.department = req.department;
+    if(req.departments) {
+        query.department = { $in: req.departments };
     }
     if (req.query.name) {
         query.name = {$regex: req.query.name, $options: 'i'};
     }
+    let populateFields = req.query.populateFields;
+    let selectFields = req.query.selectFields;
+
+    populateFields = populateFields
+        ? [...new Set(populateFields.split(','))].join(' ')
+        : "";
+
+    selectFields = selectFields
+        ? [...new Set(selectFields.split(',')), 'name', '_id'].join(' ')
+        : ['name', '_id'];
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 0;
@@ -37,13 +46,13 @@ async function getAllTeams(req) {
     if (limit === 0 && page > 1) {
         return paginationHandler.paginationResObj(page, 1, countTeams, []);
     }
-    const teams = await TeamOperations.getAllTeams(query, sort, order, page, limit, skip);
+    const teams = await TeamOperations.getAllTeams(query, sort, order, page, limit, skip, selectFields, populateFields);
     const totalPages = countTeams === 0 ? 0 : (limit === 0 ? 1 : Math.ceil(countTeams / limit));
 
     return paginationHandler.paginationResObj(page, totalPages, countTeams, teams);
 }
 
-async function getTeam(id, businessUnit) {
+async function getTeam(id, selectFields, populateFields, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
@@ -52,7 +61,14 @@ async function getTeam(id, businessUnit) {
     if(businessUnit) {
         query.businessUnit = businessUnit;
     }
-    return await TeamOperations.getTeam(query);
+    populateFields = populateFields
+        ? [...new Set(populateFields.split(','))].join(' ')
+        : "";
+
+    selectFields = selectFields
+        ? [...new Set(selectFields.split(',')), 'name', '_id'].join(' ')
+        : ['name', '_id'];
+    return await TeamOperations.getTeam(query, selectFields, populateFields);
 }
 
 async function enableTeam(id, businessUnit) {
@@ -137,6 +153,37 @@ async function updateTeam(id, updateObject, businessUnit) {
     return await TeamOperations.updateTeam(query, updateObject);
 }
 
+async function appendUsersToTeam(teamId, users, businessUnit) {
+    let query = {
+        _id: teamId,
+        isDeleted: false
+    };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
+    return await TeamOperations.appendUsersToTeam(query, users);
+}
+
+async function removeUsersFromTeam(teamId, users, businessUnit) {
+    let query = {
+        _id: teamId,
+        isDeleted: false
+    };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
+    return await TeamOperations.removeUsersFromTeam(query, users);
+}
+
+async function returnUsersFromTeams(teamsObjs){
+    console.log('teamsObjs', teamsObjs)
+    const users = [];
+    teamsObjs.forEach(team => {
+        users.push(...team.users);
+    });
+    return users;
+}
+
 module.exports = {
     createTeam,
     getAllTeams,
@@ -147,5 +194,7 @@ module.exports = {
     disableTeams,
     deleteTeam,
     deleteTeams,
-    updateTeam
+    updateTeam,
+    appendUsersToTeam,
+    returnUsersFromTeams
 };

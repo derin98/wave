@@ -5,6 +5,7 @@
 const userReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/userManagement/user/user.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
 const userService = require('../../../services/internalServices/userManagement/user/user.services');
+const {removeUsersFromTeam, appendUsersToTeam} = require("../../../dbOperations/mongoDB/organizationManagement/team/team.dbOperations");
 
 /**
  * Create a user
@@ -177,6 +178,15 @@ exports.updateUser = async (req, res) => {
     try {
         const userReqObj = userReqObjExtractor.updateUserObject(req);
         console.log("userReqObj", userReqObj)
+        if (userReqObj.hasOwnProperty('team')) {
+            if(userReqObj.team === null && req.userObj.team) {
+                await removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
+            }
+            else if(userReqObj.team !== null && req.userObj.team !== userReqObj.team) {
+                await appendUsersToTeam(userReqObj.team, [req.params.user], req.businessUnit);
+                await removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
+            }
+        }
         const user = await userService.updateUser(req.params.user, userReqObj, req.businessUnit);
         const message = "User updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);

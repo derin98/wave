@@ -5,6 +5,7 @@
 const teamReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/organizationManagement/team/team.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
 const teamService = require('../../../services/internalServices/organizationManagement/team/team.services');
+const userService = require('../../../services/internalServices/userManagement/user/user.services');
 /**
  * Create a team
  *
@@ -14,6 +15,7 @@ exports.createTeam = async (req, res) => {
     try {
         const teamReqObj = teamReqObjExtractor.createTeamObject(req);
         const team = await teamService.createTeam(teamReqObj);
+        await userService.updateUsers(req.body.users, {team:team.id});
         const message = "Team created successfully";
         return apiResponseHandler.successResponse(res, message, team, 201);
     } catch (err) {
@@ -46,8 +48,9 @@ exports.getAllTeams = async (req, res) => {
 
 exports.getTeam = async (req, res) => {
     try {
-        const team = await teamService.getTeam(req.params.team, req.businessUnit);
-
+        let populateFields = req.query.populateFields || undefined;
+        let selectFields = req.query.selectFields || undefined;
+        const team = await teamService.getTeam(req.params.team, selectFields, populateFields, req.businessUnit);
         if (!team) {
             return apiResponseHandler.errorResponse(res, "Team not found", 404, null);
         }
@@ -138,6 +141,7 @@ exports.disableTeams = async (req, res) => {
 exports.deleteTeam = async (req, res) => {
     try {
         await teamService.deleteTeam(req.params.team, req.businessUnit);
+        await userService.removeTeamFromUsers(req.teamObj.users, req.params.team);
         const message = "Team deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -154,6 +158,8 @@ exports.deleteTeam = async (req, res) => {
 exports.deleteTeams = async (req, res) => {
     try {
         await teamService.deleteTeams(req.body.teams, req.businessUnit);
+        const removeTeamsFromUsers = await teamService.returnUsersFromTeams(req.teamsObjs);
+        await userService.removeTeamFromUsers(removeTeamsFromUsers, req.body.teams);
         const message = "Teams deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {

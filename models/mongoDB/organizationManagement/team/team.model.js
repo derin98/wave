@@ -11,6 +11,14 @@ const teamSchema = new mongoose.Schema({
         ref: "BusinessUnit",
         required: true
     },
+    users: [{
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
+    }],
+    usersCount: {
+        type: Number,
+        default: 0
+    },
     department: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "Department",
