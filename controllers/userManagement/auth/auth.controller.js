@@ -5,7 +5,7 @@ const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHan
 const userReqObjExtractor = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/user/user.reqObjExtractor");
 const userService = require("../../../services/internalServices/UserManagement/user/user.services");
 const userPasswordService = require("../../../services/internalServices/UserManagement/userPassword/userPassword.services");
-const teamService = require("../../../services/internalServices/OrganizationManagement/team/team.services");
+const teamService = require("../../../services/internalServices/organizationManagement/team/team.services");
 const passwordGenerator = require('../../../utils/auth/passwordGenerator');
 const passwordHasher = require('../../../utils/auth/passwordHasher');
 const {createUserPasswordObject} = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/userPassword/userPassword.reqObjExtractor");
@@ -13,12 +13,12 @@ const {createUserPasswordHistoryObject} = require("../../../utils/objectHandlers
 const userPasswordHistoryService = require("../../../services/internalServices/UserManagement/userPasswordHistory/userPasswordHistory.services");
 const {createUserPermission} = require("../../../services/internalServices/UserManagement/userPermission/userPermission.services");
 const {createUserPermissionObject} = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/userPermission/userPermission.reqObjExtractor");
-const permissionService = require("../../../services/internalServices/OrganizationManagement/permission/permission.services");
+const permissionService = require("../../../services/internalServices/organizationManagement/permission/permission.services");
 const {sendEmail} = require("../../../utils/mailer/mailer");
 const cryptoConfigs = require('../../../configs/encryption/crypto.config.js');
 const {decrypt, decryptCBC} = require('../../../utils/encryption/crypto');
 const {countBusinessUnits} = require("../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations");
-const businessUnitService = require("../../../services/internalServices/OrganizationManagement/businessUnit/businessUnit.services");
+const businessUnitService = require("../../../services/internalServices/organizationManagement/businessUnit/businessUnit.services");
 const {appConstant} = require("../../../utils/constants");
 /**
  * Controller for the signup flow
