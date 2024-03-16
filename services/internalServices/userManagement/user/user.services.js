@@ -215,7 +215,7 @@ async function enableUsers(req) {
         isEnabled: true,
         updatedBy: req.userId
     }
-    return await UserOperations.updateUser(query, updateObj);
+    return await UserOperations.updateUsers(query, updateObj);
 }
 
 async function disableUser(req) {
@@ -248,7 +248,7 @@ async function disableUsers(req) {
         isEnabled: false,
         updatedBy: req.userId
     }
-    return await UserOperations.updateUser(query, updateObj);
+    return await UserOperations.updateUsers(query, updateObj);
 }
 
 async function deleteUser(req) {
@@ -280,7 +280,7 @@ async function deleteUsers(req) {
         isDeleted: true,
         updatedBy: req.userId
     }
-    return await UserOperations.updateUser(query, updateObj);
+    return await UserOperations.updateUsers(query, updateObj);
 }
 
 async function updateUser(req, updateObject) {

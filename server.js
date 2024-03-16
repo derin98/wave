@@ -115,6 +115,7 @@ async function init() {
             const businessUnitObj = {
                 name: businessUnitCreation.name,
                 shortName: businessUnitCreation.shortName.toUpperCase(),
+                usersCount: 1,
                 isEnabled: true,
                 createdBy: user.id,
                 updatedBy: user.id

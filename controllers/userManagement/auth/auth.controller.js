@@ -154,16 +154,12 @@ exports.signin = async (req, res) => {
 exports.signup = async (req, res) => {
     try {
         const userReqObj = userReqObjExtractor.createUserObject(req);
-        console.log(1111111111111111)
         const buUserIdAndName = await businessUnitService.returnNewBuUserIdAndName(req.businessUnit)
-        console.log(1111111111111111)
         const businessUnitName = buUserIdAndName.name;
-        console.log(1111111111111111)
         userReqObj.buUserId = buUserIdAndName.buUserId;
         const user = await userService.createUser(userReqObj);
         if (user) {
             await businessUnitService.updateBusinessUnitUserCountByOne(req.businessUnit);
-            console.log(1111111111111111)
             if(req.team){
             await teamService.appendUsersToTeam(req.team, [user.id]);
             }
