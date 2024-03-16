@@ -17,12 +17,12 @@ async function getAllDesignations(req) {
         query.businessUnit = req.businessUnit;
     }
     if(req.userTypes) {
-        query.userType = { $in: req.userType };
+        query.userType = { $in: req.userTypes };
     }
     if (req.query.name) {
         query.name = {$regex: req.query.name, $options: 'i'};
     }
-
+    console.log("query", query)
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 0;
     const skip = (page - 1) * limit;
