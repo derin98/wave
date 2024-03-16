@@ -195,7 +195,7 @@ async function checkExistingEmailForBusinessUnit(email, businessUnit) {
     return existingNameUser !== null;
 }
 
-const returnInvalidUserIds = async (ids, businessUnit) => {
+const returnInvalidUserIds = async (ids, businessUnit, department) => {
 
     let invalidUserIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
@@ -210,6 +210,9 @@ const returnInvalidUserIds = async (ids, businessUnit) => {
     if(businessUnit) {
         query.businessUnit = businessUnit;
     }
+    if(department) {
+        query.department = department;
+    }
     const existingUsers = await User.find(query).select('_id');
 
     const existingUserIds = existingUsers.map(user => user._id.toString());
@@ -219,7 +222,7 @@ const returnInvalidUserIds = async (ids, businessUnit) => {
     return Array.from(new Set(invalidUserIds));
 }
 
-const returnUserWithoutTeam = async (ids, businessUnit) => {
+const returnUsersWithoutTeam = async (ids, businessUnit, department) => {
 
     let invalidUserIdsWithoutTeam = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
@@ -235,6 +238,9 @@ const returnUserWithoutTeam = async (ids, businessUnit) => {
     if(businessUnit) {
         query.businessUnit = businessUnit;
     }
+    if(department) {
+        query.department = department;
+    }
     const existingUsers = await User.find(query).select('_id');
 
     const existingUserIds = existingUsers.map(user => user._id.toString());
@@ -243,6 +249,39 @@ const returnUserWithoutTeam = async (ids, businessUnit) => {
 
     return Array.from(new Set(invalidUserIdsWithoutTeam));
 }
+
+const returnUsersWithSpecificTeam = async (ids, team, businessUnit, department) => {
+
+    let invalidUserIdsWithSpecificTeam = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
+
+    if (invalidUserIdsWithSpecificTeam.length > 0) {
+        return invalidUserIdsWithSpecificTeam;
+    }
+
+    const query = {
+        _id: {$in: ids},
+        isDeleted: false,
+        team: team
+    };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
+    if(department) {
+        query.department = department;
+    }
+    const existingUsers = await User.find(query).select('_id');
+
+    const existingUserIds = existingUsers.map(user => user._id.toString());
+
+    invalidUserIdsWithSpecificTeam.push(...ids.filter(id => !existingUserIds.includes(id)));
+
+    return Array.from(new Set(invalidUserIdsWithSpecificTeam));
+}
+
+
+
+
+
 
 module.exports = {
     createUser,
@@ -261,5 +300,6 @@ module.exports = {
     checkExistingEmailForBusinessUnit,
     checkExistingEmployeeIdForBusinessUnit,
     returnInvalidUserIds,
-    returnUserWithoutTeam
+    returnUsersWithoutTeam,
+    returnUsersWithSpecificTeam
 };

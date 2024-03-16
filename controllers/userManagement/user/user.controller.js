@@ -180,7 +180,7 @@ exports.updateUser = async (req, res) => {
         console.log("userReqObj", userReqObj)
         if (userReqObj.hasOwnProperty('team')) {
             if(userReqObj.team === null && req.userObj.team) {
-                await removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
+                await teamService.removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
             }
             else if(userReqObj.team !== null && req.userObj.team !== userReqObj.team) {
                 await teamService.appendUsersToTeam(userReqObj.team, [req.params.user], req.businessUnit);

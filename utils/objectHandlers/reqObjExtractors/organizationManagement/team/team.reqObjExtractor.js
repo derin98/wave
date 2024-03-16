@@ -21,5 +21,11 @@ exports.updateTeamObject = (req) => {
     if (req.body.isEnabled !== undefined) {
         updateObject.isEnabled = req.body.isEnabled;
     }
+    if (req.body.appendUsers) {
+            updateObject.users = {$push: {users: {$each: req.body.appendUsers}}};
+    }
+    if (req.body.removeUsers) {
+            updateObject.users = {$pull: {users: {$in: req.body.removeUsers}}};
+        }
     return updateObject;
 }

@@ -297,13 +297,13 @@ async function updateUser(req, updateObject) {
     return await UserOperations.updateUser(query, updateObject);
 }
 
-async function updateUsers(ids, updateObject, businessUnit) {
+async function updateUsers(req, updateObject) {
     let query = {
-        _id: {$in: ids},
+        _id: {$in: req.body.users},
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
     return await UserOperations.updateUsers(query, updateObject);
 }

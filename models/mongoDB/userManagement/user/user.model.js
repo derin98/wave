@@ -32,9 +32,6 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: function() {
-            return !this.isSuperAdmin;
-        },
         lowercase: true, // it will convert the email into the lower case and then store in the db,
         minLength: 10,  // anything less than 10 will fail
         unique: true
@@ -42,15 +39,9 @@ const userSchema = new mongoose.Schema({
     },
     contactNumber: {
         type: String,
-        required: function() {
-            return !this.isSuperAdmin;
-        },
     },
     countryCode: {
         type: String,
-        required: function() {
-            return !this.isSuperAdmin;
-        },
     },
     isEnabled: {
         type: Boolean,
@@ -120,6 +111,7 @@ const userSchema = new mongoose.Schema({
         type: mongoose.SchemaTypes.ObjectId,
         ref: "Team"
     },
+
     reportsTo: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",

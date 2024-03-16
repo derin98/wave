@@ -63,6 +63,7 @@ async function init() {
         firstName: "Super",
         lastName: "Admin",
         employeeId: "superAdmin",
+        buUserId: "ADM1"
     }
     const password = "adm!n@1234";
 
@@ -106,6 +107,7 @@ async function init() {
             name: userCreation.firstName + " " + userCreation.lastName,
             employeeId: userCreation.employeeId,
             isEnabled: true,
+            buUserId: userCreation.buUserId,
         }
 
         user = await authController.initSignup(userObj, password)

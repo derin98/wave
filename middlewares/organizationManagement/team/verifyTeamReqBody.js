@@ -4,7 +4,7 @@
 const TeamDbOperations = require('../../../dbOperations/mongoDB/organizationManagement/team/team.dbOperations');
 const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
 const DesignationDbOperations = require("../../../dbOperations/mongoDB/organizationManagement/designation/designation.dbOperations");
-
+const UserDbOperations = require('../../../dbOperations/mongoDB/userManagement/user/user.dbOperations');
 
 validateCreateTeamRequestBody = async (req, res, next) => {
     // Validate request
@@ -150,13 +150,14 @@ validateTeamAndReturnObj = async (req, res, next) => {
         if(req.department) {
             query.department =req.department
         }
-        let checkExistingTeam = await TeamDbOperations.getTeam(query, "users department");
-        console.log("checkExistingTeam", checkExistingTeam)
-        if (checkExistingTeam){
-            req.teamObj = checkExistingTeam;
+        let existingTeam = await TeamDbOperations.getTeam(query, "users department");
+        console.log("checkExistingTeam", existingTeam)
+        if (existingTeam){
+            req.teamObj = existingTeam;
+            req.department = existingTeam.department
         }
 
-        else if (!checkExistingTeam) {
+        else if (!existingTeam) {
             return apiResponseHandler.errorResponse(
                 res,
                 "Failed! Team does not exist",
@@ -267,6 +268,107 @@ validateTeamsFromQuery = async (req, res, next) => {
     next();
 }
 
+validateAppendAndRemoveUsersFromBody = async (req, res, next) => {
+    let isValid = true;
+    let message = "";
+    let errorInfo = null
+
+    //Check if appendUsers and removeUsers are in req.body
+    if (req.body.appendUsers || req.body.removeUsers) {
+        if (req.body.appendUsers && isValid) {
+            if (!Array.isArray(req.body.appendUsers) || req.body.appendUsers.length === 0) {
+                isValid = false;
+                message = "appendUsers must be a non-empty array of strings";
+                errorInfo = null
+            }
+        }
+        if (req.body.removeUsers && isValid) {
+            if (!Array.isArray(req.body.removeUsers) || req.body.removeUsers.length === 0) {
+                isValid = false;
+                message = "removeUsers must be a non-empty array of strings",
+                    errorInfo = null
+            }
+        }
+
+        //return error if user is present in both appendUsers and removeUsers
+        if (req.body.appendUsers && req.body.removeUsers && isValid) {
+            let commonUsers = req.body.appendUsers.filter(user => req.body.removeUsers.includes(user));
+            if (commonUsers.length > 0) {
+                isValid = false;
+                message = "Failed! User cannot be present in both appendUsers and removeUsers";
+                errorInfo = {commonUsers}
+            }
+        }
+
+        if (req.body.appendUsers && isValid) {
+            for (let i = 0; i < req.body.appendUsers.length; i++) {
+                if (typeof req.body.appendUsers[i] !== 'string') {
+                    isValid = false;
+                    message = "appendUsers must be a non-empty array of strings";
+                    errorInfo = null
+                }
+            }
+            let invalidUsers = await UserDbOperations.returnInvalidUserIds(req.body.appendUsers, req.businessUnit, req.department);
+            if (invalidUsers.length > 0) {
+                isValid = false;
+                message = "Failed! Invalid User ids";
+                errorInfo = {invalidUsers}
+            }
+        }
+        if (req.body.appendUsers && isValid) {
+            let usersWithoutTeam = await UserDbOperations.returnUsersWithoutTeam(req.body.appendUsers, req.businessUnit, req.department);
+            if (req.body.appendUsers.length !== usersWithoutTeam.length) {
+                isValid = false;
+                message = "Failed! Some users already have a team. But you are trying to append them";
+                //send the users who already have a team
+                let usersWithTeam = req.body.appendUsers.filter(user => !usersWithoutTeam.includes(user));
+                errorInfo = {usersWithTeam}
+            }
+            if (req.body.removeUsers && isValid) {
+                for (let i = 0; i < req.body.removeUsers.length; i++) {
+                    if (typeof req.body.removeUsers[i] !== 'string') {
+                        isValid = false;
+                        message = "removeUsers must be a non-empty array of strings",
+                            errorInfo = null
+                    }
+                }
+                let invalidUsers = await UserDbOperations.returnInvalidUserIds(req.body.appendUsers, req.businessUnit, req.department);
+                if (invalidUsers.length > 0) {
+                    isValid = false;
+                    message = "Failed! Invalid User ids";
+                    errorInfo = {invalidUsers}
+                }
+            }
+
+            if (req.body.removeUsers && isValid) {
+                let usersWithSpecificTeam = await UserDbOperations.returnUsersWithSpecificTeam(req.body.removeUsers, req.team, req.businessUnit, req.department);
+                if (req.body.removeUsers.length !== usersWithSpecificTeam.length) {
+                    isValid = false;
+                    message = "Failed! Some users do not have the team. But you are trying to remove them";
+                    //send the users who do not have the team
+                    let usersWithoutTeam = req.body.removeUsers.filter(user => !usersWithSpecificTeam.includes(user));
+                    errorInfo = {usersWithoutTeam}
+                }
+            }
+
+            if (isValid) {
+                next();
+            } else {
+                return apiResponseHandler.errorResponse(
+                    res,
+                    message,
+                    400,
+                    null
+                );
+            }
+        } else {
+            next()
+        }
+
+
+    }
+}
+
 const verifyTeamReqBody = {
     validateCreateTeamRequestBody: validateCreateTeamRequestBody,
     validateUpdateTeamRequestBody: validateUpdateTeamRequestBody,
@@ -274,6 +376,7 @@ const verifyTeamReqBody = {
     validateTeams: validateTeams,
     validateTeamsFromQuery: validateTeamsFromQuery,
     validateTeamAndReturnObj: validateTeamAndReturnObj,
+    validateAppendAndRemoveUsersFromBody:validateAppendAndRemoveUsersFromBody,
     validateTeamsFromBodyAndReturnObjs: validateTeamsFromBodyAndReturnObjs
 };
 

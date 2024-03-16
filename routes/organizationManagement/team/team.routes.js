@@ -21,7 +21,8 @@ module.exports = function (app) {
 
     app.put("/api/v1/teams/delete", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyTeamReqBody.validateTeamsFromBodyAndReturnObjs], teamController.deleteTeams);
 
-    app.put("/api/v1/teams/:team", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyTeamReqBody.validateTeamAndReturnObj, verifyUserReq.validateUsers, verifyUserReq.validateUsersWithoutTeam, verifyTeamReqBody.validateUpdateTeamRequestBody], teamController.updateTeam);
+    app.put("/api/v1/teams/:team", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyTeamReqBody.validateTeamAndReturnObj,
+        verifyTeamReqBody.validateAppendAndRemoveUsersFromBody, verifyTeamReqBody.validateUpdateTeamRequestBody], teamController.updateTeam);
 //     app.get("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin], const teamController.findById);
 //
 //     app.put("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin, verifyBusinessUnitRequestBody.validateCreateBusinessUnitRequestBody], constbusinessUnitController.update);
