@@ -5,7 +5,7 @@
 const userReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/userManagement/user/user.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
 const userService = require('../../../services/internalServices/userManagement/user/user.services');
-const {removeUsersFromTeam, appendUsersToTeam} = require("../../../dbOperations/mongoDB/organizationManagement/team/team.dbOperations");
+const teamService = require('../../../services/internalServices/organizationManagement/team/team.services');
 
 /**
  * Create a user
@@ -73,7 +73,7 @@ exports.getUser = async (req, res) => {
 
 exports.enableUser = async (req, res) => {
     try {
-        const user = await userService.enableUser(req.params.user, req.businessUnit);
+        const user = await userService.enableUser(req);
         console.log("user", user)
         const message = "User enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
@@ -109,7 +109,7 @@ exports.disableUser = async (req, res) => {
 
 exports.enableUsers = async (req, res) => {
     try {
-        await userService.enableUsers(req.body.users, req.businessUnit, req.businessUnit);
+        await userService.enableUsers(req);
         const message = "Users enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -127,7 +127,7 @@ exports.enableUsers = async (req, res) => {
 
 exports.disableUsers = async (req, res) => {
     try {
-        await userService.disableUsers(req.body.users, req.businessUnit);
+        await userService.disableUsers(req);
         const message = "Users disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -144,7 +144,7 @@ exports.disableUsers = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
     try {
-        await userService.deleteUser(req.params.user, req.businessUnit);
+        await userService.deleteUser(req);
         const message = "User deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -160,7 +160,7 @@ exports.deleteUser = async (req, res) => {
 
 exports.deleteUsers = async (req, res) => {
     try {
-        await userService.deleteUsers(req.body.users, req.businessUnit);
+        await userService.deleteUsers(req);
         const message = "Users deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -183,11 +183,11 @@ exports.updateUser = async (req, res) => {
                 await removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
             }
             else if(userReqObj.team !== null && req.userObj.team !== userReqObj.team) {
-                await appendUsersToTeam(userReqObj.team, [req.params.user], req.businessUnit);
-                await removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
+                await teamService.appendUsersToTeam(userReqObj.team, [req.params.user], req.businessUnit);
+                await teamService.removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
             }
         }
-        const user = await userService.updateUser(req.params.user, userReqObj, req.businessUnit);
+        const user = await userService.updateUser(req, userReqObj);
         const message = "User updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {

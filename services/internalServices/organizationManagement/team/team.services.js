@@ -71,84 +71,112 @@ async function getTeam(id, selectFields, populateFields, businessUnit) {
     return await TeamOperations.getTeam(query, selectFields, populateFields);
 }
 
-async function enableTeam(id, businessUnit) {
+async function enableTeam(req) {
     let query = {
-        _id: id,
+        _id: req.params.team,
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
-    return await TeamOperations.enableTeam(query);
+    let updateObj = {
+        isEnabled: true,
+        updatedBy: req.userId
+    }
+    return await TeamOperations.updateTeam(query, updateObj);
 }
 
-async function enableTeams(ids, businessUnit) {
+
+
+async function enableTeams(req) {
     let query = {
-        _id: {$in: ids},
+        _id: {$in: req.body.teams},
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
-    return await TeamOperations.enableTeams(query);
+    let updateObj = {
+        isEnabled: true,
+        updatedBy: req.userId
+    }
+    return await TeamOperations.updateTeams(query, updateObj);
 }
 
-async function disableTeam(id, businessUnit) {
+async function disableTeam(req) {
     let query = {
-        _id: id,
-        // isEnabled: true,
+        _id: req.params.team,
+        // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
-    return await TeamOperations.disableTeam(query);
+    let updateObj = {
+        isEnabled: false,
+        updatedBy: req.userId
+    }
+    return await TeamOperations.updateTeam(query, updateObj);
 }
 
 
-async function disableTeams(ids, businessUnit) {
+async function disableTeams(req) {
     let query = {
-        _id: {$in: ids},
-        // isEnabled: true,
+        _id: {$in: req.body.teams},
+        // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
-    return await TeamOperations.disableTeams(query);
+    let updateObj = {
+        isEnabled: false,
+        updatedBy: req.userId
+    }
+    return await TeamOperations.updateTeams(query, updateObj);
 }
 
-async function deleteTeam(id, businessUnit) {
+async function deleteTeam(req) {
     let query = {
-        _id: id,
+        _id: req.params.team,
+        // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
-    return await TeamOperations.deleteTeam(query);
+    let updateObj = {
+        isDeleted: true,
+        updatedBy: req.userId
+    }
+    return await TeamOperations.updateTeam(query, updateObj);
 }
 
-async function deleteTeams(ids, businessUnit) {
+async function deleteTeams(req) {
     let query = {
-        _id: {$in: ids},
+        _id: {$in: req.body.teams},
+        // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
-    return await TeamOperations.deleteTeams(query);
+    let updateObj = {
+        isDeleted: true,
+        updatedBy: req.userId
+    }
+    return await TeamOperations.updateTeams(query, updateObj);
 }
 
-async function updateTeam(id, updateObject, businessUnit) {
+async function updateTeam(req, updateObject) {
     let query = {
-        _id: id,
+        _id: req.params.team,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
     return await TeamOperations.updateTeam(query, updateObject);
 }
@@ -196,5 +224,6 @@ module.exports = {
     deleteTeams,
     updateTeam,
     appendUsersToTeam,
+    removeUsersFromTeam,
     returnUsersFromTeams
 };

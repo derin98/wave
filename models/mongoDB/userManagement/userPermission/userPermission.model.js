@@ -21,17 +21,17 @@ const userPermissionSchema = new mongoose.Schema({
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: true,
-        default: function () {
-            return this.isSuperAdmin ? this._id : null;
-        },
+        // default: function () {
+        //     return this.isSuperAdmin ? this._id : null;
+        // },
     },
     updatedBy: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: true,
-        default: function () {
-            return this.isSuperAdmin ? this._id : null;
-        },
+        // default: function () {
+        //     return this.isSuperAdmin ? this._id : null;
+        // },
     },
     createdAt: {
         // I want to default to a new date

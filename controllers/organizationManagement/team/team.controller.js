@@ -70,7 +70,7 @@ exports.getTeam = async (req, res) => {
 
 exports.enableTeam = async (req, res) => {
     try {
-        const team = await teamService.enableTeam(req.params.team, req.businessUnit);
+        const team = await teamService.enableTeam(req);
         const message = "Team enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -88,7 +88,7 @@ exports.enableTeam = async (req, res) => {
 
 exports.disableTeam = async (req, res) => {
     try {
-        const team = await teamService.disableTeam(req.params.team, req.businessUnit);
+        const team = await teamService.disableTeam(req);
         const message = "Team disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -105,7 +105,7 @@ exports.disableTeam = async (req, res) => {
 
 exports.enableTeams = async (req, res) => {
     try {
-        await teamService.enableTeams(req.body.teams, req.businessUnit, req.businessUnit);
+        await teamService.enableTeams(req);
         const message = "Teams enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -123,7 +123,7 @@ exports.enableTeams = async (req, res) => {
 
 exports.disableTeams = async (req, res) => {
     try {
-        await teamService.disableTeams(req.body.teams, req.businessUnit);
+        await teamService.disableTeams(req);
         const message = "Teams disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -140,7 +140,7 @@ exports.disableTeams = async (req, res) => {
 
 exports.deleteTeam = async (req, res) => {
     try {
-        await teamService.deleteTeam(req.params.team, req.businessUnit);
+        await teamService.deleteTeam(req);
         await userService.removeTeamFromUsers(req.teamObj.users, req.params.team);
         const message = "Team deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
@@ -157,7 +157,7 @@ exports.deleteTeam = async (req, res) => {
 
 exports.deleteTeams = async (req, res) => {
     try {
-        await teamService.deleteTeams(req.body.teams, req.businessUnit);
+        await teamService.deleteTeams(req);
         const removeTeamsFromUsers = await teamService.returnUsersFromTeams(req.teamsObjs);
         await userService.removeTeamFromUsers(removeTeamsFromUsers, req.body.teams);
         const message = "Teams deleted successfully";
@@ -176,7 +176,7 @@ exports.deleteTeams = async (req, res) => {
 exports.updateTeam = async (req, res) => {
     try {
         const teamReqObj = teamReqObjExtractor.updateTeamObject(req);
-        const team = await teamService.updateTeam(req.params.team, teamReqObj, req.businessUnit);
+        const team = await teamService.updateTeam(req, teamReqObj, );
         const message = "Team updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {

@@ -27,7 +27,7 @@ async function getAllUserPermissions(query, sort, order, page, limit, skip, sele
             const validPopulateFields = populateFieldsArray.filter(field => UserPermission.schema.path(field) != null);
             queryObject = queryObject.populate({
                 path: validPopulateFields.join(' '), // Convert back to a string
-                select: '_id name email employeeId userPermissionId password expiredAt shortName userCount',
+                select: '_id name email employeeId userPermissionId password expiredAt shortName usersCount',
                 options: {
                     lean: true, // Ensure the result is in plain JavaScript objects
                     transform: doc => {

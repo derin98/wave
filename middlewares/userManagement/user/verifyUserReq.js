@@ -286,11 +286,11 @@ validateUser = async (req, res, next) => {
 
     // Check if userId is in req.params
     if (req.params.user && typeof req.params.user === 'string') {
-        req.userId = req.params.user;
+        req.user = req.params.user;
     }
     // If not, check if userId is in req.body
     else if (req.body.user && typeof req.body.user === 'string') {
-        req.userId = req.body.user;
+        req.user = req.body.user;
     }
     // If userId is not in req.params or req.body, return an error response
     else {
@@ -303,7 +303,7 @@ validateUser = async (req, res, next) => {
     }
 
     // Check if the user with the given ID exists
-    let checkExistingUser = await UserDbOperations.checkExistingUser(req.userId, req.businessUnit);
+    let checkExistingUser = await UserDbOperations.checkExistingUser(req.user, req.businessUnit);
 
     if (checkExistingUser) {
         next();
@@ -350,6 +350,35 @@ validateUserAndReturnObj = async (req, res, next) => {
             400,
             null
         );
+    }
+}
+
+rejectUpdatingUserBySameUser = async (req, res, next) => {
+
+    if (req.userId === req.user) {
+        return apiResponseHandler.errorResponse(
+            res,
+            "Failed! Cant update the same user",
+            400,
+            null
+        );
+    } else {
+        next();
+    }
+}
+
+rejectUpdatingUsersBySameUser = async (req, res, next) => {
+
+    if (req.body.users.includes(req.userId)){
+        return apiResponseHandler.errorResponse(
+            res,
+            "Failed! Cant update the same user",
+            400,
+            null
+        );
+    }
+    else {
+        next();
     }
 }
 
@@ -436,36 +465,40 @@ validateUsersWithoutTeam = async (req, res, next) => {
 
 validateReportsTo = async (req, res, next) => {
 
-    // Check if reportsTo is in req.params
-    if (req.params.reportsTo && typeof req.params.reportsTo === 'string') {
-        req.reportsTo = req.params.reportsTo;
-    }
-    // If not, check if reportsTo is in req.body
-    else if (req.body.reportsTo && typeof req.body.reportsTo === 'string') {
-        req.reportsTo = req.body.reportsTo;
-    }
-    // If reportsTo is not in req.params or req.body, return an error response
-    else {
-        return apiResponseHandler.errorResponse(
-            res,
-            "reportsTo must be a non-empty string in req.params or req.body",
-            400,
-            null
-        );
-    }
+    if(req.params.reportsTo || req.body.reportsTo){ // Check if reportsTo is in req.params
+        if (req.params.reportsTo && typeof req.params.reportsTo === 'string') {
+            req.reportsTo = req.params.reportsTo;
+        }
+        // If not, check if reportsTo is in req.body
+        else if (req.body.reportsTo && typeof req.body.reportsTo === 'string') {
+            req.reportsTo = req.body.reportsTo;
+        }
+        // If reportsTo is not in req.params or req.body, return an error response
+        else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "reportsTo must be a non-empty string in req.params or req.body",
+                400,
+                null
+            );
+        }
 
-    // Check if the user with the given ID exists
-    let checkExistingUser = await UserDbOperations.checkExistingUser(req.userId, req.businessUnit);
+        // Check if the user with the given ID exists
+        let checkExistingUser = await UserDbOperations.checkExistingUser(req.userId, req.businessUnit);
 
-    if (checkExistingUser) {
+        if (checkExistingUser) {
+            next();
+        } else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! ReportsTo user does not exist",
+                400,
+                null
+            );
+        }
+    }
+    else{
         next();
-    } else {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! ReportsTo user does not exist",
-            400,
-            null
-        );
     }
 }
 
@@ -518,7 +551,9 @@ const verifyUserRequest = {
     validateUsers: validateUsers,
     validateReportsTo: validateReportsTo,
     validateReportsTosFromQuery: validateReportsTosFromQuery,
-    validateUsersWithoutTeam: validateUsersWithoutTeam
+    validateUsersWithoutTeam: validateUsersWithoutTeam,
+    rejectUpdatingUserBySameUser: rejectUpdatingUserBySameUser,
+    rejectUpdatingUsersBySameUser: rejectUpdatingUsersBySameUser
 
 };
 module.exports = verifyUserRequest

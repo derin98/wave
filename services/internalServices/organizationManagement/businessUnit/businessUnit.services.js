@@ -64,11 +64,11 @@ async function returnNewBuUserIdAndName(id, selectFields) {
         _id : id
     };
     selectFields = selectFields
-        ? [...new Set(selectFields.split(',')), 'name', 'shortName', '_id', 'userCount'].join(' ')
-        : ['name', 'shortName', '_id', 'userCount'];
+        ? [...new Set(selectFields.split(',')), 'name', 'shortName', '_id', 'usersCount'].join(' ')
+        : ['name', 'shortName', '_id', 'usersCount'];
 
     const businessUnit = await BusinessUnitOperations.getBusinessUnit(query, selectFields);
-    let buUserId = businessUnit.shortName+(businessUnit.userCount+1);
+    let buUserId = businessUnit.shortName+(businessUnit.usersCount+1);
     const existingBuUserId = await userService.getUserByBuUserId(buUserId)
     // const existingBuUserId = await UserDbOperations.getUser({ buUserId: buUserId });
     if (existingBuUserId != null) {
@@ -164,7 +164,7 @@ async function updateBusinessUnitUserCountByOne(id) {
         _id : id
     };
     let businessUnitObject = {
-        $inc: { userCount: 1 }
+        $inc: { usersCount: 1 }
     };
     return await BusinessUnitOperations.updateBusinessUnit(query, businessUnitObject);
 }

@@ -119,7 +119,7 @@ async function init() {
                 createdBy: user.id,
                 updatedBy: user.id
             }
-            businessUnit = await businessUnitServices.getBusinessUnitByName(businessUnitObj.name, undefined,"userCount");
+            businessUnit = await businessUnitServices.getBusinessUnitByName(businessUnitObj.name, undefined,"usersCount");
             if(!businessUnit){
                 businessUnit = await businessUnitServices.createBusinessUnit(businessUnitObj);
                 console.log("Default business unit created successfully  =====>  ", businessUnit);
@@ -229,8 +229,9 @@ async function init() {
             updatedBy: user.id,
             reportsTo: user.id
         }
+        let req = {params:{user:user.id}}
 
-        await userServices.updateUser(user.id, userUpdateObj);
+        await userServices.updateUser(req, userUpdateObj);
 
     } catch (e) {
         console.log(e.message);

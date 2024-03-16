@@ -186,84 +186,113 @@ async function getUserForSignIn(userDetails, selectFields, populateFields, busin
     return await UserOperations.getUser(query, selectFields, populateFields);
 }
 
-async function enableUser(id, businessUnit) {
+async function enableUser(req) {
     let query = {
-        _id: id,
+        _id: req.params.user,
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
-    return await UserOperations.enableUser(query);
+    let updateObj = {
+        isEnabled: true,
+        updatedBy: req.userId
+    }
+    return await UserOperations.updateUser(query, updateObj);
 }
 
-async function enableUsers(ids, businessUnit) {
+async function enableUsers(req) {
     let query = {
-        _id: {$in: ids},
+        _id: {$in: req.body.users},
         // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
-    return await UserOperations.enableUsers(query);
+    let updateObj = {
+        isEnabled: true,
+        updatedBy: req.userId
+    }
+    return await UserOperations.updateUser(query, updateObj);
 }
 
-async function disableUser(id, businessUnit) {
+async function disableUser(req) {
     let query = {
-        _id: id,
-        // isEnabled: true,
+        _id: req.params.user,
+        // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
-    return await UserOperations.disableUser(query);
+    let updateObj = {
+        isEnabled: false,
+        updatedBy: req.userId
+    }
+    return await UserOperations.updateUser(query, updateObj);
 }
 
 
-async function disableUsers(ids, businessUnit) {
+async function disableUsers(req) {
     let query = {
-        _id: {$in: ids},
-        // isEnabled: true,
+        _id: {$in: req.body.users},
+        // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
-    return await UserOperations.disableUsers(query);
+    let updateObj = {
+        isEnabled: false,
+        updatedBy: req.userId
+    }
+    return await UserOperations.updateUser(query, updateObj);
 }
 
-async function deleteUser(id, businessUnit) {
+async function deleteUser(req) {
     let query = {
-        _id: id,
+        _id: req.params.user,
+        // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
-    return await UserOperations.deleteUser(query);
+    let updateObj = {
+        isDeleted: true,
+        updatedBy: req.userId
+    }
+    return await UserOperations.updateUser(query, updateObj);
 }
 
-async function deleteUsers(ids, businessUnit) {
+async function deleteUsers(req) {
     let query = {
-        _id: {$in: ids},
+        _id: {$in: req.body.users},
+        // isEnabled: false,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
     }
-    return await UserOperations.deleteUsers(query);
+    let updateObj = {
+        isDeleted: true,
+        updatedBy: req.userId
+    }
+    return await UserOperations.updateUser(query, updateObj);
 }
 
-async function updateUser(id, updateObject, businessUnit) {
+async function updateUser(req, updateObject) {
     let query = {
-        _id: id,
+        _id: req.params.user,
         isDeleted: false
     };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+    if(req.businessUnit) {
+        query.businessUnit = req.businessUnit;
+    }
+    if(!updateObject.updatedBy){
+        updateObject.updatedBy = req.userId
     }
     return await UserOperations.updateUser(query, updateObject);
 }
@@ -285,7 +314,7 @@ async function updateUserPasswordAndPermission(id, userPassword, userPermission)
     };
     return await UserOperations.updateUser(query, {userPassword, userPermission});
 }
-async function removeTeamFromUsers(users, team) {
+async function removeTeamFromUsers(users) {
     let query = {
         _id: {$in: users},
         isDeleted: false

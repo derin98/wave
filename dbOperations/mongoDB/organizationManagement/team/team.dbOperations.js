@@ -155,13 +155,31 @@ async function deleteTeams(query) {
 async function updateTeam(query, updateObject) {
     return Team.updateOne(query, {$set: updateObject});
 }
+async function updateTeams(query, updateObject) {
+    return Team.updateMany(query, {$set: updateObject});
+}
 
+// async function appendUsersToTeam(teamId, users) {
+//     return Team.updateOne({_id: teamId, isDeleted: false}, {$addToSet: {users: {$each: users}, usersCount: {$inc: users.length}}});
+// }
 async function appendUsersToTeam(teamId, users) {
-    return Team.updateOne({_id: teamId, isDeleted: false}, {$addToSet: {users: {$each: users}, usersCount: {$inc: users.length}}});
+    return Team.updateOne(
+        { _id: teamId, isDeleted: false },
+        {
+            $addToSet: { users: { $each: users } },
+            $inc: { usersCount: users.length }
+        }
+    );
 }
 
 async function removeUsersFromTeam(teamId, users) {
-    return Team.updateOne({_id: teamId, isDeleted: false}, {$pull: {users: {$in: users}, usersCount: {$inc: -users.length}}});
+    return Team.updateOne(
+        { _id: teamId, isDeleted: false },
+        {
+            $pull: { users: { $in: users } },
+            $inc: { usersCount: -users.length }
+        }
+    );
 }
 
 async function checkExistingTeam(id, department) {
@@ -253,6 +271,7 @@ module.exports = {
     deleteTeam,
     deleteTeams,
     updateTeam,
+    updateTeams,
     checkExistingTeam,
     checkExistingNameForBusinessUnit,
     returnInvalidTeams,

@@ -30,19 +30,19 @@ module.exports = function (app) {
         ],
         userController.getAllUsers);
 
-    app.get("/api/v1/users/:user", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser], userController.getUser);
+    app.get("/api/v1/users/:user", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser, verifyUserReq.rejectUpdatingUserBySameUser], userController.getUser);
 
-    app.put("/api/v1/users/:user/enable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser], userController.enableUser);
+    app.put("/api/v1/users/:user/enable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser, verifyUserReq.rejectUpdatingUserBySameUser], userController.enableUser);
 
-    app.put("/api/v1/users/:user/disable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser], userController.disableUser);
+    app.put("/api/v1/users/:user/disable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser, verifyUserReq.rejectUpdatingUserBySameUser], userController.disableUser);
 
-    app.put("/api/v1/users/enable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUsers], userController.enableUsers);
+    app.put("/api/v1/users/enable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUsers, verifyUserReq.rejectUpdatingUsersBySameUser], userController.enableUsers);
 
-    app.put("/api/v1/users/disable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUsers], userController.disableUsers);
+    app.put("/api/v1/users/disable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUsers, verifyUserReq.rejectUpdatingUsersBySameUser], userController.disableUsers);
 
-    app.delete("/api/v1/users/:user", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser], userController.deleteUser);
+    app.delete("/api/v1/users/:user", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser, verifyUserReq.rejectUpdatingUserBySameUser], userController.deleteUser);
 
-    app.delete("/api/v1/users/", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUsers], userController.deleteUsers);
+    app.delete("/api/v1/users/", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUsers, verifyUserReq.rejectUpdatingUsersBySameUser], userController.deleteUsers);
 
     app.put("/api/v1/users/:user", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit,
         verifyUserReq.validatePreUpdateUserRequest, verifyUserReq.validateUserAndReturnObj,
