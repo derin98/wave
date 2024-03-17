@@ -2,7 +2,6 @@ const TeamOperations = require('../../../../dbOperations/mongoDB/organizationMan
 const paginationHandler = require('../../../../utils/objectHandlers/paginationHandler');
 const teamResObjConverter = require('../../../../utils/objectHandlers/resObjConverters/organizationManagement/team/team.resObjConverter');
 
-
 async function createTeam(teamObject) {
     const team = await TeamOperations.createTeam(teamObject);
     return teamResObjConverter.teamCreateResponse(team);
@@ -32,8 +31,8 @@ async function getAllTeams(req) {
 
     selectFields = selectFields
         ? [...new Set(selectFields.split(',')), 'name', '_id'].join(' ')
-        : ['name', '_id'];
-
+        : ['name', '_id'].join(' ');
+    console.log("selectFields",selectFields)
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 0;
     const skip = (page - 1) * limit;
@@ -203,6 +202,15 @@ async function removeUsersFromTeam(teamId, users, businessUnit) {
     return await TeamOperations.removeUsersFromTeam(query, users);
 }
 
+async function removeUsersFromTeams(usersToDelete){
+    console.log('usersToDelete', usersToDelete)
+    let query =   { users: { $in: usersToDelete } }
+
+    let updateObj ={ $pull: { users: { $in: usersToDelete } } }
+
+    return await TeamOperations.updateTeams(query, updateObj)
+}
+
 async function returnUsersFromTeams(teamsObjs){
     console.log('teamsObjs', teamsObjs)
     const users = [];
@@ -225,5 +233,6 @@ module.exports = {
     updateTeam,
     appendUsersToTeam,
     removeUsersFromTeam,
-    returnUsersFromTeams
+    returnUsersFromTeams,
+    removeUsersFromTeams
 };

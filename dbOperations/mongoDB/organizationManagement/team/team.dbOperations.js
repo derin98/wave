@@ -24,21 +24,24 @@ async function createTeam(teamObject) {
 // }
 async function getAllTeams(query, sort, order, page, limit, skip, selectFields, populateFields) {
     try {
-        let queryObject
-        console.log("query", query)
-        if(limit > 0){
+        let queryObject;
+        console.log("query", query, selectFields,",", populateFields);
+        if (limit > 0) {
             queryObject = Team.find(query)
                 .sort({[sort]: order})
                 .skip(skip)
-                .limit(limit)
-            ;
-        }
-        else{
+                .limit(limit);
+        } else {
             queryObject = Team.find(query).sort({[sort]: order});
         }
 
         if (selectFields) {
-            queryObject = queryObject.select(selectFields);
+            console.log("selectFields", selectFields)
+            const selectFieldsArray = selectFields.split(' ');
+            if (selectFieldsArray.includes('usersCount') && !selectFieldsArray.includes('users')) {
+                selectFieldsArray.push('users');
+            }
+            queryObject = queryObject.select(selectFieldsArray.join(' '));
         }
 
         if (populateFields) {
@@ -50,7 +53,7 @@ async function getAllTeams(query, sort, order, page, limit, skip, selectFields, 
                 options: {
                     lean: true, // Ensure the result is in plain JavaScript objects
                     transform: doc => {
-                        // Rename _id to id within the populated item
+                        if (!doc) return null; // Add this line to handle null doc
                         const {_id, ...rest} = doc;
                         return {...rest, id: _id};
                     },
@@ -61,6 +64,12 @@ async function getAllTeams(query, sort, order, page, limit, skip, selectFields, 
         const results = await queryObject.lean();
 
         return results.map(result => {
+            if (result.users && !selectFields.includes('users')) {
+                delete result.users;
+            }
+            if (selectFields.includes('usersCount')) {
+                result.usersCount = result.users ? result.users.length : 0;
+            }
             const {_id, ...rest} = result;
             return {...rest, id: _id};
         });
@@ -69,6 +78,54 @@ async function getAllTeams(query, sort, order, page, limit, skip, selectFields, 
         return null;
     }
 }
+
+// async function getAllTeams(query, sort, order, page, limit, skip, selectFields, populateFields) {
+//     try {
+//         let queryObject
+//         console.log("query", query)
+//         if(limit > 0){
+//             queryObject = Team.find(query)
+//                 .sort({[sort]: order})
+//                 .skip(skip)
+//                 .limit(limit)
+//             ;
+//         }
+//         else{
+//             queryObject = Team.find(query).sort({[sort]: order});
+//         }
+//
+//         if (selectFields) {
+//             queryObject = queryObject.select(selectFields);
+//         }
+//
+//         if (populateFields) {
+//             const populateFieldsArray = populateFields.split(' ');
+//             const validPopulateFields = populateFieldsArray.filter(field => Team.schema.path(field) != null);
+//             queryObject = queryObject.populate({
+//                 path: validPopulateFields.join(' '), // Convert back to a string
+//                 select: '_id name shortName',
+//                 options: {
+//                     lean: true, // Ensure the result is in plain JavaScript objects
+//                     transform: doc => {
+//                         // Rename _id to id within the populated item
+//                         const {_id, ...rest} = doc;
+//                         return {...rest, id: _id};
+//                     },
+//                 },
+//             });
+//         }
+//
+//         const results = await queryObject.lean();
+//
+//         return results.map(result => {
+//             const {_id, ...rest} = result;
+//             return {...rest, id: _id};
+//         });
+//     } catch (error) {
+//         console.error('Error in getAllUsers:', error);
+//         return null;
+//     }
+// }
 
 async function countTeams(query) {
     return Team.countDocuments(query);
@@ -156,7 +213,12 @@ async function updateTeam(query, updateObject) {
     return Team.updateOne(query, {$set: updateObject});
 }
 async function updateTeams(query, updateObject) {
-    return Team.updateMany(query, {$set: updateObject});
+    try {
+        return await Team.updateMany(query, updateObject);
+    } catch (error) {
+        console.error('Error updating teams:', error);
+        return false; // Indicate failure
+    }
 }
 
 // async function appendUsersToTeam(teamId, users) {
@@ -166,8 +228,7 @@ async function appendUsersToTeam(teamId, users) {
     return Team.updateOne(
         { _id: teamId, isDeleted: false },
         {
-            $addToSet: { users: { $each: users } },
-            $inc: { usersCount: users.length }
+            $addToSet: { users: { $each: users } }
         }
     );
 }
@@ -176,8 +237,7 @@ async function removeUsersFromTeam(teamId, users) {
     return Team.updateOne(
         { _id: teamId, isDeleted: false },
         {
-            $pull: { users: { $in: users } },
-            $inc: { usersCount: -users.length }
+            $pull: { users: { $in: users } }
         }
     );
 }

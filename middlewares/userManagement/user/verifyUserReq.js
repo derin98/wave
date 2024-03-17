@@ -337,10 +337,13 @@ validateUserAndReturnObj = async (req, res, next) => {
         );
     }
 
+    let selectFields = ['name', '_id', 'team'];
+
     // Check if the user with the given ID exists
-    let checkExistingUser = await UserDbOperations.getUser({_id:req.userId, businessUnit: req.businessUnit});
+    let checkExistingUser = await UserDbOperations.getUser({_id:req.userId, businessUnit: req.businessUnit}, selectFields);
 
     if (checkExistingUser) {
+        console.log('checkExistingUser', checkExistingUser)
         req.userObj = checkExistingUser;
         next();
     } else {

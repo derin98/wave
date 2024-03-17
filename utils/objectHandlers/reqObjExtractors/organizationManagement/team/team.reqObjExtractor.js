@@ -4,7 +4,6 @@ exports.createTeamObject = (req) => {
         businessUnit: req.businessUnit,
         department: req.department,
         users: req.body.users ? req.body.users : [],
-        usersCount: req.body.users ? req.body.users.length : 0,
         isEnabled: req.body.isEnabled ? req.body.isEnabled : true,
         createdBy: req.userId,
         updatedBy: req.userId

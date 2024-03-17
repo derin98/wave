@@ -109,7 +109,9 @@ const userSchema = new mongoose.Schema({
     },
     team: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: "Team"
+        ref: "Team",
+        default: null
+
     },
 
     reportsTo: {

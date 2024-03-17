@@ -15,10 +15,6 @@ const teamSchema = new mongoose.Schema({
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
     }],
-    usersCount: {
-        type: Number,
-        default: 0
-    },
     department: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "Department",

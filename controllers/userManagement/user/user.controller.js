@@ -94,6 +94,7 @@ exports.disableUser = async (req, res) => {
     try {
         const user = await userService.disableUser(req.params.user, req.businessUnit);
         const message = "User disabled successfully";
+        await teamService.removeUsersFromTeams(req.params.users);
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while disabling user", err.message);
@@ -129,6 +130,8 @@ exports.disableUsers = async (req, res) => {
     try {
         await userService.disableUsers(req);
         const message = "Users disabled successfully";
+        let vvv = await teamService.removeUsersFromTeams(req.body.users);
+        console.log("vvv", vvv)
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while disabling users", err.message);
@@ -146,6 +149,7 @@ exports.deleteUser = async (req, res) => {
     try {
         await userService.deleteUser(req);
         const message = "User deleted successfully";
+        await teamService.removeUsersFromTeams(req.params.users);
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while deleting user", err.message);
@@ -162,6 +166,7 @@ exports.deleteUsers = async (req, res) => {
     try {
         await userService.deleteUsers(req);
         const message = "Users deleted successfully";
+        await teamService.removeUsersFromTeams(req.body.users);
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while deleting users", err.message);
@@ -183,8 +188,11 @@ exports.updateUser = async (req, res) => {
                 await teamService.removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
             }
             else if(userReqObj.team !== null && req.userObj.team !== userReqObj.team) {
+                console.log("userReqObj.team", userReqObj.team)
                 await teamService.appendUsersToTeam(userReqObj.team, [req.params.user], req.businessUnit);
-                await teamService.removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
+                if (req.userObj.team) {
+                    await teamService.removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
+                }
             }
         }
         const user = await userService.updateUser(req, userReqObj);
