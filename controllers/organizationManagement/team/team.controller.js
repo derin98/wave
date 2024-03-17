@@ -158,9 +158,12 @@ exports.deleteTeam = async (req, res) => {
 exports.deleteTeams = async (req, res) => {
     try {
         await teamService.deleteTeams(req);
+        console.log("req.teamsObjs", req.teamsObjs)
         const removeTeamsFromUsers = await teamService.returnUsersFromTeams(req.teamsObjs);
         const reqObj = {
-            body: removeTeamsFromUsers
+            body: {
+                users: removeTeamsFromUsers
+            }
         }
         await userService.updateUsers(reqObj, {team:null});
         const message = "Teams deleted successfully";
@@ -182,13 +185,17 @@ exports.updateTeam = async (req, res) => {
         const team = await teamService.updateTeam(req, teamReqObj, );
         if(req.body.appendUsers){
             const reqObj = {
-                body: req.body.appendUsers
+                body: {
+                    users: req.body.appendUsers
+                }
             }
             await userService.updateUsers(reqObj, {team:team.id});
         }
         if(req.body.removeUsers){
             const reqObj = {
-                body: req.body.removeUsers
+                body: {
+                    users: req.body.removeUsers
+                }
             }
             await userService.updateUsers(reqObj, {team:null});
         }

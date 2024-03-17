@@ -445,7 +445,7 @@ validateUsersWithoutTeam = async (req, res, next) => {
             }
         }
 
-        let invalidUserIdsWithoutTeam = await UserDbOperations.returnUserWithoutTeam(req.body.users, req.businessUnit);
+        let invalidUserIdsWithoutTeam = await UserDbOperations.returnUsersWithoutTeam(req.body.users, req.businessUnit);
         if (invalidUserIdsWithoutTeam.length > 0) {
             return apiResponseHandler.errorResponse(
                 res,
