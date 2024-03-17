@@ -9,13 +9,13 @@ const bodyParser = require("body-parser");
 const app = express();
 const cors = require('cors');
 const authController = require('./controllers/userManagement/auth/auth.controller');
-const userServices = require('./services/internalServices/userManagement/user/user.services');
-const businessUnitServices = require('./services/internalServices/organizationManagement/businessUnit/businessUnit.services');
-const departmentServices = require('./services/internalServices/organizationManagement/department/department.services');
-const userTypeServices = require('./services/internalServices/organizationManagement/userType/userType.services');
-const designationServices = require('./services/internalServices/organizationManagement/designation/designation.services');
-const permissionGroupServices = require('./services/internalServices/organizationManagement/permissionGroup/permissionGroup.services');
-const permissionServices = require('./services/internalServices/organizationManagement/permission/permission.services');
+const userManagers = require('./managers/internalManagers/userManagement/user/user.managers');
+const businessUnitManagers = require('./managers/internalManagers/organizationManagement/businessUnit/businessUnit.managers');
+const departmentManagers = require('./managers/internalManagers/organizationManagement/department/department.managers');
+const userTypeManagers = require('./managers/internalManagers/organizationManagement/userType/userType.managers');
+const designationManagers = require('./managers/internalManagers/organizationManagement/designation/designation.managers');
+const permissionGroupManagers = require('./managers/internalManagers/organizationManagement/permissionGroup/permissionGroup.managers');
+const permissionManagers = require('./managers/internalManagers/organizationManagement/permission/permission.managers');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended :true}));
@@ -93,7 +93,7 @@ async function init() {
         name: "Super Admin",
     }
 
-    user = await userServices.getUserByEmployeeId(userCreation.employeeId);
+    user = await userManagers.getUserByEmployeeId(userCreation.employeeId);
     if (user) {
         console.log("Admin user already present");
         return;
@@ -122,9 +122,9 @@ async function init() {
                 createdBy: user.id,
                 updatedBy: user.id
             }
-            businessUnit = await businessUnitServices.getBusinessUnitByName(businessUnitObj.name, undefined,"usersCount");
+            businessUnit = await businessUnitManagers.getBusinessUnitByName(businessUnitObj.name, undefined,"usersCount");
             if(!businessUnit){
-                businessUnit = await businessUnitServices.createBusinessUnit(businessUnitObj);
+                businessUnit = await businessUnitManagers.createBusinessUnit(businessUnitObj);
                 console.log("Default business unit created successfully  =====>  ", businessUnit);
             }
 
@@ -140,9 +140,9 @@ async function init() {
                 createdBy: user.id,
                 updatedBy: user.id
             }
-            department = await departmentServices.getDepartmentByName(departmentObj.name, businessUnit.id);
+            department = await departmentManagers.getDepartmentByName(departmentObj.name, businessUnit.id);
             if(!department){
-                department = await departmentServices.createDepartment(departmentObj);
+                department = await departmentManagers.createDepartment(departmentObj);
                 console.log("Default department created successfully  =====>  ", department);
             }
         } catch (e) {
@@ -158,9 +158,9 @@ async function init() {
                 updatedBy: user.id
             }
 
-            permissionGroup = await permissionGroupServices.getPermissionGroupByName(permissionGroupObj.name, businessUnit.id);
+            permissionGroup = await permissionGroupManagers.getPermissionGroupByName(permissionGroupObj.name, businessUnit.id);
             if(!permissionGroup){
-                permissionGroup = await permissionGroupServices.createPermissionGroup(permissionGroupObj);
+                permissionGroup = await permissionGroupManagers.createPermissionGroup(permissionGroupObj);
                 console.log("Default permissionGroup created successfully  =====>  ", permissionGroup);
             }
         } catch (e) {
@@ -176,9 +176,9 @@ async function init() {
                 updatedBy: user.id
             }
 
-            permission = await permissionServices.getPermissionByName(permissionObj.name, businessUnit.id);
+            permission = await permissionManagers.getPermissionByName(permissionObj.name, businessUnit.id);
             if(!permission){
-                permission = await permissionServices.createPermission(permissionObj);
+                permission = await permissionManagers.createPermission(permissionObj);
                 console.log("Default permission created successfully  =====>  ", permission);
             }
         } catch (e) {
@@ -195,9 +195,9 @@ async function init() {
                 updatedBy: user.id
             }
 
-            userType = await userTypeServices.getUserTypeByName(userTypeObj.name, businessUnit.id);
+            userType = await userTypeManagers.getUserTypeByName(userTypeObj.name, businessUnit.id);
             if(!userType){
-                userType = await userTypeServices.createUserType(userTypeObj);
+                userType = await userTypeManagers.createUserType(userTypeObj);
                 console.log("Default userType created successfully  =====>  ", userType);
             }
         } catch (e) {
@@ -215,9 +215,9 @@ async function init() {
                 updatedBy: user.id
             }
 
-            designation = await designationServices.getDesignationByName(designationObj.name, businessUnit.id);
+            designation = await designationManagers.getDesignationByName(designationObj.name, businessUnit.id);
             if(!designation){
-                designation = await designationServices.createDesignation(designationObj);
+                designation = await designationManagers.createDesignation(designationObj);
                 console.log("Default designation created successfully  =====>  ", designation);
             }
         } catch (e) {
@@ -234,7 +234,7 @@ async function init() {
         }
         let req = {params:{user:user.id}}
 
-        await userServices.updateUser(req, userUpdateObj);
+        await userManagers.updateUser(req, userUpdateObj);
 
     } catch (e) {
         console.log(e.message);

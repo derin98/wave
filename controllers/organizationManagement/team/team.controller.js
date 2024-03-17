@@ -4,8 +4,8 @@
 
 const teamReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/organizationManagement/team/team.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
-const teamService = require('../../../services/internalServices/organizationManagement/team/team.services');
-const userService = require('../../../services/internalServices/userManagement/user/user.services');
+const teamService = require('../../../managers/internalManagers/organizationManagement/team/team.managers');
+const userService = require('../../../managers/internalManagers/userManagement/user/user.managers');
 /**
  * Create a team
  *

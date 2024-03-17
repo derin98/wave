@@ -4,7 +4,7 @@
 
 const userReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/userManagement/user/user.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
-const userPermissionService = require('../../../services/internalServices/userManagement/userPermission/userPermission.services');
+const userPermissionService = require('../../../managers/internalManagers/userManagement/userPermission/userPermission.managers');
 
 /**
  * Create a user

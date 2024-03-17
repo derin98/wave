@@ -4,8 +4,8 @@
 
 const userReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/userManagement/user/user.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
-const userService = require('../../../services/internalServices/userManagement/user/user.services');
-const teamService = require('../../../services/internalServices/organizationManagement/team/team.services');
+const userService = require('../../../managers/internalManagers/userManagement/user/user.managers');
+const teamService = require('../../../managers/internalManagers/organizationManagement/team/team.managers');
 
 /**
  * Create a user

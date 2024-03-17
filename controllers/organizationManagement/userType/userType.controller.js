@@ -4,7 +4,7 @@
 
 const userTypeReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/organizationManagement/userType/userType.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
-const userTypeService = require('../../../services/internalServices/organizationManagement/userType/userType.services');
+const userTypeService = require('../../../managers/internalManagers/organizationManagement/userType/userType.managers');
 /**
  * Create a userType
  *
