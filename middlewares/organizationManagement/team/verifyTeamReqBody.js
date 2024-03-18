@@ -106,7 +106,7 @@ validateTeam = async (req, res, next) => {
             );
         }
         console.log("req.team", req.team, req.department)
-
+        let department = req.department ? req.department : req.userObj.department ? req.userObj.department : ""
         let checkExistingTeam = await TeamDbOperations.checkExistingTeam(req.team, req.department);
         if (!checkExistingTeam) {
             return apiResponseHandler.errorResponse(

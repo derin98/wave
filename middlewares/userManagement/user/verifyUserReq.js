@@ -337,7 +337,7 @@ validateUserAndReturnObj = async (req, res, next) => {
         );
     }
 
-    let selectFields = ['name', '_id', 'team'];
+    let selectFields = ['name', '_id', 'team', 'department'];
 
     // Check if the user with the given ID exists
     let checkExistingUser = await UserDbOperations.getUser({_id:req.userId, businessUnit: req.businessUnit}, selectFields);
@@ -407,7 +407,7 @@ validateUsers = async (req, res, next) => {
             }
         }
 
-        let invalidUserIds = await UserDbOperations.returnInvalidUserIds(req.body.users, req.businessUnit);
+        let invalidUserIds = await UserDbOperations.returnInvalidUserIds(req.body.users, req.businessUnit, req.department);
         if (invalidUserIds.length > 0) {
             return apiResponseHandler.errorResponse(
                 res,
