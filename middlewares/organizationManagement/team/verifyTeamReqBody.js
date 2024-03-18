@@ -106,7 +106,7 @@ validateTeam = async (req, res, next) => {
             );
         }
         console.log("req.team", req.team, req.department)
-        let department = req.department ? req.department : req.userObj.department ? req.userObj.department : ""
+        let department = req.department ? req.department : req.userObj ? req.userObj.department ? req.userObj.department : "" : "";
         let checkExistingTeam = await TeamDbOperations.checkExistingTeam(req.team, req.department);
         if (!checkExistingTeam) {
             return apiResponseHandler.errorResponse(
@@ -155,6 +155,7 @@ validateTeamAndReturnObj = async (req, res, next) => {
         if (existingTeam){
             req.teamObj = existingTeam;
             req.department = existingTeam.department
+            next()
         }
 
         else if (!existingTeam) {
@@ -167,7 +168,9 @@ validateTeamAndReturnObj = async (req, res, next) => {
         }
 
     }
-    next()
+    else {
+        next()
+    }
 }
 
 validateTeams = async (req, res, next) => {
@@ -285,8 +288,8 @@ validateAppendAndRemoveUsersFromBody = async (req, res, next) => {
         if (req.body.removeUsers && isValid) {
             if (!Array.isArray(req.body.removeUsers) || req.body.removeUsers.length === 0) {
                 isValid = false;
-                message = "removeUsers must be a non-empty array of strings",
-                    errorInfo = null
+                message = "removeUsers must be a non-empty array of strings";
+                errorInfo = null
             }
         }
 
@@ -317,6 +320,7 @@ validateAppendAndRemoveUsersFromBody = async (req, res, next) => {
         }
         if (req.body.appendUsers && isValid) {
             let usersWithoutTeam = await UserDbOperations.returnUsersWithoutTeam(req.body.appendUsers, req.businessUnit, req.department);
+            console.log("usersWithoutTeam", usersWithoutTeam)
             if (req.body.appendUsers.length !== usersWithoutTeam.length) {
                 isValid = false;
                 message = "Failed! Some users already have a team. But you are trying to append them";
@@ -324,6 +328,7 @@ validateAppendAndRemoveUsersFromBody = async (req, res, next) => {
                 let usersWithTeam = req.body.appendUsers.filter(user => !usersWithoutTeam.includes(user));
                 errorInfo = {usersWithTeam}
             }
+        }
             if (req.body.removeUsers && isValid) {
                 for (let i = 0; i < req.body.removeUsers.length; i++) {
                     if (typeof req.body.removeUsers[i] !== 'string') {
@@ -332,7 +337,7 @@ validateAppendAndRemoveUsersFromBody = async (req, res, next) => {
                             errorInfo = null
                     }
                 }
-                let invalidUsers = await UserDbOperations.returnInvalidUserIds(req.body.appendUsers, req.businessUnit, req.department);
+                let invalidUsers = await UserDbOperations.returnInvalidUserIds(req.body.removeUsers, req.businessUnit, req.department);
                 if (invalidUsers.length > 0) {
                     isValid = false;
                     message = "Failed! Invalid User ids";
@@ -351,22 +356,19 @@ validateAppendAndRemoveUsersFromBody = async (req, res, next) => {
                 }
             }
 
-            if (isValid) {
-                next();
-            } else {
-                return apiResponseHandler.errorResponse(
-                    res,
-                    message,
-                    400,
-                    null
-                );
-            }
+        if (isValid) {
+            next();
+        } else {
+            return apiResponseHandler.errorResponse(
+                res,
+                message,
+                400,
+                null
+            );
+        }
         } else {
             next()
         }
-
-
-    }
 }
 
 const verifyTeamReqBody = {

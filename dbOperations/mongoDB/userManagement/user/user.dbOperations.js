@@ -225,7 +225,7 @@ const returnInvalidUserIds = async (ids, businessUnit, department) => {
 const returnUsersWithoutTeam = async (ids, businessUnit, department) => {
 
     let invalidUserIdsWithoutTeam = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
-
+    console.log("invalidUserIdsWithoutTeam", invalidUserIdsWithoutTeam)
     if (invalidUserIdsWithoutTeam.length > 0) {
         return invalidUserIdsWithoutTeam;
     }
@@ -242,12 +242,13 @@ const returnUsersWithoutTeam = async (ids, businessUnit, department) => {
         query.department = department;
     }
     const existingUsers = await User.find(query).select('_id');
-
+    console.log("existingUsers", existingUsers)
     const existingUserIds = existingUsers.map(user => user._id.toString());
+    console.log("existingUserIds", existingUserIds)
 
     invalidUserIdsWithoutTeam.push(...ids.filter(id => !existingUserIds.includes(id)));
 
-    return Array.from(new Set(invalidUserIdsWithoutTeam));
+    return Array.from(new Set(existingUserIds));
 }
 
 const returnUsersWithSpecificTeam = async (ids, team, businessUnit, department) => {

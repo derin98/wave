@@ -177,6 +177,7 @@ async function updateTeam(req, updateObject) {
     if(req.businessUnit) {
         query.businessUnit = req.businessUnit;
     }
+    console.log("updateObject", updateObject)
     return await TeamOperations.updateTeam(query, updateObject);
 }
 

@@ -227,9 +227,9 @@ async function updateTeams(query, updateObject) {
 async function appendUsersToTeam(teamId, users) {
     return Team.updateOne(
         { _id: teamId, isDeleted: false },
-        {
-            $addToSet: { users: { $each: users } }
-        }
+
+            {$push:{ users: { $each: users } }}
+
     );
 }
 

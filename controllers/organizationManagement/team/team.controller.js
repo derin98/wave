@@ -182,14 +182,15 @@ exports.deleteTeams = async (req, res) => {
 exports.updateTeam = async (req, res) => {
     try {
         const teamReqObj = teamReqObjExtractor.updateTeamObject(req);
-        const team = await teamService.updateTeam(req, teamReqObj, );
+        const team = await teamService.updateTeam(req, teamReqObj);
         if(req.body.appendUsers){
             const reqObj = {
                 body: {
                     users: req.body.appendUsers
                 }
             }
-            await userService.updateUsers(reqObj, {team:team.id});
+            await userService.updateUsers(reqObj, {team:req.params.team});
+            await teamService.appendUsersToTeam(req.params.team, req.body.appendUsers);
         }
         if(req.body.removeUsers){
             const reqObj = {
@@ -198,6 +199,7 @@ exports.updateTeam = async (req, res) => {
                 }
             }
             await userService.updateUsers(reqObj, {team:null});
+            await teamService.removeUsersFromTeam(req.params.team, req.body.removeUsers);
         }
         const message = "Team updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
