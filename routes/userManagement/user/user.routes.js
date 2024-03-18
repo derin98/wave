@@ -30,6 +30,11 @@ module.exports = function (app) {
         ],
         userController.getAllUsers);
 
+    app.get("/api/v1/users/count", [
+            authJwt.verifyToken,
+        ],
+        userController.getTotalAndEnabledUsersCount);
+
     app.get("/api/v1/users/:user", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser, verifyUserReq.rejectUpdatingUserBySameUser], userController.getUser);
 
     app.put("/api/v1/users/:user/enable", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserReq.validateUser, verifyUserReq.rejectUpdatingUserBySameUser], userController.enableUser);

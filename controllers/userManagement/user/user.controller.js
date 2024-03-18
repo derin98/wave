@@ -203,3 +203,14 @@ exports.updateUser = async (req, res) => {
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
     }
 }
+
+exports.getTotalAndEnabledUsersCount = async (req, res) => {
+    try {
+        const users = await userService.getTotalAndEnabledUsers();
+        const message = "Users fetched successfully";
+        return apiResponseHandler.successResponse(res, message, users, 200);
+    } catch (err) {
+        console.log("Error while fetching users", err.message);
+        return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
+    }
+}

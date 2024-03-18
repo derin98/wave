@@ -279,6 +279,11 @@ const returnUsersWithSpecificTeam = async (ids, team, businessUnit, department) 
     return Array.from(new Set(invalidUserIdsWithSpecificTeam));
 }
 
+async function getUsersByAggregation(aggregationPipeline) {
+    const result = await User.aggregate(aggregationPipeline);
+    return result[0];
+}
+
 
 
 
@@ -302,5 +307,6 @@ module.exports = {
     checkExistingEmployeeIdForBusinessUnit,
     returnInvalidUserIds,
     returnUsersWithoutTeam,
-    returnUsersWithSpecificTeam
+    returnUsersWithSpecificTeam,
+    getUsersByAggregation
 };

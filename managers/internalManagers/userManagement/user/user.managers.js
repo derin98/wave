@@ -322,6 +322,34 @@ async function removeTeamFromUsers(users) {
     return await UserOperations.updateUsers(query, {team: null});
 
 }
+async function getTotalAndEnabledUsers() {
+    const aggregationPipeline = [
+        {
+            $group: {
+                _id: null,
+                totalUsers: { $sum: 1 },
+                enabledUsers: {
+                    $sum: {
+                        $cond: [
+                            { $and: [{ $eq: ["$isDeleted", false] }, { $eq: ["$isEnabled", true] }] },
+                            1,
+                            0
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 0, // Exclude the _id field
+                totalUsers: 1,
+                enabledUsers: 1
+            }
+        }
+    ];
+    return await UserOperations.getUsersByAggregation(aggregationPipeline) || { totalUsers: 0, enabledUsers: 0 };;
+}
+
 
 module.exports = {
     createUser,
@@ -341,4 +369,5 @@ module.exports = {
     updateUsers,
     updateUserPasswordAndPermission,
     removeTeamFromUsers,
+    getTotalAndEnabledUsers,
 };
