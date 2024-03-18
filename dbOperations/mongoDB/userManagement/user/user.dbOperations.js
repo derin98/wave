@@ -271,11 +271,11 @@ const returnUsersWithSpecificTeam = async (ids, team, businessUnit, department) 
         query.department = department;
     }
     const existingUsers = await User.find(query).select('_id');
-
+    console.log("existingUsers", existingUsers)
     const existingUserIds = existingUsers.map(user => user._id.toString());
-
-    invalidUserIdsWithSpecificTeam.push(...ids.filter(id => !existingUserIds.includes(id)));
-
+    console.log("existingUserIds", existingUserIds)
+    invalidUserIdsWithSpecificTeam.push(...ids.filter(id => existingUserIds.includes(id)));
+    console.log("invalidUserIdsWithSpecificTeam", invalidUserIdsWithSpecificTeam)
     return Array.from(new Set(invalidUserIdsWithSpecificTeam));
 }
 

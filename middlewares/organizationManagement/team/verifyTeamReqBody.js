@@ -347,9 +347,10 @@ validateAppendAndRemoveUsersFromBody = async (req, res, next) => {
 
             if (req.body.removeUsers && isValid) {
                 let usersWithSpecificTeam = await UserDbOperations.returnUsersWithSpecificTeam(req.body.removeUsers, req.team, req.businessUnit, req.department);
+                console.log("usersWithSpecificTeam", usersWithSpecificTeam)
                 if (req.body.removeUsers.length !== usersWithSpecificTeam.length) {
                     isValid = false;
-                    message = "Failed! Some users do not have the team. But you are trying to remove them";
+                    message = "Failed! Some users doesn't belong to the team. But you are trying to remove them";
                     //send the users who do not have the team
                     let usersWithoutTeam = req.body.removeUsers.filter(user => !usersWithSpecificTeam.includes(user));
                     errorInfo = {usersWithoutTeam}
@@ -363,7 +364,7 @@ validateAppendAndRemoveUsersFromBody = async (req, res, next) => {
                 res,
                 message,
                 400,
-                null
+                errorInfo
             );
         }
         } else {
