@@ -20,7 +20,12 @@ async function createBusinessUnit(businessUnitObject) {
 
         if (req.query.name) {
             query.name = { $regex: req.query.name, $options: 'i' };
+        }
+        if (req.query.shortName) {
             query.shortName = { $regex: req.query.shortName, $options: 'i' };
+        }
+        if (req.businessUnit) {
+            query._id = req.businessUnit;
         }
 
         const page = parseInt(req.query.page) || 1;
