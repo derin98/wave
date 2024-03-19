@@ -8,7 +8,7 @@ const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHan
 
 const verifyBusinessUnit = async (req, res, next) => {
     // Validate request
-    req.businessUnit = req.isSuperAdmin ? req.query.businessUnit : req.businessUnit ? req.businessUnit : req.query.businessUnit;
+    req.businessUnit = req.isSuperAdmin ? (req.query.businessUnit || req.body.businessUnit) : req.businessUnit ? req.businessUnit : req.query.businessUnit;
     if (!req.isSuperAdmin) {
         if (!req.businessUnit) {
             return apiResponseHandler.errorResponse(
@@ -45,8 +45,37 @@ const verifyBusinessUnit = async (req, res, next) => {
     next();
 }
 
+const verifyBusinessUnitForSignIn = async (req, res, next) => {
+    req.businessUnit = req.body.businessUnit;
+    if (!req.businessUnit) {
+        return apiResponseHandler.errorResponse(
+            res,
+            "BusinessUnit Id must be a non-empty string",
+            400,
+            null
+        );
+    }
+    else {
+        let existingBusinessUnit = await BusinessUnitDbOperations.getBusinessUnit({_id: req.businessUnit, isDeleted: false});
+        if (!existingBusinessUnit) {
+            existingBusinessUnit = await BusinessUnitDbOperations.getBusinessUnit({name: req.businessUnit, isDeleted: false});
+        }
+        req.businessUnitObj = existingBusinessUnit;
+        if (!existingBusinessUnit) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! BusinessUnit does not exist",
+                400,
+                null
+            );
+        }
+    }
+next()
+}
+
 
 const verifyBusinessUnitAfterAuth = {
-    verifyBusinessUnit: verifyBusinessUnit
+    verifyBusinessUnit: verifyBusinessUnit,
+    verifyBusinessUnitForSignIn: verifyBusinessUnitForSignIn
 };
 module.exports = verifyBusinessUnitAfterAuth;

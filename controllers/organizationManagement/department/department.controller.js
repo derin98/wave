@@ -4,7 +4,7 @@
 
 const departmentReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/organizationManagement/department/department.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
-const departmentService = require('../../../services/internalServices/organizationManagement/department/department.services');
+const departmentService = require('../../../managers/internalManagers/organizationManagement/department/department.managers');
 /**
  * Create a department
  *

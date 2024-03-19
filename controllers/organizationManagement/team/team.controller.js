@@ -4,7 +4,8 @@
 
 const teamReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/organizationManagement/team/team.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
-const teamService = require('../../../services/internalServices/organizationManagement/team/team.services');
+const teamService = require('../../../managers/internalManagers/organizationManagement/team/team.managers');
+const userService = require('../../../managers/internalManagers/userManagement/user/user.managers');
 /**
  * Create a team
  *
@@ -14,6 +15,7 @@ exports.createTeam = async (req, res) => {
     try {
         const teamReqObj = teamReqObjExtractor.createTeamObject(req);
         const team = await teamService.createTeam(teamReqObj);
+        await userService.updateUsers(req, {team:team.id});
         const message = "Team created successfully";
         return apiResponseHandler.successResponse(res, message, team, 201);
     } catch (err) {
@@ -46,8 +48,9 @@ exports.getAllTeams = async (req, res) => {
 
 exports.getTeam = async (req, res) => {
     try {
-        const team = await teamService.getTeam(req.params.team, req.businessUnit);
-
+        let populateFields = req.query.populateFields || undefined;
+        let selectFields = req.query.selectFields || undefined;
+        const team = await teamService.getTeam(req.params.team, selectFields, populateFields, req.businessUnit);
         if (!team) {
             return apiResponseHandler.errorResponse(res, "Team not found", 404, null);
         }
@@ -67,7 +70,7 @@ exports.getTeam = async (req, res) => {
 
 exports.enableTeam = async (req, res) => {
     try {
-        const team = await teamService.enableTeam(req.params.team, req.businessUnit);
+        const team = await teamService.enableTeam(req);
         const message = "Team enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -85,7 +88,7 @@ exports.enableTeam = async (req, res) => {
 
 exports.disableTeam = async (req, res) => {
     try {
-        const team = await teamService.disableTeam(req.params.team, req.businessUnit);
+        const team = await teamService.disableTeam(req);
         const message = "Team disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -102,7 +105,7 @@ exports.disableTeam = async (req, res) => {
 
 exports.enableTeams = async (req, res) => {
     try {
-        await teamService.enableTeams(req.body.teams, req.businessUnit, req.businessUnit);
+        await teamService.enableTeams(req);
         const message = "Teams enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -120,7 +123,7 @@ exports.enableTeams = async (req, res) => {
 
 exports.disableTeams = async (req, res) => {
     try {
-        await teamService.disableTeams(req.body.teams, req.businessUnit);
+        await teamService.disableTeams(req);
         const message = "Teams disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -137,7 +140,8 @@ exports.disableTeams = async (req, res) => {
 
 exports.deleteTeam = async (req, res) => {
     try {
-        await teamService.deleteTeam(req.params.team, req.businessUnit);
+        await teamService.deleteTeam(req);
+        await userService.removeTeamFromUsers(req.teamObj.users, req.params.team);
         const message = "Team deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -153,7 +157,15 @@ exports.deleteTeam = async (req, res) => {
 
 exports.deleteTeams = async (req, res) => {
     try {
-        await teamService.deleteTeams(req.body.teams, req.businessUnit);
+        await teamService.deleteTeams(req);
+        console.log("req.teamsObjs", req.teamsObjs)
+        const removeTeamsFromUsers = await teamService.returnUsersFromTeams(req.teamsObjs);
+        const reqObj = {
+            body: {
+                users: removeTeamsFromUsers
+            }
+        }
+        await userService.updateUsers(reqObj, {team:null});
         const message = "Teams deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -170,7 +182,25 @@ exports.deleteTeams = async (req, res) => {
 exports.updateTeam = async (req, res) => {
     try {
         const teamReqObj = teamReqObjExtractor.updateTeamObject(req);
-        const team = await teamService.updateTeam(req.params.team, teamReqObj, req.businessUnit);
+        const team = await teamService.updateTeam(req, teamReqObj);
+        if(req.body.appendUsers){
+            const reqObj = {
+                body: {
+                    users: req.body.appendUsers
+                }
+            }
+            await userService.updateUsers(reqObj, {team:req.params.team});
+            await teamService.appendUsersToTeam(req.params.team, req.body.appendUsers);
+        }
+        if(req.body.removeUsers){
+            const reqObj = {
+                body: {
+                    users: req.body.removeUsers
+                }
+            }
+            await userService.updateUsers(reqObj, {team:null});
+            await teamService.removeUsersFromTeam(req.params.team, req.body.removeUsers);
+        }
         const message = "Team updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {

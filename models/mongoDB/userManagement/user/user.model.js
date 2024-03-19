@@ -32,9 +32,6 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: function() {
-            return !this.isSuperAdmin;
-        },
         lowercase: true, // it will convert the email into the lower case and then store in the db,
         minLength: 10,  // anything less than 10 will fail
         unique: true
@@ -42,16 +39,9 @@ const userSchema = new mongoose.Schema({
     },
     contactNumber: {
         type: String,
-        required: function() {
-            return !this.isSuperAdmin;
-        },
-        unique: true
     },
     countryCode: {
         type: String,
-        required: function() {
-            return !this.isSuperAdmin;
-        },
     },
     isEnabled: {
         type: Boolean,
@@ -119,8 +109,11 @@ const userSchema = new mongoose.Schema({
     },
     team: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: "Team"
+        ref: "Team",
+        default: null
+
     },
+
     reportsTo: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
@@ -161,13 +154,6 @@ const userSchema = new mongoose.Schema({
 
 })
 
-// Pre-save hook to update name field
-userSchema.pre('save', function(next) {
-    if (this.isNew || this.isModified('firstName') || this.isModified('lastName')) {
-        this.name = `${this.firstName} ${this.lastName}`.trim() || this.name;
-    }
-    next();
-});
 
 
 module.exports = mongoose.model("User", userSchema);

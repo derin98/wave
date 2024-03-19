@@ -5,7 +5,7 @@ module.exports = function (app) {
 
     app.post("/api/v1/userTypes/:userType/designations", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserTypeReqBody.validateUserType, verifyPermissionReqBody.validatePermissions, verifyDesignationReqBody.validateCreateDesignationRequestBody], designationController.createDesignation);
 
-    app.get("/api/v1/designations",  [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit ], designationController.getAllDesignations);
+    app.get("/api/v1/designations",  [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserTypeReqBody.validateUserTypesFromQuery, verifyUserTypeReqBody.validateUserType ], designationController.getAllDesignations);
 
     app.get("/api/v1/designations/:designation", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyDesignationReqBody.validateDesignation], designationController.getDesignation);
 

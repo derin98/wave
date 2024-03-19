@@ -1,7 +1,7 @@
 // Description: This file contains the encryption and decryption functions.
 const crypto = require('crypto');
 const { CRYPTO_ALGORITHM } = require('../../configs/encryption/crypto.config');
-
+const CryptoJS = require("crypto-js");
 // Algorithm used for encryption
 const algorithm = CRYPTO_ALGORITHM;
 
@@ -38,13 +38,11 @@ const algorithm = CRYPTO_ALGORITHM;
 // }
 
 function encrypt(text, key, algorithm) {
-  {
-    key = Buffer.from(key.padEnd(32, '0'), 'utf-8'); // Ensure key length is 32 bytes (256 bits)
-    const cipher = crypto.createCipheriv('aes-256-ecb', key, Buffer.alloc(0));
-    let encrypted = cipher.update(text, 'utf8', 'base64');
-    encrypted += cipher.final('base64');
-    return encrypted;
-  }
+  key = Buffer.from(key.padEnd(32, '0'), 'utf-8'); // Ensure key length is 32 bytes (256 bits)
+  const cipher = crypto.createCipheriv('aes-256-ecb', key, Buffer.alloc(0));
+  let encrypted = cipher.update(text, 'utf8', 'base64');
+  encrypted += cipher.final('base64');
+  return encrypted;
 }
 
 function decrypt(encryptedText, key) {
@@ -55,7 +53,20 @@ decrypted += decipher.final('utf8');
   return decrypted;
 }
 
+
+const decryptCBC = (encryptedText, secretKey) => {
+
+  const paddedKey = secretKey.padEnd(32, '0'); // Ensure key length is 32 bytes (256 bits)
+  const iv = CryptoJS.lib.WordArray.random(32);
+  const decrypted = CryptoJS.AES.decrypt(encryptedText, paddedKey, { iv: CryptoJS.enc.Hex.parse(iv), mode: CryptoJS.mode.CBC }).toString(CryptoJS.enc.Utf8);
+  console.log(decrypted, "dec pass");
+
+  return decrypted;
+};
+
+
 module.exports = {
   encrypt,
   decrypt,
+  decryptCBC,
 };

@@ -96,26 +96,63 @@ validateUpdatePermissionGroupRequestBody = async (req, res, next) => {
 }
 
 validatePermissionGroup = async (req, res, next) => {
-    console.log("req.params.permissionGroup", req.params.permissionGroup)
-    if (!req.params.permissionGroup || typeof req.params.permissionGroup !== 'string') {
-        return apiResponseHandler.errorResponse(
-            res,
-            "PermissionGroup id must be a non-empty string",
-            400,
-            null
-        );
-    }
 
-    let checkExistingPermissionGroup = await PermissionGroupDbOperations.checkExistingPermissionGroup(req.params.permissionGroup, req.businessUnit);
-    if (checkExistingPermissionGroup) {
+    // if(req.params.permissionGroup || req.query.permissionGroup ) {
+    //     if (!req.params.permissionGroup || typeof req.params.permissionGroup !== 'string') {
+    //         return apiResponseHandler.errorResponse(
+    //             res,
+    //             "PermissionGroup id must be a non-empty string",
+    //             400,
+    //             null
+    //         );
+    //     }
+    //
+    //     else if (!req.query.permissionGroup || typeof req.query.permissionGroup !== 'string') {
+    //         return apiResponseHandler.errorResponse(
+    //             res,
+    //             "PermissionGroup 1id must be a non-empty string",
+    //             400,
+    //             null
+    //         );
+    //     }
+
+
+        if(req.body.permissionGroup || req.params.permissionGroup || req.query.permissionGroup){// Check if permissionGroup is in req.params
+            if (req.params.permissionGroup && typeof req.params.permissionGroup === 'string') {
+                req.permissionGroup = req.params.permissionGroup;
+            }
+            else if (req.query.permissionGroup && typeof req.query.permissionGroup === 'string') {
+                req.permissionGroup = req.query.permissionGroup;
+            }
+            // If not, check if permissionGroup is in req.body
+            else if (req.body.permissionGroup && typeof req.body.permissionGroup === 'string') {
+                req.permissionGroup = req.body.permissionGroup;
+            }
+            // If permissionGroup is not in req.params or req.body, return an error response
+            else {
+                return apiResponseHandler.errorResponse(
+                    res,
+                    "PermissionGroup id must be a non-empty string in req.params or req.body",
+                    400,
+                    null
+                );
+            }
+
+
+            let checkExistingPermissionGroup = await PermissionGroupDbOperations.checkExistingPermissionGroup(req.permissionGroup, req.businessUnit);
+        if (checkExistingPermissionGroup) {
+            next();
+        } else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! PermissionGroup does not exist",
+                400,
+                null
+            );
+        }
+    }
+    else {
         next();
-    } else {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! PermissionGroup does not exist",
-            400,
-            null
-        );
     }
 }
 

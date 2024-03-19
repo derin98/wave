@@ -51,7 +51,7 @@ async function getAllUsers(query, sort, order, page, limit, skip, selectFields, 
             const validPopulateFields = populateFieldsArray.filter(field => User.schema.path(field) != null);
             queryObject = queryObject.populate({
                 path: validPopulateFields.join(' '), // Convert back to a string
-                select: '_id name email employeeId buUserId password expiredAt shortName userCount',
+                select: '_id name email employeeId buUserId password expiredAt shortName usersCount',
                 options: {
                     lean: true, // Ensure the result is in plain JavaScript objects
                     transform: doc => {
@@ -93,7 +93,7 @@ async function getUser(query, selectFields, populateFields) {
 
             queryObject = queryObject.populate({
                 path: validPopulateFields.join(' '), // Convert back to a string
-                select: '_id name email employeeId buUserId permissions password expiredAt shortName userCount positivePermissions negativePermissions',
+                select: '_id name email employeeId buUserId permissions password expiredAt shortName usersCount positivePermissions negativePermissions',
                 options: {
                     lean: true, // Ensure the result is in plain JavaScript objects
                     transform: doc => {
@@ -150,21 +150,12 @@ async function deleteUsers(query) {
 }
 
 async function updateUser(query, updateObject) {
-    // Retrieve the existing document from the database
-    const existingUser = await User.findOne(query);
-
-    // Construct the update object
-    const update = {};
-    if (updateObject.firstName || updateObject.lastName) {
-        // If firstName or lastName is present in updateObject, construct the name field
-        update.name = `${updateObject.firstName || existingUser.name.firstName} ${updateObject.lastName || existingUser.name.lastName}`;
-    }
-
-    // Merge the updateObject with the constructed update
-    const finalUpdateObject = { ...updateObject, ...update };
-
     // Update the document using User.updateOne
-    return User.updateOne(query, { $set: finalUpdateObject });
+    return User.updateOne(query, { $set: updateObject });
+}
+
+async function updateUsers(query, updateObject) {
+    return User.updateMany(query, { $set: updateObject });
 }
 
 async function checkExistingUser(id, businessUnit) {
@@ -204,7 +195,7 @@ async function checkExistingEmailForBusinessUnit(email, businessUnit) {
     return existingNameUser !== null;
 }
 
-const returnInvalidUserIds = async (ids, businessUnit) => {
+const returnInvalidUserIds = async (ids, businessUnit, department) => {
 
     let invalidUserIds = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
 
@@ -219,6 +210,9 @@ const returnInvalidUserIds = async (ids, businessUnit) => {
     if(businessUnit) {
         query.businessUnit = businessUnit;
     }
+    if(department) {
+        query.department = department;
+    }
     const existingUsers = await User.find(query).select('_id');
 
     const existingUserIds = existingUsers.map(user => user._id.toString());
@@ -227,6 +221,73 @@ const returnInvalidUserIds = async (ids, businessUnit) => {
 
     return Array.from(new Set(invalidUserIds));
 }
+
+const returnUsersWithoutTeam = async (ids, businessUnit, department) => {
+
+    let invalidUserIdsWithoutTeam = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
+    console.log("invalidUserIdsWithoutTeam", invalidUserIdsWithoutTeam)
+    if (invalidUserIdsWithoutTeam.length > 0) {
+        return invalidUserIdsWithoutTeam;
+    }
+
+    const query = {
+        _id: {$in: ids},
+        isDeleted: false,
+        team: null
+    };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
+    if(department) {
+        query.department = department;
+    }
+    const existingUsers = await User.find(query).select('_id');
+    console.log("existingUsers", existingUsers)
+    const existingUserIds = existingUsers.map(user => user._id.toString());
+    console.log("existingUserIds", existingUserIds)
+
+    invalidUserIdsWithoutTeam.push(...ids.filter(id => !existingUserIds.includes(id)));
+
+    return Array.from(new Set(existingUserIds));
+}
+
+const returnUsersWithSpecificTeam = async (ids, team, businessUnit, department) => {
+
+    let invalidUserIdsWithSpecificTeam = ids.filter(id => !mongoose.Types.ObjectId.isValid(id));
+
+    if (invalidUserIdsWithSpecificTeam.length > 0) {
+        return invalidUserIdsWithSpecificTeam;
+    }
+
+    const query = {
+        _id: {$in: ids},
+        isDeleted: false,
+        team: team
+    };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
+    if(department) {
+        query.department = department;
+    }
+    const existingUsers = await User.find(query).select('_id');
+    console.log("existingUsers", existingUsers)
+    const existingUserIds = existingUsers.map(user => user._id.toString());
+    console.log("existingUserIds", existingUserIds)
+    invalidUserIdsWithSpecificTeam.push(...ids.filter(id => existingUserIds.includes(id)));
+    console.log("invalidUserIdsWithSpecificTeam", invalidUserIdsWithSpecificTeam)
+    return Array.from(new Set(invalidUserIdsWithSpecificTeam));
+}
+
+async function getUsersByAggregation(aggregationPipeline) {
+    const result = await User.aggregate(aggregationPipeline);
+    return result[0];
+}
+
+
+
+
+
 
 module.exports = {
     createUser,
@@ -240,8 +301,12 @@ module.exports = {
     deleteUser,
     deleteUsers,
     updateUser,
+    updateUsers,
     checkExistingUser,
     checkExistingEmailForBusinessUnit,
     checkExistingEmployeeIdForBusinessUnit,
-    returnInvalidUserIds
+    returnInvalidUserIds,
+    returnUsersWithoutTeam,
+    returnUsersWithSpecificTeam,
+    getUsersByAggregation
 };

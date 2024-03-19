@@ -84,146 +84,104 @@ validateUserRequest = async (req, res, next) => {
 
 validateCreateUserRequest = async (req, res, next) => {
     // Validate request
-
+    let isValid = true;
+    let message = "";
     if (!req.businessUnit){
-        return apiResponseHandler.errorResponse(
-            res,
-            "BusinessUnit Id must be a non-empty string",
-            400,
-            null
-        );
+        isValid = false;
+        message = "Failed! BusinessUnit Id must be a non-empty string";
     }
-
     if (!req.body.department || typeof req.body.department !== 'string') {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Department must be a non-empty string",
-            400,
-            null
-        );
+        isValid = false;
+        message = "Failed! Department must be a non-empty string";
     }
 
     if (!req.body.userType || typeof req.body.userType !== 'string') {
-        return apiResponseHandler.errorResponse(
-            res,
-            "UserType must be a non-empty string",
-            400,
-            null
-        );
+        isValid = false;
+        message = "Failed! UserType must be a non-empty string";
     }
 
     if (!req.body.designation || typeof req.body.designation !== 'string') {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Designation must be a non-empty string",
-            400,
-            null
-        );
+        isValid = false;
+        message = "Failed! Designation must be a non-empty string";
     }
 
     if (!req.body.firstName || typeof req.body.firstName !== 'string') {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! First name must be a non empty string !",
-            400,
-            null
-        );
+        isValid = false;
+        message = "Failed! First name must be a non empty string !";
     }
 
     if (!req.body.lastName || typeof req.body.lastName !== 'string') {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! Last name must be a non empty string !",
-            400,
-            null
-        );
+        isValid = false;
+        message = "Failed! Last name must be a non empty string !";
     }
     if (!req.body.countryCode || typeof req.body.countryCode !== 'string' || req.body.countryCode.length > 4) {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! Country code must be a non-empty number with a maximum length of 4 characters",
-            400,
-            null
-        );
+        isValid = false;
+        message = "Failed! Country code must be a non-empty number with a maximum length of 4 characters";
     }
     if (!req.body.contactNumber || typeof req.body.contactNumber !== 'number') {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! Contact number must be a non-empty number",
-            400,
-            null
-        );
+        isValid = false;
+        message = "Failed! Contact number must be a non-empty number";
     }
 
-    if (!req.body.buUserId || typeof req.body.buUserId !== 'string' ) {
-
-        res.status(400).send({
-            message: "Failed! buUserId must be a non empty string !"
-        });
-        return;
-    }
+    // if (!req.body.buUserId || typeof req.body.buUserId !== 'string' ) {
+    //
+    //     res.status(400).send({
+    //         message: "Failed! buUserId must be a non empty string !"
+    //     });
+    //     return;
+    // }
     //Validating the buUserId
-    const existingBuUserId = await UserDbOperations.getUser({ buUserId: req.body.buUserId });
-    if (existingBuUserId != null) {
-        res.status(400).send({
-            message: "Failed! BuUserId  already exists!"
-        });
-        return;
-    }
+    // const existingBuUserId = await UserDbOperations.getUser({ buUserId: req.body.buUserId });
+    // if (existingBuUserId != null) {
+    //     res.status(400).send({
+    //         message: "Failed! BuUserId  already exists!"
+    //     });
+    //     return;
+    // }
 
     if (!req.body.employeeId || typeof req.body.employeeId !== 'string'){
-        return apiResponseHandler.errorResponse(
-            res,
-            "EmployeeId must be a non-empty string",
-            400,
-            null
-        );
+        isValid = false;
+        message = "Failed! EmployeeId must be a non-empty string";
     }
 
     // Check if the provided name already exists in the database
     const existingEmployeeIdUser = await UserDbOperations.checkExistingEmployeeIdForBusinessUnit(req.body.employeeId, req.businessUnit);
     if (existingEmployeeIdUser) {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! User employeeId already exists for the business unit",
-            400,
-            null
-        );
+        isValid = false;
+        message = "Failed! User employeeId already exists for the business unit";
     }
     //Validating the email Id
     if (!isValidEmail(req.body.email)) {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! Email is not valid!",
-            400,
-            null
-        )
+        isValid = false;
+        message = "Failed! Email is not valid!";
     }
     // Check if the provided name already exists in the database
     const existingEmailUser = await UserDbOperations.checkExistingEmailForBusinessUnit(req.body.email, req.businessUnit);
     if (existingEmailUser) {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! User email already exists for the business unit",
-            400,
-            null
-        );
+        isValid = false;
+        message = "Failed! User email already exists for the business unit";
     }
 
     if (req.body.isEnabled !== undefined) {
         if (typeof req.body.isEnabled !== 'boolean') {
-            return apiResponseHandler.errorResponse(
-                res,
-                "Failed! User isEnabled should be a boolean",
-                400,
-                null
-            );
+            isValid = false;
+            message = "Failed! User isEnabled should be a boolean";
         }
     }
-next();
+    if (isValid) {
+        next();
+    }
+    else {
+        return apiResponseHandler.errorResponse(
+            res,
+            message,
+            400,
+            null
+        );
+    }
 }
 
-validateUpdateUserRequest = async (req, res, next) => {
+validatePreUpdateUserRequest = async (req, res, next) => {
     // Validate request
 
     if (req.body.firstName) {
@@ -280,11 +238,86 @@ validateUpdateUserRequest = async (req, res, next) => {
             );
         }
     }
+    if (req.params.department || req.query.department || req.params.userType || req.query.userType || req.params.designation || req.query.designation || req.params.team || req.query.team){
+    // delete department, userType, designation, and team from the request query, params
+        delete req.query.department;
+        delete req.params.department;
+        delete req.query.userType;
+        delete req.params.userType;
+        delete req.query.designation;
+        delete req.params.designation;
+        delete req.query.team;
+        delete req.params.team;
+    }
+    if (req.body.department) {
+        if(!req.body.userType){
+            return apiResponseHandler.errorResponse(
+                res,
+                "UserType is required and must be a non-empty string, while updating department",
+                400,
+                null
+            );
+        }
+        if(!req.body.designation){
+            return apiResponseHandler.errorResponse(
+                res,
+                "Designation is required and must be a non-empty string, while updating department",
+                400,
+                null
+            );
+        }
+    }
+
+    if (req.body.userType) {
+        if(!req.body.designation){
+            return apiResponseHandler.errorResponse(
+                res,
+                "Designation is required and must be a non-empty string, while updating userType",
+                400,
+                null
+            );
+        }
+    }
 
     next();
 }
 
 validateUser = async (req, res, next) => {
+
+    // Check if userId is in req.params
+    if (req.params.user && typeof req.params.user === 'string') {
+        req.user = req.params.user;
+    }
+    // If not, check if userId is in req.body
+    else if (req.body.user && typeof req.body.user === 'string') {
+        req.user = req.body.user;
+    }
+    // If userId is not in req.params or req.body, return an error response
+    else {
+        return apiResponseHandler.errorResponse(
+            res,
+            "User id must be a non-empty string in req.params or req.body",
+            400,
+            null
+        );
+    }
+
+    // Check if the user with the given ID exists
+    let checkExistingUser = await UserDbOperations.checkExistingUser(req.user, req.businessUnit);
+
+    if (checkExistingUser) {
+        next();
+    } else {
+        return apiResponseHandler.errorResponse(
+            res,
+            "Failed! User does not exist",
+            400,
+            null
+        );
+    }
+}
+
+validateUserAndReturnObj = async (req, res, next) => {
 
     // Check if userId is in req.params
     if (req.params.user && typeof req.params.user === 'string') {
@@ -304,10 +337,14 @@ validateUser = async (req, res, next) => {
         );
     }
 
+    let selectFields = ['name', '_id', 'team', 'department'];
+
     // Check if the user with the given ID exists
-    let checkExistingUser = await UserDbOperations.checkExistingUser(req.userId, req.businessUnit);
+    let checkExistingUser = await UserDbOperations.getUser({_id:req.userId, businessUnit: req.businessUnit}, selectFields);
 
     if (checkExistingUser) {
+        console.log('checkExistingUser', checkExistingUser)
+        req.userObj = checkExistingUser;
         next();
     } else {
         return apiResponseHandler.errorResponse(
@@ -319,18 +356,39 @@ validateUser = async (req, res, next) => {
     }
 }
 
-validateUsers = async (req, res, next) => {
+rejectUpdatingUserBySameUser = async (req, res, next) => {
 
-    if (!req.body.users || !Array.isArray(req.body.users) || req.body.users.length === 0) {
+    if (req.userId === req.user) {
         return apiResponseHandler.errorResponse(
             res,
-            "User ids must be a non-empty array of strings",
+            "Failed! Cant update the same user",
+            400,
+            null
+        );
+    } else {
+        next();
+    }
+}
+
+rejectUpdatingUsersBySameUser = async (req, res, next) => {
+
+    if (req.body.users.includes(req.userId)){
+        return apiResponseHandler.errorResponse(
+            res,
+            "Failed! Cant update the same user",
             400,
             null
         );
     }
-    for (let i = 0; i < req.body.users.length; i++) {
-        if (typeof req.body.users[i] !== 'string') {
+    else {
+        next();
+    }
+}
+
+validateUsers = async (req, res, next) => {
+
+    if(req.body.users ){
+        if (!req.body.users || !Array.isArray(req.body.users) || req.body.users.length === 0) {
             return apiResponseHandler.errorResponse(
                 res,
                 "User ids must be a non-empty array of strings",
@@ -338,18 +396,113 @@ validateUsers = async (req, res, next) => {
                 null
             );
         }
-    }
+        for (let i = 0; i < req.body.users.length; i++) {
+            if (typeof req.body.users[i] !== 'string') {
+                return apiResponseHandler.errorResponse(
+                    res,
+                    "User ids must be a non-empty array of strings",
+                    400,
+                    null
+                );
+            }
+        }
 
-    let invalidUserIds = await UserDbOperations.returnInvalidUserIds(req.body.users, req.businessUnit);
-    if (invalidUserIds.length > 0) {
-        return apiResponseHandler.errorResponse(
-            res,
-            "Failed! Invalid User ids",
-            400,
-            { invalidUserIds }
-        );
+        let invalidUserIds = await UserDbOperations.returnInvalidUserIds(req.body.users, req.businessUnit, req.department);
+        if (invalidUserIds.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Invalid User ids",
+                400,
+                {invalidUserIds}
+            );
+        }
+        else{
+            next()
+        }
+
     }
-    next();
+    else{
+        next();
+    }
+}
+
+validateUsersWithoutTeam = async (req, res, next) => {
+
+    if(req.body.users){
+        if (!req.body.users || !Array.isArray(req.body.users) || req.body.users.length === 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "User ids must be a non-empty array of strings",
+                400,
+                null
+            );
+        }
+        for (let i = 0; i < req.body.users.length; i++) {
+            if (typeof req.body.users[i] !== 'string') {
+                return apiResponseHandler.errorResponse(
+                    res,
+                    "User ids must be a non-empty array of strings",
+                    400,
+                    null
+                );
+            }
+        }
+
+        let invalidUserIdsWithoutTeam = await UserDbOperations.returnUsersWithoutTeam(req.body.users, req.businessUnit);
+        if (invalidUserIdsWithoutTeam.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Invalid User ids",
+                400,
+                {invalidUserIdsWithoutTeam}
+            );
+        }
+        else{
+            next()
+        }
+    }
+    else {
+        next();
+    }
+}
+
+validateReportsTo = async (req, res, next) => {
+
+    if(req.params.reportsTo || req.body.reportsTo){ // Check if reportsTo is in req.params
+        if (req.params.reportsTo && typeof req.params.reportsTo === 'string') {
+            req.reportsTo = req.params.reportsTo;
+        }
+        // If not, check if reportsTo is in req.body
+        else if (req.body.reportsTo && typeof req.body.reportsTo === 'string') {
+            req.reportsTo = req.body.reportsTo;
+        }
+        // If reportsTo is not in req.params or req.body, return an error response
+        else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "reportsTo must be a non-empty string in req.params or req.body",
+                400,
+                null
+            );
+        }
+
+        // Check if the user with the given ID exists
+        let checkExistingUser = await UserDbOperations.checkExistingUser(req.userId, req.businessUnit);
+
+        if (checkExistingUser) {
+            next();
+        } else {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! ReportsTo user does not exist",
+                400,
+                null
+            );
+        }
+    }
+    else{
+        next();
+    }
 }
 
 validateReportsTosFromQuery = async (req, res, next) => {
@@ -395,10 +548,15 @@ const isValidEmail = (email) => {
 const verifyUserRequest = {
     validateUserRequest: validateUserRequest,
     validateCreateUserRequest: validateCreateUserRequest,
-    validateUpdateUserRequest: validateUpdateUserRequest,
+    validatePreUpdateUserRequest: validatePreUpdateUserRequest,
     validateUser: validateUser,
+    validateUserAndReturnObj: validateUserAndReturnObj,
     validateUsers: validateUsers,
-    validateReportsTosFromQuery: validateReportsTosFromQuery
+    validateReportsTo: validateReportsTo,
+    validateReportsTosFromQuery: validateReportsTosFromQuery,
+    validateUsersWithoutTeam: validateUsersWithoutTeam,
+    rejectUpdatingUserBySameUser: rejectUpdatingUserBySameUser,
+    rejectUpdatingUsersBySameUser: rejectUpdatingUsersBySameUser
 
 };
 module.exports = verifyUserRequest

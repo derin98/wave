@@ -16,6 +16,10 @@ async function getAllUserTypes(req) {
     if(req.businessUnit) {
         query.businessUnit = req.businessUnit;
     }
+    if(req.departments) {
+        query.department = { $in: req.departments };
+    }
+
     if (req.query.name) {
         query.name = {$regex: req.query.name, $options: 'i'};
     }

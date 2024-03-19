@@ -11,7 +11,7 @@ const businessUnitSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    userCount: {
+    usersCount: {
         type: Number,
         default: 0
     },

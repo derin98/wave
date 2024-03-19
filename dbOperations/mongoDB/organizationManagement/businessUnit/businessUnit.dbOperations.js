@@ -27,15 +27,60 @@ async function countBusinessUnits(query) {
     return BusinessUnit.countDocuments(query)
 }
 
-async function getBusinessUnit(query, populateFields) {
+// async function getBusinessUnit(query, selectFields, populateFields) {
+//
+//     const result = await BusinessUnit.findOne(query).select('name shortName _id').populate(populateFields).lean();
+//     if (result) {
+//         const {_id, ...rest} = result;
+//         return {...rest, id: _id};
+//     }
+//     return null;
+// }
 
-    const result = await BusinessUnit.findOne(query).select('name shortName _id').populate(populateFields).lean();
-    if (result) {
-        const {_id, ...rest} = result;
-        return {...rest, id: _id};
+async function getBusinessUnit(query, selectFields, populateFields) {
+    try {
+        let queryObject = BusinessUnit.findOne(query);
+
+        if (selectFields) {
+            queryObject = queryObject.select(selectFields);
+        }
+
+        if (populateFields) {
+            // Convert populateFields string to an array
+            const populateFieldsArray = populateFields.split(' ');
+
+            // Filter out invalid fields
+            const validPopulateFields = populateFieldsArray.filter(field => BusinessUnit.schema.path(field) != null);
+
+
+            queryObject = queryObject.populate({
+                path: validPopulateFields.join(' '), // Convert back to a string
+                select: '_id name',
+                options: {
+                    lean: true, // Ensure the result is in plain JavaScript objects
+                    transform: doc => {
+                        // Rename _id to id within the populated item
+                        const { _id, ...rest } = doc;
+                        return { ...rest, id: _id };
+                    },
+                },
+            });
+        }
+
+        const result = await queryObject.lean();
+
+        if (result) {
+            const { _id, ...rest } = result;
+            return { ...rest, id: _id };
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Error in getBusinessUnit:', error);
+        return null;
     }
-    return null;
 }
+
 
 async function enableBusinessUnit(query) {
 

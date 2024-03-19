@@ -4,7 +4,7 @@
 
 const businessUnitReqObjExtractor = require("../../../utils/objectHandlers/reqObjExtractors/organizationManagement/businessUnit/businessUnit.reqObjExtractor");
 const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
-const businessUnitService = require("../../../services/internalServices/OrganizationManagement/businessUnit/businessUnit.services");
+const businessUnitService = require("../../../managers/internalManagers/organizationManagement/businessUnit/businessUnit.managers");
 /**
  * Create a BusinessUnit
  *

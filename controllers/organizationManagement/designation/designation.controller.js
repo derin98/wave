@@ -4,7 +4,7 @@
 
 const designationReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/organizationManagement/designation/designation.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
-const designationService = require('../../../services/internalServices/organizationManagement/designation/designation.services');
+const designationService = require('../../../managers/internalManagers/organizationManagement/designation/designation.managers');
 /**
  * Create a designation
  *

@@ -11,6 +11,15 @@ const teamSchema = new mongoose.Schema({
         ref: "BusinessUnit",
         required: true
     },
+    users: [{
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
+    }],
+    department: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "Department",
+        required: true
+    },
     isEnabled: {
         type: Boolean,
         default: true
