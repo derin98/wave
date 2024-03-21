@@ -206,7 +206,7 @@ exports.updateUser = async (req, res) => {
 
 exports.getTotalAndEnabledUsersCount = async (req, res) => {
     try {
-        const users = await userService.getTotalAndEnabledUsers();
+        const users = await userService.getTotalAndEnabledUsers(req);
         const message = "Users fetched successfully";
         return apiResponseHandler.successResponse(res, message, users, 200);
     } catch (err) {

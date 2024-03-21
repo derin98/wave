@@ -322,32 +322,52 @@ async function removeTeamFromUsers(users) {
     return await UserOperations.updateUsers(query, {team: null});
 
 }
-async function getTotalAndEnabledUsers() {
-    const aggregationPipeline = [
-        {
-            $group: {
-                _id: null,
-                totalUsers: { $sum: 1 },
-                enabledUsers: {
-                    $sum: {
-                        $cond: [
-                            { $and: [{ $eq: ["$isDeleted", false] }, { $eq: ["$isEnabled", true] }] },
-                            1,
-                            0
-                        ]
-                    }
-                }
-            }
-        },
-        {
-            $project: {
-                _id: 0, // Exclude the _id field
-                totalUsers: 1,
-                enabledUsers: 1
-            }
+// async function getTotalAndEnabledUsers() {
+//     const aggregationPipeline = [
+//         {
+//             $group: {
+//                 _id: null,
+//                 totalUsers: { $sum: 1 },
+//                 enabledUsers: {
+//                     $sum: {
+//                         $cond: [
+//                             { $and: [{ $eq: ["$isDeleted", false] }, { $eq: ["$isEnabled", true] }] },
+//                             1,
+//                             0
+//                         ]
+//                     }
+//                 }
+//             }
+//         },
+//         {
+//             $project: {
+//                 _id: 0, // Exclude the _id field
+//                 totalUsers: 1,
+//                 enabledUsers: 1
+//             }
+//         }
+//     ];
+//     return await UserOperations.getUsersByAggregation(aggregationPipeline) || { totalUsers: 0, enabledUsers: 0 };;
+// }
+async function getTotalAndEnabledUsers(req) {
+    try {
+        let query = { isDeleted: false };
+
+        if (req.businessUnit) {
+            query.businessUnit = req.businessUnit;
         }
-    ];
-    return await UserOperations.getUsersByAggregation(aggregationPipeline) || { totalUsers: 0, enabledUsers: 0 };;
+
+        const totalUsers = await UserOperations.countUsers(query);
+
+        query.isEnabled = true;
+
+        const enabledUsers = await UserOperations.countUsers(query);
+
+        return [{ totalUsers, enabledUsers }];
+    } catch (error) {
+        console.error('Error in getUserStatistics:', error);
+        return null;
+    }
 }
 
 

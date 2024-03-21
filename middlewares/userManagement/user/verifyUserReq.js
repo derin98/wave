@@ -538,11 +538,23 @@ validateReportsTosFromQuery = async (req, res, next) => {
     next();
 }
 const isValidEmail = (email) => {
-    return String(email)
-        .toLowerCase()
-        .match(
-            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        );
+    const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    // List of supported email suffixes
+    const validSuffixes = [
+        ".com", ".org", ".net", ".info", ".biz", ".name", ".mobi", ".jobs", ".travel", ".gov", ".edu", ".mil", ".int",
+        ".us", ".uk", ".cn", ".jp", ".de", ".in", ".fr", ".ru", ".br", ".au", ".ca", ".mx", ".it", ".es", ".nl", ".ch",
+        ".se", ".no", ".kr", ".sa", ".ae", ".za",
+        ".xyz", ".club", ".online", ".site", ".blog", ".store", ".app", ".tech", ".io", ".ai", ".dev"
+    ]
+    // testing the email string based on 'emailRegex' and validSuffixes
+    if (emailRegex.test(email)) {
+        for (const suffix of validSuffixes) {
+            if (email.endsWith(suffix)) {
+                return true;
+            }
+        }
+    }
+    return false;
 };
 
 
