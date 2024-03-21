@@ -363,7 +363,7 @@ async function getTotalAndEnabledUsers(req) {
 
         const enabledUsers = await UserOperations.countUsers(query);
 
-        return [{ totalUsers, enabledUsers }];
+        return { totalUsers, enabledUsers };
     } catch (error) {
         console.error('Error in getUserStatistics:', error);
         return null;
