@@ -4,7 +4,7 @@
 
 const departmentReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/organizationManagement/department/department.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
-const departmentService = require('../../../managers/internalManagers/organizationManagement/department/department.managers');
+const departmentManager = require('../../../managers/internalManagers/organizationManagement/department/department.managers');
 /**
  * Create a department
  *
@@ -13,7 +13,7 @@ const departmentService = require('../../../managers/internalManagers/organizati
 exports.createDepartment = async (req, res) => {
     try {
         const departmentReqObj = departmentReqObjExtractor.createDepartmentObject(req);
-        const department = await departmentService.createDepartment(departmentReqObj);
+        const department = await departmentManager.createDepartment(departmentReqObj);
         const message = "Department created successfully";
         return apiResponseHandler.successResponse(res, message, department, 201);
     } catch (err) {
@@ -29,7 +29,7 @@ exports.createDepartment = async (req, res) => {
 
 exports.getAllDepartments = async (req, res) => {
     try {
-        const departments = await departmentService.getAllDepartments(req);
+        const departments = await departmentManager.getAllDepartments(req);
         const message = "Departments fetched successfully";
         return apiResponseHandler.successResponse(res, message, departments, 200);
     } catch (err) {
@@ -46,7 +46,7 @@ exports.getAllDepartments = async (req, res) => {
 
 exports.getDepartment = async (req, res) => {
     try {
-        const department = await departmentService.getDepartment(req.params.department, req.businessUnit);
+        const department = await departmentManager.getDepartment(req.params.department, req.businessUnit);
 
         if (!department) {
             return apiResponseHandler.errorResponse(res, "Department not found", 404, null);
@@ -67,7 +67,7 @@ exports.getDepartment = async (req, res) => {
 
 exports.enableDepartment = async (req, res) => {
     try {
-        const department = await departmentService.enableDepartment(req.params.department, req.businessUnit);
+        const department = await departmentManager.enableDepartment(req.params.department, req.businessUnit);
         const message = "Department enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -85,7 +85,7 @@ exports.enableDepartment = async (req, res) => {
 
 exports.disableDepartment = async (req, res) => {
     try {
-        const department = await departmentService.disableDepartment(req.params.department, req.businessUnit);
+        const department = await departmentManager.disableDepartment(req.params.department, req.businessUnit);
         const message = "Department disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -102,7 +102,7 @@ exports.disableDepartment = async (req, res) => {
 
 exports.enableDepartments = async (req, res) => {
     try {
-        await departmentService.enableDepartments(req.body.departments, req.businessUnit, req.businessUnit);
+        await departmentManager.enableDepartments(req.body.departments, req.businessUnit, req.businessUnit);
         const message = "Departments enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -120,7 +120,7 @@ exports.enableDepartments = async (req, res) => {
 
 exports.disableDepartments = async (req, res) => {
     try {
-        await departmentService.disableDepartments(req.body.departments, req.businessUnit);
+        await departmentManager.disableDepartments(req.body.departments, req.businessUnit);
         const message = "Departments disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -137,7 +137,7 @@ exports.disableDepartments = async (req, res) => {
 
 exports.deleteDepartment = async (req, res) => {
     try {
-        await departmentService.deleteDepartment(req.params.department, req.businessUnit);
+        await departmentManager.deleteDepartment(req.params.department, req.businessUnit);
         const message = "Department deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -153,7 +153,7 @@ exports.deleteDepartment = async (req, res) => {
 
 exports.deleteDepartments = async (req, res) => {
     try {
-        await departmentService.deleteDepartments(req.body.departments, req.businessUnit);
+        await departmentManager.deleteDepartments(req.body.departments, req.businessUnit);
         const message = "Departments deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -170,7 +170,7 @@ exports.deleteDepartments = async (req, res) => {
 exports.updateDepartment = async (req, res) => {
     try {
         const departmentReqObj = departmentReqObjExtractor.updateDepartmentObject(req);
-        const department = await departmentService.updateDepartment(req.params.department, departmentReqObj, req.businessUnit);
+        const department = await departmentManager.updateDepartment(req.params.department, departmentReqObj, req.businessUnit);
         const message = "Department updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {

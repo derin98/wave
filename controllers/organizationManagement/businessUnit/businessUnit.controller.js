@@ -4,7 +4,7 @@
 
 const businessUnitReqObjExtractor = require("../../../utils/objectHandlers/reqObjExtractors/organizationManagement/businessUnit/businessUnit.reqObjExtractor");
 const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler.js");
-const businessUnitService = require("../../../managers/internalManagers/organizationManagement/businessUnit/businessUnit.managers");
+const businessUnitManager = require("../../../managers/internalManagers/organizationManagement/businessUnit/businessUnit.managers");
 /**
  * Create a BusinessUnit
  *
@@ -14,7 +14,7 @@ exports.createBusinessUnit = async (req, res) => {
     try {
         const businessUnitObject = businessUnitReqObjExtractor.createBusinessUnitObject(req);
 
-        const businessUnit = await businessUnitService.createBusinessUnit(businessUnitObject);
+        const businessUnit = await businessUnitManager.createBusinessUnit(businessUnitObject);
 
         const message = "BusinessUnit created successfully";
 
@@ -33,7 +33,7 @@ exports.createBusinessUnit = async (req, res) => {
 
 exports.getAllBusinessUnits = async (req, res) => {
     try {
-        const businessUnits = await businessUnitService.getAllBusinessUnits(req);
+        const businessUnits = await businessUnitManager.getAllBusinessUnits(req);
 
         const message = "BusinessUnits fetched successfully";
 
@@ -51,7 +51,7 @@ exports.getAllBusinessUnits = async (req, res) => {
 
 exports.getBusinessUnit = async (req, res) => {
     try {
-        const businessUnit = await businessUnitService.getBusinessUnit(req.params.businessUnit);
+        const businessUnit = await businessUnitManager.getBusinessUnit(req.params.businessUnit);
 
         if (!businessUnit) {
             return apiResponseHandler.errorResponse(res, "BusinessUnit not found", 404);
@@ -73,7 +73,7 @@ exports.getBusinessUnit = async (req, res) => {
 
 exports.enableBusinessUnit = async (req, res) => {
     try {
-        await businessUnitService.enableBusinessUnit(req.params.businessUnit);
+        await businessUnitManager.enableBusinessUnit(req.params.businessUnit);
 
         const message = "BusinessUnit enabled successfully";
 
@@ -91,7 +91,7 @@ exports.enableBusinessUnit = async (req, res) => {
 
 exports.disableBusinessUnit = async (req, res) => {
     try {
-        await businessUnitService.disableBusinessUnit(req.params.businessUnit);
+        await businessUnitManager.disableBusinessUnit(req.params.businessUnit);
 
         const message = "BusinessUnit disabled successfully";
 
@@ -109,7 +109,7 @@ exports.disableBusinessUnit = async (req, res) => {
 
     exports.enableBusinessUnits = async (req, res) => {
         try {
-            await businessUnitService.enableBusinessUnits(req.body.businessUnits);
+            await businessUnitManager.enableBusinessUnits(req.body.businessUnits);
 
             const message = "BusinessUnits enabled successfully";
 
@@ -127,7 +127,7 @@ exports.disableBusinessUnit = async (req, res) => {
 
     exports.disableBusinessUnits = async (req, res) => {
         try {
-            await businessUnitService.disableBusinessUnits(req.body.businessUnits);
+            await businessUnitManager.disableBusinessUnits(req.body.businessUnits);
 
             const message = "BusinessUnits disabled successfully";
 
@@ -146,7 +146,7 @@ exports.disableBusinessUnit = async (req, res) => {
 
     exports.deleteBusinessUnit = async (req, res) => {
         try {
-            await businessUnitService.deleteBusinessUnit(req.params.businessUnit);
+            await businessUnitManager.deleteBusinessUnit(req.params.businessUnit);
 
             const message = "BusinessUnit deleted successfully";
 
@@ -164,7 +164,7 @@ exports.disableBusinessUnit = async (req, res) => {
 
     exports.deleteBusinessUnits = async (req, res) => {
         try {
-            await businessUnitService.deleteBusinessUnits(req.body.businessUnits);
+            await businessUnitManager.deleteBusinessUnits(req.body.businessUnits);
 
             const message = "BusinessUnits deleted successfully";
 
@@ -184,7 +184,7 @@ exports.disableBusinessUnit = async (req, res) => {
         try {
             const businessUnitObject = businessUnitReqObjExtractor.updateBusinessUnitObject(req);
 
-            await businessUnitService.updateBusinessUnit(req.params.businessUnit, businessUnitObject);
+            await businessUnitManager.updateBusinessUnit(req.params.businessUnit, businessUnitObject);
 
             const message = "BusinessUnit updated successfully";
 

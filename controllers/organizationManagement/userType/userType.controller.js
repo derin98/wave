@@ -4,7 +4,7 @@
 
 const userTypeReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/organizationManagement/userType/userType.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
-const userTypeService = require('../../../managers/internalManagers/organizationManagement/userType/userType.managers');
+const userTypeManager = require('../../../managers/internalManagers/organizationManagement/userType/userType.managers');
 /**
  * Create a userType
  *
@@ -13,7 +13,7 @@ const userTypeService = require('../../../managers/internalManagers/organization
 exports.createUserType = async (req, res) => {
     try {
         const userTypeReqObj = userTypeReqObjExtractor.createUserTypeObject(req);
-        const userType = await userTypeService.createUserType(userTypeReqObj);
+        const userType = await userTypeManager.createUserType(userTypeReqObj);
         const message = "UserType created successfully";
         return apiResponseHandler.successResponse(res, message, userType, 201);
     } catch (err) {
@@ -29,7 +29,7 @@ exports.createUserType = async (req, res) => {
 
 exports.getAllUserTypes = async (req, res) => {
     try {
-        const userTypes = await userTypeService.getAllUserTypes(req);
+        const userTypes = await userTypeManager.getAllUserTypes(req);
         const message = "UserTypes fetched successfully";
         return apiResponseHandler.successResponse(res, message, userTypes, 200);
     } catch (err) {
@@ -46,7 +46,7 @@ exports.getAllUserTypes = async (req, res) => {
 
 exports.getUserType = async (req, res) => {
     try {
-        const userType = await userTypeService.getUserType(req.params.userType);
+        const userType = await userTypeManager.getUserType(req.params.userType);
 
         if (!userType) {
             return apiResponseHandler.errorResponse(res, "UserType not found", 404, null);
@@ -67,7 +67,7 @@ exports.getUserType = async (req, res) => {
 
 exports.enableUserType = async (req, res) => {
     try {
-        const userType = await userTypeService.enableUserType(req.params.userType);
+        const userType = await userTypeManager.enableUserType(req.params.userType);
         const message = "UserType enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -85,7 +85,7 @@ exports.enableUserType = async (req, res) => {
 
 exports.disableUserType = async (req, res) => {
     try {
-        const userType = await userTypeService.disableUserType(req.params.userType);
+        const userType = await userTypeManager.disableUserType(req.params.userType);
         const message = "UserType disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -102,7 +102,7 @@ exports.disableUserType = async (req, res) => {
 
 exports.enableUserTypes = async (req, res) => {
     try {
-        await userTypeService.enableUserTypes(req.body.userTypes);
+        await userTypeManager.enableUserTypes(req.body.userTypes);
         const message = "UserTypes enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -120,7 +120,7 @@ exports.enableUserTypes = async (req, res) => {
 
 exports.disableUserTypes = async (req, res) => {
     try {
-        await userTypeService.disableUserTypes(req.body.userTypes);
+        await userTypeManager.disableUserTypes(req.body.userTypes);
         const message = "UserTypes disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -137,7 +137,7 @@ exports.disableUserTypes = async (req, res) => {
 
 exports.deleteUserType = async (req, res) => {
     try {
-        await userTypeService.deleteUserType(req.params.userType);
+        await userTypeManager.deleteUserType(req.params.userType);
         const message = "UserType deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -153,7 +153,7 @@ exports.deleteUserType = async (req, res) => {
 
 exports.deleteUserTypes = async (req, res) => {
     try {
-        await userTypeService.deleteUserTypes(req.body.userTypes);
+        await userTypeManager.deleteUserTypes(req.body.userTypes);
         const message = "UserTypes deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -170,7 +170,7 @@ exports.deleteUserTypes = async (req, res) => {
 exports.updateUserType = async (req, res) => {
     try {
         const userTypeReqObj = userTypeReqObjExtractor.updateUserTypeObject(req);
-        const userType = await userTypeService.updateUserType(req.params.userType, userTypeReqObj);
+        const userType = await userTypeManager.updateUserType(req.params.userType, userTypeReqObj);
         const message = "UserType updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
