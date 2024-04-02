@@ -1,11 +1,11 @@
 const businessUnitController = require('../../../controllers/organizationManagement/businessUnit/businessUnit.controller');
-const { verifyBusinessUnitRequest, authJwt } = require("../../../middlewares");
+const { verifyBusinessUnitRequest, authJwt, verifyBusinessUnitAfterAuth} = require("../../../middlewares");
 
 module.exports = function (app) {
 
     app.post("/api/v1/businessUnits", [ authJwt.verifyToken, verifyBusinessUnitRequest.validateCreateBusinessUnitRequestBody], businessUnitController.createBusinessUnit);
 
-    app.get("/api/v1/businessUnits",  [authJwt.verifyToken, ], businessUnitController.getAllBusinessUnits);
+    app.get("/api/v1/businessUnits",  [authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit ], businessUnitController.getAllBusinessUnits);
 
     app.get("/api/v1/businessUnits/:businessUnit", [ authJwt.verifyToken, verifyBusinessUnitRequest.validateBusinessUnit], businessUnitController.getBusinessUnit);
 

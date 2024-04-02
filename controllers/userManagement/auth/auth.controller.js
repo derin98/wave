@@ -3,21 +3,21 @@ const jwt = require("jsonwebtoken");
 const config = require("../../../configs/auth/auth.config");
 const apiResponseHandler = require("../../../utils/objectHandlers/apiResponseHandler");
 const userReqObjExtractor = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/user/user.reqObjExtractor");
-const userService = require("../../../managers/internalManagers/userManagement/user/user.managers");
-const userPasswordService = require("../../../managers/internalManagers/userManagement/userPassword/userPassword.managers");
-const teamService = require("../../../managers/internalManagers/organizationManagement/team/team.managers");
+const userManager = require("../../../managers/internalManagers/userManagement/user/user.managers");
+const userPasswordManager = require("../../../managers/internalManagers/userManagement/userPassword/userPassword.managers");
+const teamManager = require("../../../managers/internalManagers/organizationManagement/team/team.managers");
 const passwordGenerator = require('../../../utils/auth/passwordGenerator');
 const passwordHasher = require('../../../utils/auth/passwordHasher');
 const {createUserPasswordObject} = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/userPassword/userPassword.reqObjExtractor");
 const {createUserPasswordHistoryObject} = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/userPasswordHistory/userPasswordHistory.reqObjExtractor");
-const userPasswordHistoryService = require("../../../managers/internalManagers/userManagement/userPasswordHistory/userPasswordHistory.managers");
+const userPasswordHistoryManager = require("../../../managers/internalManagers/userManagement/userPasswordHistory/userPasswordHistory.managers");
 const {createUserPermission} = require("../../../managers/internalManagers/userManagement/userPermission/userPermission.managers");
 const {createUserPermissionObject} = require("../../../utils/objectHandlers/reqObjExtractors/userManagement/userPermission/userPermission.reqObjExtractor");
-const permissionService = require("../../../managers/internalManagers/organizationManagement/permission/permission.managers");
+const permissionManager = require("../../../managers/internalManagers/organizationManagement/permission/permission.managers");
 const {sendEmail} = require("../../../utils/mailer/mailer");
 const cryptoConfigs = require('../../../configs/encryption/crypto.config.js');
 const {decrypt, decryptCBC} = require('../../../utils/encryption/crypto');
-const businessUnitService = require("../../../managers/internalManagers/organizationManagement/businessUnit/businessUnit.managers");
+const businessUnitManager = require("../../../managers/internalManagers/organizationManagement/businessUnit/businessUnit.managers");
 const {appConstant} = require("../../../utils/constants");
 /**
  * Controller for the signup flow
@@ -27,7 +27,7 @@ const {appConstant} = require("../../../utils/constants");
 //         const userReqObj = createUserObject(req);
 //         userReqObj.password = bcrypt.hashSync(req.body.password, 8);
 //         console.log('userReqObj', userReqObj)
-//         const user = await authService.signUp(userReqObj);
+//         const user = await authManager.signUp(userReqObj);
 //         const message = "User created successfully";
 //         return apiResponseHandler.successResponse(res, message, user, 201);
 //     } catch (err) {
@@ -47,7 +47,7 @@ exports.signin = async (req, res) => {
 
     async function getUserByField(field, value) {
         let userDetails = { [field]: value };
-        return await userService.getUserForSignIn(userDetails, selectFields, populateFields);
+        return await userManager.getUserForSignIn(userDetails, selectFields, populateFields);
     }
 
     function decryptPassword(encPass, secretKey) {
@@ -112,8 +112,8 @@ exports.signin = async (req, res) => {
 // Extract unique elements
     const uniquePermissions = [...new Set(filteredPermissions)];
 
-// const userPermission = await userPermissionService.getUserPermissions(filteredPermissions, "", "permissionGroup")
-    const userPermission = await permissionService.getPermissions(uniquePermissions, "", "permissionGroup")
+// const userPermission = await userPermissionManager.getUserPermissions(filteredPermissions, "", "permissionGroup")
+    const userPermission = await permissionManager.getPermissions(uniquePermissions, "", "permissionGroup")
     //
     const permission = userPermission.reduce((acc, { name: permissionName, permissionGroup: { name: groupName } }) => {
         acc[groupName] ??= {};
@@ -153,27 +153,27 @@ exports.signin = async (req, res) => {
 exports.signup = async (req, res) => {
     try {
         const userReqObj = userReqObjExtractor.createUserObject(req);
-        const buUserIdAndName = await businessUnitService.returnNewBuUserIdAndName(req.businessUnit)
+        const buUserIdAndName = await businessUnitManager.returnNewBuUserIdAndName(req.businessUnit)
         const businessUnitName = buUserIdAndName.name;
         userReqObj.buUserId = buUserIdAndName.buUserId;
-        const user = await userService.createUser(userReqObj);
+        const user = await userManager.createUser(userReqObj);
         if (user) {
-            await businessUnitService.updateBusinessUnitUserCountByOne(req.businessUnit);
+            await businessUnitManager.updateBusinessUnitUserCountByOne(req.businessUnit);
             if(req.team){
-            await teamService.appendUsersToTeam(req.team, [user.id]);
+            await teamManager.appendUsersToTeam(req.team, [user.id]);
             }
             let generatedPassword = passwordGenerator.generateRandomPasswordString(8)
             console.log('generatedPassword', generatedPassword)
             let hashedPassword = passwordHasher.hashPassword(generatedPassword);
             const userPasswordReqObj = createUserPasswordObject(user.id, hashedPassword);
-            const userPassword = await userPasswordService.createUserPassword(userPasswordReqObj);
+            const userPassword = await userPasswordManager.createUserPassword(userPasswordReqObj);
             console.log(2222)
             const userPasswordHistoryReqObj = createUserPasswordHistoryObject(userPassword.id, hashedPassword);
-            await userPasswordHistoryService.createUserPasswordHistory(userPasswordHistoryReqObj);
+            await userPasswordHistoryManager.createUserPasswordHistory(userPasswordHistoryReqObj);
 
             const userPermissionReqObj = createUserPermissionObject(req, user.id);
             const userPermission = await createUserPermission(userPermissionReqObj);
-            await userService.updateUserPasswordAndPermission(user.id, userPassword.id, userPermission.id);
+            await userManager.updateUserPasswordAndPermission(user.id, userPassword.id, userPermission.id);
             const message = "User created successfully";
 
             if (req.body.email) {
@@ -200,18 +200,18 @@ exports.signup = async (req, res) => {
 
 exports.initSignup = async (userReqObj, password) => {
     try {
-        const user = await userService.createUser(userReqObj);
+        const user = await userManager.createUser(userReqObj);
         const req = {
             userId: user.id
         }
         let hashedPassword = await passwordHasher.hashPassword(password);
         const userPasswordReqObj = createUserPasswordObject(user.id, hashedPassword);
-        const userPassword = await userPasswordService.createUserPassword(userPasswordReqObj);
+        const userPassword = await userPasswordManager.createUserPassword(userPasswordReqObj);
         const userPasswordHistoryReqObj = createUserPasswordHistoryObject(userPassword.id, hashedPassword);
-        await userPasswordHistoryService.createUserPasswordHistory(userPasswordHistoryReqObj);
+        await userPasswordHistoryManager.createUserPasswordHistory(userPasswordHistoryReqObj);
         const userPermissionReqObj = createUserPermissionObject(req, user.id);
         const userPermission = await createUserPermission(userPermissionReqObj);
-        await userService.updateUserPasswordAndPermission(user.id, userPassword.id, userPermission.id);
+        await userManager.updateUserPasswordAndPermission(user.id, userPassword.id, userPermission.id);
         return user;
     } catch (err) {
         console.log("Error while creating the user", err.message);

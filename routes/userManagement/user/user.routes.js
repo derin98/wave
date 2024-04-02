@@ -32,6 +32,7 @@ module.exports = function (app) {
 
     app.get("/api/v1/users/count", [
             authJwt.verifyToken,
+            verifyBusinessUnitAfterAuth.verifyBusinessUnit,
         ],
         userController.getTotalAndEnabledUsersCount);
 

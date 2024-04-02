@@ -4,7 +4,7 @@
 
 const permissionGroupReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/organizationManagement/permissionGroup/permissionGroup.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
-const permissionGroupService = require('../../../managers/internalManagers/organizationManagement/permissionGroup/permissionGroup.managers');
+const permissionGroupManager = require('../../../managers/internalManagers/organizationManagement/permissionGroup/permissionGroup.managers');
 /**
  * Create a permissionGroup
  *
@@ -13,7 +13,7 @@ const permissionGroupService = require('../../../managers/internalManagers/organ
 exports.createPermissionGroup = async (req, res) => {
     try {
         const permissionGroupReqObj = permissionGroupReqObjExtractor.createPermissionGroupObject(req);
-        const permissionGroup = await permissionGroupService.createPermissionGroup(permissionGroupReqObj);
+        const permissionGroup = await permissionGroupManager.createPermissionGroup(permissionGroupReqObj);
         const message = "PermissionGroup created successfully";
         return apiResponseHandler.successResponse(res, message, permissionGroup, 201);
     } catch (err) {
@@ -29,7 +29,7 @@ exports.createPermissionGroup = async (req, res) => {
 
 exports.getAllPermissionGroups = async (req, res) => {
     try {
-        const permissionGroups = await permissionGroupService.getAllPermissionGroups(req);
+        const permissionGroups = await permissionGroupManager.getAllPermissionGroups(req);
         const message = "PermissionGroups fetched successfully";
         return apiResponseHandler.successResponse(res, message, permissionGroups, 200);
     } catch (err) {
@@ -46,7 +46,7 @@ exports.getAllPermissionGroups = async (req, res) => {
 
 exports.getPermissionGroup = async (req, res) => {
     try {
-        const permissionGroup = await permissionGroupService.getPermissionGroup(req.params.permissionGroup, req.businessUnit);
+        const permissionGroup = await permissionGroupManager.getPermissionGroup(req.params.permissionGroup, req.businessUnit);
 
         if (!permissionGroup) {
             return apiResponseHandler.errorResponse(res, "PermissionGroup not found", 404, null);
@@ -67,7 +67,7 @@ exports.getPermissionGroup = async (req, res) => {
 
 exports.enablePermissionGroup = async (req, res) => {
     try {
-        const permissionGroup = await permissionGroupService.enablePermissionGroup(req.params.permissionGroup, req.businessUnit);
+        const permissionGroup = await permissionGroupManager.enablePermissionGroup(req.params.permissionGroup, req.businessUnit);
         const message = "PermissionGroup enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -85,7 +85,7 @@ exports.enablePermissionGroup = async (req, res) => {
 
 exports.disablePermissionGroup = async (req, res) => {
     try {
-        const permissionGroup = await permissionGroupService.disablePermissionGroup(req.params.permissionGroup, req.businessUnit);
+        const permissionGroup = await permissionGroupManager.disablePermissionGroup(req.params.permissionGroup, req.businessUnit);
         const message = "PermissionGroup disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -102,7 +102,7 @@ exports.disablePermissionGroup = async (req, res) => {
 
 exports.enablePermissionGroups = async (req, res) => {
     try {
-        await permissionGroupService.enablePermissionGroups(req.body.permissionGroups, req.businessUnit, req.businessUnit);
+        await permissionGroupManager.enablePermissionGroups(req.body.permissionGroups, req.businessUnit, req.businessUnit);
         const message = "PermissionGroups enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -120,7 +120,7 @@ exports.enablePermissionGroups = async (req, res) => {
 
 exports.disablePermissionGroups = async (req, res) => {
     try {
-        await permissionGroupService.disablePermissionGroups(req.body.permissionGroups, req.businessUnit);
+        await permissionGroupManager.disablePermissionGroups(req.body.permissionGroups, req.businessUnit);
         const message = "PermissionGroups disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -137,7 +137,7 @@ exports.disablePermissionGroups = async (req, res) => {
 
 exports.deletePermissionGroup = async (req, res) => {
     try {
-        await permissionGroupService.deletePermissionGroup(req.params.permissionGroup, req.businessUnit);
+        await permissionGroupManager.deletePermissionGroup(req.params.permissionGroup, req.businessUnit);
         const message = "PermissionGroup deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -153,7 +153,7 @@ exports.deletePermissionGroup = async (req, res) => {
 
 exports.deletePermissionGroups = async (req, res) => {
     try {
-        await permissionGroupService.deletePermissionGroups(req.body.permissionGroups, req.businessUnit);
+        await permissionGroupManager.deletePermissionGroups(req.body.permissionGroups, req.businessUnit);
         const message = "PermissionGroups deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -170,7 +170,7 @@ exports.deletePermissionGroups = async (req, res) => {
 exports.updatePermissionGroup = async (req, res) => {
     try {
         const permissionGroupReqObj = permissionGroupReqObjExtractor.updatePermissionGroupObject(req);
-        const permissionGroup = await permissionGroupService.updatePermissionGroup(req.params.permissionGroup, permissionGroupReqObj, req.businessUnit);
+        const permissionGroup = await permissionGroupManager.updatePermissionGroup(req.params.permissionGroup, permissionGroupReqObj, req.businessUnit);
         const message = "PermissionGroup updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {

@@ -4,7 +4,7 @@
 
 const designationReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/organizationManagement/designation/designation.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
-const designationService = require('../../../managers/internalManagers/organizationManagement/designation/designation.managers');
+const designationManager = require('../../../managers/internalManagers/organizationManagement/designation/designation.managers');
 /**
  * Create a designation
  *
@@ -13,7 +13,7 @@ const designationService = require('../../../managers/internalManagers/organizat
 exports.createDesignation = async (req, res) => {
     try {
         const designationReqObj = designationReqObjExtractor.createDesignationObject(req);
-        const designation = await designationService.createDesignation(designationReqObj);
+        const designation = await designationManager.createDesignation(designationReqObj);
         const message = "Designation created successfully";
         return apiResponseHandler.successResponse(res, message, designation, 201);
     } catch (err) {
@@ -29,7 +29,7 @@ exports.createDesignation = async (req, res) => {
 
 exports.getAllDesignations = async (req, res) => {
     try {
-        const designations = await designationService.getAllDesignations(req);
+        const designations = await designationManager.getAllDesignations(req);
         const message = "Designations fetched successfully";
         return apiResponseHandler.successResponse(res, message, designations, 200);
     } catch (err) {
@@ -46,7 +46,7 @@ exports.getAllDesignations = async (req, res) => {
 
 exports.getDesignation = async (req, res) => {
     try {
-        const designation = await designationService.getDesignation(req.params.designation);
+        const designation = await designationManager.getDesignation(req.params.designation);
 
         if (!designation) {
             return apiResponseHandler.errorResponse(res, "Designation not found", 404, null);
@@ -67,7 +67,7 @@ exports.getDesignation = async (req, res) => {
 
 exports.enableDesignation = async (req, res) => {
     try {
-        const designation = await designationService.enableDesignation(req.params.designation);
+        const designation = await designationManager.enableDesignation(req.params.designation);
         const message = "Designation enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -85,7 +85,7 @@ exports.enableDesignation = async (req, res) => {
 
 exports.disableDesignation = async (req, res) => {
     try {
-        const designation = await designationService.disableDesignation(req.params.designation);
+        const designation = await designationManager.disableDesignation(req.params.designation);
         const message = "Designation disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -102,7 +102,7 @@ exports.disableDesignation = async (req, res) => {
 
 exports.enableDesignations = async (req, res) => {
     try {
-        await designationService.enableDesignations(req.body.designations);
+        await designationManager.enableDesignations(req.body.designations);
         const message = "Designations enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -120,7 +120,7 @@ exports.enableDesignations = async (req, res) => {
 
 exports.disableDesignations = async (req, res) => {
     try {
-        await designationService.disableDesignations(req.body.designations);
+        await designationManager.disableDesignations(req.body.designations);
         const message = "Designations disabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -137,7 +137,7 @@ exports.disableDesignations = async (req, res) => {
 
 exports.deleteDesignation = async (req, res) => {
     try {
-        await designationService.deleteDesignation(req.params.designation);
+        await designationManager.deleteDesignation(req.params.designation);
         const message = "Designation deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -153,7 +153,7 @@ exports.deleteDesignation = async (req, res) => {
 
 exports.deleteDesignations = async (req, res) => {
     try {
-        await designationService.deleteDesignations(req.body.designations);
+        await designationManager.deleteDesignations(req.body.designations);
         const message = "Designations deleted successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -170,7 +170,7 @@ exports.deleteDesignations = async (req, res) => {
 exports.updateDesignation = async (req, res) => {
     try {
         const designationReqObj = designationReqObjExtractor.updateDesignationObject(req);
-        const designation = await designationService.updateDesignation(req.params.designation, designationReqObj);
+        const designation = await designationManager.updateDesignation(req.params.designation, designationReqObj);
         const message = "Designation updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {

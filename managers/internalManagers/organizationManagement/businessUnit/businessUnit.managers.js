@@ -3,7 +3,7 @@
 const BusinessUnitOperations = require("../../../../dbOperations/mongoDB/organizationManagement/businessUnit/businessUnit.dbOperations");
 const paginationHandler = require("../../../../utils/objectHandlers/paginationHandler");
 const businessUnitResObjConvertor = require("../../../../utils/objectHandlers/resObjConverters/organizationManagement/businessUnit/businessUnit.resObjConverter");
-const userService = require("../../userManagement/user/user.managers");
+const userManager = require("../../userManagement/user/user.managers");
 
 
 async function createBusinessUnit(businessUnitObject) {
@@ -20,7 +20,12 @@ async function createBusinessUnit(businessUnitObject) {
 
         if (req.query.name) {
             query.name = { $regex: req.query.name, $options: 'i' };
+        }
+        if (req.query.shortName) {
             query.shortName = { $regex: req.query.shortName, $options: 'i' };
+        }
+        if (req.businessUnit) {
+            query._id = req.businessUnit;
         }
 
         const page = parseInt(req.query.page) || 1;
@@ -69,7 +74,7 @@ async function returnNewBuUserIdAndName(id, selectFields) {
 
     const businessUnit = await BusinessUnitOperations.getBusinessUnit(query, selectFields);
     let buUserId = businessUnit.shortName+(businessUnit.usersCount+1);
-    const existingBuUserId = await userService.getUserByBuUserId(buUserId)
+    const existingBuUserId = await userManager.getUserByBuUserId(buUserId)
     // const existingBuUserId = await UserDbOperations.getUser({ buUserId: buUserId });
     if (existingBuUserId != null) {
         res.status(400).send({

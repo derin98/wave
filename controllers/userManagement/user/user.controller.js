@@ -4,8 +4,8 @@
 
 const userReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/userManagement/user/user.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
-const userService = require('../../../managers/internalManagers/userManagement/user/user.managers');
-const teamService = require('../../../managers/internalManagers/organizationManagement/team/team.managers');
+const userManager = require('../../../managers/internalManagers/userManagement/user/user.managers');
+const teamManager = require('../../../managers/internalManagers/organizationManagement/team/team.managers');
 
 /**
  * Create a user
@@ -15,7 +15,7 @@ const teamService = require('../../../managers/internalManagers/organizationMana
 exports.createUser = async (req, res) => {
     try {
         const userReqObj = userReqObjExtractor.createUserObject(req);
-        const user = await userService.createUser(userReqObj);
+        const user = await userManager.createUser(userReqObj);
 
         const message = "User created successfully";
         return apiResponseHandler.successResponse(res, message, user, 201);
@@ -32,7 +32,7 @@ exports.createUser = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
     try {
-        const users = await userService.getAllUsers(req);
+        const users = await userManager.getAllUsers(req);
         const message = "Users fetched successfully";
         return apiResponseHandler.successResponse(res, message, users, 200);
     } catch (err) {
@@ -52,7 +52,7 @@ exports.getUser = async (req, res) => {
         let populateFields = req.query.populateFields || undefined;
         let selectFields = req.query.selectFields || undefined;
 
-        const user = await userService.getUser(req.params.user, selectFields, populateFields, req.businessUnit);
+        const user = await userManager.getUser(req.params.user, selectFields, populateFields, req.businessUnit);
 
         if (!user) {
             return apiResponseHandler.errorResponse(res, "User not found", 404, null);
@@ -73,7 +73,7 @@ exports.getUser = async (req, res) => {
 
 exports.enableUser = async (req, res) => {
     try {
-        const user = await userService.enableUser(req);
+        const user = await userManager.enableUser(req);
         console.log("user", user)
         const message = "User enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
@@ -92,9 +92,9 @@ exports.enableUser = async (req, res) => {
 
 exports.disableUser = async (req, res) => {
     try {
-        const user = await userService.disableUser(req.params.user, req.businessUnit);
+        const user = await userManager.disableUser(req.params.user, req.businessUnit);
         const message = "User disabled successfully";
-        await teamService.removeUsersFromTeams(req.params.users);
+        await teamManager.removeUsersFromTeams(req.params.users);
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while disabling user", err.message);
@@ -110,7 +110,7 @@ exports.disableUser = async (req, res) => {
 
 exports.enableUsers = async (req, res) => {
     try {
-        await userService.enableUsers(req);
+        await userManager.enableUsers(req);
         const message = "Users enabled successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -128,9 +128,9 @@ exports.enableUsers = async (req, res) => {
 
 exports.disableUsers = async (req, res) => {
     try {
-        await userService.disableUsers(req);
+        await userManager.disableUsers(req);
         const message = "Users disabled successfully";
-        let vvv = await teamService.removeUsersFromTeams(req.body.users);
+        let vvv = await teamManager.removeUsersFromTeams(req.body.users);
         console.log("vvv", vvv)
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -147,9 +147,9 @@ exports.disableUsers = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
     try {
-        await userService.deleteUser(req);
+        await userManager.deleteUser(req);
         const message = "User deleted successfully";
-        await teamService.removeUsersFromTeams(req.params.users);
+        await teamManager.removeUsersFromTeams(req.params.users);
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while deleting user", err.message);
@@ -164,9 +164,9 @@ exports.deleteUser = async (req, res) => {
 
 exports.deleteUsers = async (req, res) => {
     try {
-        await userService.deleteUsers(req);
+        await userManager.deleteUsers(req);
         const message = "Users deleted successfully";
-        await teamService.removeUsersFromTeams(req.body.users);
+        await teamManager.removeUsersFromTeams(req.body.users);
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
         console.log("Error while deleting users", err.message);
@@ -185,17 +185,17 @@ exports.updateUser = async (req, res) => {
         console.log("userReqObj", userReqObj)
         if (userReqObj.hasOwnProperty('team')) {
             if(userReqObj.team === null && req.userObj.team) {
-                await teamService.removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
+                await teamManager.removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
             }
             else if(userReqObj.team !== null && req.userObj.team !== userReqObj.team) {
                 console.log("userReqObj.team", userReqObj.team)
-                await teamService.appendUsersToTeam(userReqObj.team, [req.params.user], req.businessUnit);
+                await teamManager.appendUsersToTeam(userReqObj.team, [req.params.user], req.businessUnit);
                 if (req.userObj.team) {
-                    await teamService.removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
+                    await teamManager.removeUsersFromTeam(req.userObj.team, [req.params.user], req.businessUnit);
                 }
             }
         }
-        const user = await userService.updateUser(req, userReqObj);
+        const user = await userManager.updateUser(req, userReqObj);
         const message = "User updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
@@ -206,7 +206,7 @@ exports.updateUser = async (req, res) => {
 
 exports.getTotalAndEnabledUsersCount = async (req, res) => {
     try {
-        const users = await userService.getTotalAndEnabledUsers();
+        const users = await userManager.getTotalAndEnabledUsers(req);
         const message = "Users fetched successfully";
         return apiResponseHandler.successResponse(res, message, users, 200);
     } catch (err) {
