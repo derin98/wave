@@ -17,5 +17,11 @@ module.exports = {
         appName: process.env.APP_NAME || '',
         appVersion: process.env.APP_VERSION || '',
         appDescription: process.env.APP_DESCRIPTION || '',
+    },
+    //["inOffice", "remote", "hybrid"]
+    shiftModeOfWork:{
+        inOffice: 'inOffice',
+        remote: 'remote',
+        hybrid: 'hybrid'
     }
 }
