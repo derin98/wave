@@ -21,23 +21,43 @@ const shiftSchema = new mongoose.Schema({
         default: false
     },
     startTime: {
-        type: Date,
-        required: true
+        type: String,
+        validate: {
+            validator: function(v) {
+                return /^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/.test(v); // Regular expression to validate time format (HH:mm:ss)
+            },
+            message: props => `${props.value} is not a valid 24-hour time format with seconds!`
+        }
     },
     endTime: {
-        type: Date,
-        required: true
+        type: String,
+        validate: {
+            validator: function(v) {
+                return /^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/.test(v); // Regular expression to validate time format (HH:mm:ss)
+            },
+            message: props => `${props.value} is not a valid 24-hour time format with seconds!`
+        }
     },
     modeOfWork: {
         type: String,
         enum: [inOffice, remote, hybrid],
         required: true
     },
-    defaultClockOutTimeInMinutes: {
-        type: Number,
+    defaultClockOutTime: {
+        type: String,
+        validate: {
+            validator: function(v) {
+                return /^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/.test(v); // Regular expression to validate time format (HH:mm:ss)
+            },
+            message: props => `${props.value} is not a valid 24-hour time format with seconds!`
+        },
         required: true
     },
-    checkClockInOutLocation: {
+    inOfficeCheckClockInOutLocation: {
+        type: Boolean,
+        default: false
+    },
+    checkClockInOutLocation:{
         type: Boolean,
         default: false
     },
