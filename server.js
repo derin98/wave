@@ -260,6 +260,7 @@ require('./routes/organizationManagement/department/department.routes')(app);
 require('./routes/organizationManagement/businessUnit/businessUnit.routes')(app);
 require('./routes/userManagement/auth/auth.routes')(app);
 require('./routes/userManagement/user/user.routes')(app);
+require('./routes/userManagement/userPermission/userPermission.routes')(app);
 
 app.listen(serverConfig.PORT, () => {
     console.log(`Application started on the port num : ${serverConfig.PORT}`);

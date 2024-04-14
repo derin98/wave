@@ -178,3 +178,21 @@ exports.updateDesignation = async (req, res) => {
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
     }
 }
+
+/**
+ * Update designations
+ *
+ */
+
+
+exports.updateDesignations = async (req, res) => {
+    try {
+        const designationReqObj = designationReqObjExtractor.updateDesignationObject(req);
+        await designationManager.updateDesignations(req.body.designations);
+        const message = "Designations updated successfully";
+        return apiResponseHandler.successResponse(res, message, null, 200);
+    } catch (err) {
+        console.log("Error while updating designations", err.message);
+        return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
+    }
+}

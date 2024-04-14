@@ -1,6 +1,7 @@
 const DesignationOperations = require('../../../../dbOperations/mongoDB/organizationManagement/designation/designation.dbOperations');
 const paginationHandler = require('../../../../utils/objectHandlers/paginationHandler');
 const designationResObjConverter = require('../../../../utils/objectHandlers/resObjConverters/organizationManagement/designation/designation.resObjConverter');
+const permissionManager = require("../../organizationManagement/permission/permission.managers");
 
 
 async function createDesignation(designationObject) {
@@ -23,6 +24,19 @@ async function getAllDesignations(req) {
         query.name = {$regex: req.query.name, $options: 'i'};
     }
     console.log("query", query)
+
+    let populateFields = req.query.populateFields;
+    let selectFields = req.query.selectFields;
+
+    populateFields = populateFields
+        ? [...new Set(populateFields.split(','))].filter(field => field !== 'userPassword').join(' ')
+        : "";
+
+    selectFields = selectFields
+        ? [...new Set(selectFields.split(',')), 'name', '_id'].filter(field => field !== 'userPassword').join(' ')
+        : ['name', '_id'];
+
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 0;
     const skip = (page - 1) * limit;
@@ -35,8 +49,28 @@ async function getAllDesignations(req) {
     if (limit === 0 && page > 1) {
         return paginationHandler.paginationResObj(page, 1, countDesignations, []);
     }
-    const designations = await DesignationOperations.getAllDesignations(query, sort, order, page, limit, skip);
+    const designations = await DesignationOperations.getAllDesignations(query, sort, order, page, limit, skip, selectFields, populateFields);
     const totalPages = countDesignations === 0 ? 0 : (limit === 0 ? 1 : Math.ceil(countDesignations / limit));
+    // If populateFields contains userPermission
+    if (populateFields.includes('permissions')) {
+        for(let i = 0; i < designations.length; i++) {
+            let designation = designations[i];
+            // Concatenate and filter permissions
+            let permissions = [...designation.permissions];
+            let permissionIds = permissions.map(permission => permission.id);
+
+            const userPermission = await permissionManager.getPermissions(permissionIds, "", "permissionGroup")
+            //
+            let modifiedPermissions = userPermission.reduce((acc, { id, name: permissionName, permissionGroup: { name: groupName } }) => {
+                acc[groupName] ??= {};
+                acc[groupName][permissionName] = {id};
+                return acc;
+            }, {});
+
+
+            designation.permissions = modifiedPermissions;
+        }
+    }
 
     return paginationHandler.paginationResObj(page, totalPages, countDesignations, designations);
 }
@@ -139,6 +173,19 @@ async function deleteDesignations(ids, businessUnit) {
 async function updateDesignation(id, updateObject, businessUnit) {
     let query = {
         _id: id,
+        isDeleted: false
+    };
+    if(businessUnit) {
+        query.businessUnit = businessUnit;
+    }
+    return await DesignationOperations.updateDesignation(query, updateObject);
+}
+
+//updateDesignations
+
+async function updateDesignations( updateObject, businessUnit) {
+    let query = {
+        _id: {$in: ids},
         isDeleted: false
     };
     if(businessUnit) {
