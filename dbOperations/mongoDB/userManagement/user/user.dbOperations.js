@@ -51,7 +51,7 @@ async function getAllUsers(query, sort, order, page, limit, skip, selectFields, 
             const validPopulateFields = populateFieldsArray.filter(field => User.schema.path(field) != null);
             queryObject = queryObject.populate({
                 path: validPopulateFields.join(' '), // Convert back to a string
-                select: '_id name email employeeId buUserId password expiredAt shortName usersCount',
+                select: '_id name email employeeId buUserId password expiredAt shortName usersCount userPermission negativePermissions positivePermissions',
                 options: {
                     lean: true, // Ensure the result is in plain JavaScript objects
                     transform: doc => {

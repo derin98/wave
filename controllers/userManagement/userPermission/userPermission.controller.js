@@ -2,7 +2,7 @@
  * This is the controller for the user resource
  */
 
-const userReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/userManagement/user/user.reqObjExtractor');
+const userPermissionReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/userManagement//userPermission/userPermission.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
 const userPermissionManager = require('../../../managers/internalManagers/userManagement/userPermission/userPermission.managers');
 
@@ -63,14 +63,30 @@ exports.getUser = async (req, res) => {
  *
  */
 
-exports.updateUser = async (req, res) => {
+exports.updateUserPermission = async (req, res) => {
     try {
-        const userReqObj = userReqObjExtractor.updateUserObject(req);
-        const user = await userManager.updateUser(req.params.user, userReqObj, req.businessUnit);
-        const message = "User updated successfully";
+        const userPermissionReqObj = userPermissionReqObjExtractor.updateUserPermissionObject(req);
+        const userPermission = await userPermissionManager.updateUserPermission(req.params.userPermission, userPermissionReqObj, req.businessUnit);
+        const message = "User permission updated successfully";
         return apiResponseHandler.successResponse(res, message, null, 200);
     } catch (err) {
-        console.log("Error while updating user", err.message);
+        console.log("Error while updating user permission", err.message);
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
     }
 }
+
+exports.updateMultipleUserPermissions = async (req, res) => {
+
+    try {
+        const userPermissions = await userPermissionManager.updateUserPermissions(req);
+        if (userPermissions.modifiedCount === req.body.userPermissions.length) {
+            const message = "User permissions updated successfully";
+            return apiResponseHandler.successResponse(res, message, null, 200);
+        } else {
+            return apiResponseHandler.errorResponse(res, "Some user permissions failed to update", 500, null);
+        }
+    } catch (err) {
+        console.log("Error while updating user permission", err.message);
+        return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
+    }
+};
