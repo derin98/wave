@@ -8,6 +8,7 @@ const verifyPermissionGroupReqBody = require("./organizationManagement/permissio
 const verifyPermissionReqBody = require("./organizationManagement/permission/verifyPermissionReqBody");
 const verifyTeamReqBody = require("./organizationManagement/team/verifyTeamReqBody");
 const verifyTimeStamp = require("./common/verifyTimeStamp");
+const verifyUserPermissionReqBody = require("./userManagement/userPermission/verifyUserPermissionReq");
 const authJwt = require("./userManagement/auth/authjwt");
 module.exports = {
       verifyUserReq,
@@ -20,5 +21,6 @@ module.exports = {
       verifyPermissionGroupReqBody,
       verifyPermissionReqBody,
       verifyTeamReqBody,
-      verifyTimeStamp
+      verifyTimeStamp,
+      verifyUserPermissionReqBody
 };

@@ -176,12 +176,196 @@ validatePermissions = async (req, res, next) => {
     next();
 }
 
+validatePositivePermissions = async (req, res, next) => {
+    if (req.body.positivePermissions) {
+        if (!req.body.positivePermissions || !Array.isArray(req.body.positivePermissions) || req.body.positivePermissions.length === 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Positive Permission ids must be a non-empty array of strings",
+                400,
+                null
+            );
+        }
+
+        const uniquePositivePermissions = new Set();
+        const duplicatePositivePermissions = [];
+
+        for (let i = 0; i < req.body.positivePermissions.length; i++) {
+            const positivePermissionId = req.body.positivePermissions[i];
+
+            if (typeof positivePermissionId !== 'string') {
+                return apiResponseHandler.errorResponse(
+                    res,
+                    "Positive Permission ids must be a non-empty array of strings",
+                    400,
+                    null
+                );
+            }
+
+            // Check for duplicate permission IDs
+            if (uniquePositivePermissions.has(positivePermissionId)) {
+                duplicatePositivePermissions.push(positivePermissionId);
+            } else {
+                uniquePositivePermissions.add(positivePermissionId);
+            }
+        }
+
+        if (duplicatePositivePermissions.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Duplicate positive permission ids are not allowed",
+                400,
+                { duplicatePositivePermissions }
+            );
+        }
+
+        let invalidPositivePermissions = await PermissionDbOperations.returnInvalidPermissions(Array.from(uniquePositivePermissions), req.businessUnit);
+
+        if (invalidPositivePermissions.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Invalid positive Permission ids",
+                400,
+                { invalidPositivePermissions }
+            );
+        }
+    }
+
+    next();
+}
+
+validateNegativePermissions = async (req, res, next) => {
+    if (req.body.negativePermissions) {
+        if (!req.body.negativePermissions || !Array.isArray(req.body.negativePermissions) || req.body.negativePermissions.length === 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Negative Permission ids must be a non-empty array of strings",
+                400,
+                null
+            );
+        }
+
+        const uniqueNegativePermissions = new Set();
+        const duplicateNegativePermissions = [];
+
+        for (let i = 0; i < req.body.negativePermissions.length; i++) {
+            const negativePermissionId = req.body.negativePermissions[i];
+
+            if (typeof negativePermissionId !== 'string') {
+                return apiResponseHandler.errorResponse(
+                    res,
+                    "Negative Permission ids must be a non-empty array of strings",
+                    400,
+                    null
+                );
+            }
+
+            // Check for duplicate permission IDs
+            if (uniqueNegativePermissions.has(negativePermissionId)) {
+                duplicateNegativePermissions.push(negativePermissionId);
+            } else {
+                uniqueNegativePermissions.add(negativePermissionId);
+            }
+        }
+
+        if (duplicateNegativePermissions.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Duplicate negative permission ids are not allowed",
+                400,
+                { duplicateNegativePermissions }
+            );
+        }
+
+        let invalidNegativePermissions = await PermissionDbOperations.returnInvalidPermissions(Array.from(uniqueNegativePermissions), req.businessUnit);
+
+        if (invalidNegativePermissions.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Invalid negative Permission ids",
+                400,
+                { invalidNegativePermissions }
+            );
+        }
+    }
+
+    next();
+}
+
+
+validatePositivePermissionsArray = (req, res, next) => {
+    try {
+        for (const permission of req.body.userPermissions) {
+            if (permission.positivePermissions && (!Array.isArray(permission.positivePermissions) || permission.positivePermissions.length === 0)) {
+                return apiResponseHandler.errorResponse(
+                    res,
+                    "Positive Permissions must be a non-empty array of strings in each permission object",
+                    400,
+                    null
+                );
+            }
+
+            if (permission.positivePermissions) {
+                for (const positivePermissionId of permission.positivePermissions) {
+                    if (typeof positivePermissionId !== 'string') {
+                        return apiResponseHandler.errorResponse(
+                            res,
+                            "Positive Permission ids must be a non-empty array of strings in each permission object",
+                            400,
+                            null
+                        );
+                    }
+                }
+            }
+        }
+        next();
+    } catch (error) {
+        console.log("Error validating positive permissions:", error);
+        return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
+    }
+};
+
+validateNegativePermissionsArray = (req, res, next) => {
+    try {
+        for (const permission of req.body.userPermissions) {
+            if (permission.negativePermissions && (!Array.isArray(permission.negativePermissions) || permission.negativePermissions.length === 0)) {
+                return apiResponseHandler.errorResponse(
+                    res,
+                    "Negative Permissions must be a non-empty array of strings in each permission object",
+                    400,
+                    null
+                );
+            }
+
+            if (permission.negativePermissions) {
+                for (const negativePermissionId of permission.negativePermissions) {
+                    if (typeof negativePermissionId !== 'string') {
+                        return apiResponseHandler.errorResponse(
+                            res,
+                            "Negative Permission ids must be a non-empty array of strings in each permission object",
+                            400,
+                            null
+                        );
+                    }
+                }
+            }
+        }
+        next();
+    } catch (error) {
+        console.log("Error validating negative permissions:", error);
+        return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
+    }
+};
 
 const verifyPermissionReqBody = {
     validateCreatePermissionRequestBody: validateCreatePermissionRequestBody,
     validateUpdatePermissionRequestBody: validateUpdatePermissionRequestBody,
     validatePermission: validatePermission,
-    validatePermissions: validatePermissions
+    validatePermissions: validatePermissions,
+    validatePositivePermissions: validatePositivePermissions,
+    validateNegativePermissions: validateNegativePermissions,
+    validatePositivePermissionsArray: validatePositivePermissionsArray,
+    validateNegativePermissionsArray: validateNegativePermissionsArray
 };
 
 
