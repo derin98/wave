@@ -1,6 +1,7 @@
 const UserOperations = require('../../../../dbOperations/mongoDB/userManagement/user/user.dbOperations');
 const paginationHandler = require('../../../../utils/objectHandlers/paginationHandler');
 const userResObjConverter = require('../../../../utils/objectHandlers/resObjConverters/userManagement/user/user.resObjConverter');
+const permissionManager = require("../../organizationManagement/permission/permission.managers");
 
 
 async function createUser(userObject) {
@@ -43,7 +44,7 @@ async function getAllUsers(req) {
     if (req.query.updatedAt) {
         query.updatedAt = req.updatedAt;
     }
-    console.log("query", query)
+    // console.log("query", query)
     if (req.query.name) {
         query.name = {$regex: req.query.name, $options: 'i'};
     }
@@ -72,6 +73,52 @@ async function getAllUsers(req) {
     }
     const users = await UserOperations.getAllUsers(query, sort, order, page, limit, skip, selectFields, populateFields);
     const totalPages = countUsers === 0 ? 0 : (limit === 0 ? 1 : Math.ceil(countUsers / limit));
+
+// If populateFields contains userPermission
+    if (populateFields.includes('userPermission')) {
+        for (let i = 0; i < users.length; i++) {
+            let user = users[i];
+            
+            // Check if user has userPermission, positivePermissions, and negativePermissions, if not, initialize them as empty arrays
+            if (!user.userPermission) {
+                user.userPermission = { positivePermissions: [], negativePermissions: [] };
+            }
+            if (!user.userPermission.positivePermissions) user.userPermission.positivePermissions = [];
+            if (!user.userPermission.negativePermissions) user.userPermission.negativePermissions = [];
+        
+            // Concatenate and filter permissions
+            let positivePermissions = [...user.userPermission.positivePermissions];
+            const negativePermissionsSet = new Set(user.userPermission.negativePermissions.map(String));
+            const negativePermissions = [...negativePermissionsSet];
+            
+            // Only get permissions if there are positivePermissions or negativePermissions
+            if (positivePermissions.length > 0) {
+                const userPositivePermission = await permissionManager.getPermissions(positivePermissions, "", "permissionGroup");
+        
+                let modifiedPositivePermissions = userPositivePermission.reduce((acc, { id, name: permissionName, permissionGroup: { name: groupName } }) => {
+                    acc[groupName] ??= {};
+                    acc[groupName][permissionName] = { id };
+                    return acc;
+                }, {});
+        
+                user.userPermission.positivePermissions = modifiedPositivePermissions;
+            }
+        
+            if (negativePermissions.length > 0) {
+                const userNegativePermission = await permissionManager.getPermissions(negativePermissions, "", "permissionGroup");
+        
+                let modifiedNegativePermissions = userNegativePermission.reduce((acc, { name: permissionName, permissionGroup: { name: groupName } }) => {
+                    acc[groupName] ??= {};
+                    acc[groupName][permissionName] = true;
+                    return acc;
+                }, {});
+        
+                user.userPermission.negativePermissions = modifiedNegativePermissions;
+            }
+        }
+        
+    }
+
 
     return paginationHandler.paginationResObj(page, totalPages, countUsers, users);
 }

@@ -21,7 +21,10 @@ module.exports = function (app) {
 
     app.delete("/api/v1/designations/", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyDesignationReqBody.validateDesignations], designationController.deleteDesignations);
 
+    app.put("/api/v1/designations/update", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyDesignationReqBody.validateDesignation, verifyPermissionReqBody.validatePermissions, verifyDesignationReqBody.validateUpdateDesignationRequestBody], designationController.updateDesignation);
+
     app.put("/api/v1/designations/:designation", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyDesignationReqBody.validateDesignation, verifyPermissionReqBody.validatePermissions, verifyDesignationReqBody.validateUpdateDesignationRequestBody], designationController.updateDesignation);
+
 //     app.get("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin], const designationController.findById);
 //
 //     app.put("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin, verifyBusinessUnitRequestBody.validateCreateBusinessUnitRequestBody], constbusinessUnitController.update);

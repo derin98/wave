@@ -1,26 +1,72 @@
 const Designation = require('../../../../models/mongoDB/organizationManagement/designation/designation.model');
 const mongoose = require('mongoose');
 const {query} = require("express");
+const User = require("../../../../models/mongoDB/userManagement/user/user.model");
 
 async function createDesignation(designationObject) {
     return Designation.create(designationObject);
 }
 
-async function getAllDesignations(query, sort, order, page, limit, skip) {
-    if (limit > 0) {
-        return Designation.find(query)
-            .select('name _id')  // Include _id in the select clause for exclusion
-            .sort({[sort]: order})
-            .skip(skip)
-            .limit(limit)
-            .lean()
-            .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
-    } else {
-        return Designation.find(query)
-            .select('name _id')  // Include _id in the select clause for exclusion
-            .sort({[sort]: order})
-            .lean()
-            .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
+async function getAllDesignations(query, sort, order, page, limit, skip, selectFields, populateFields) {
+    // if (limit > 0) {
+    //     return Designation.find(query)
+    //         .select('name _id')  // Include _id in the select clause for exclusion
+    //         .sort({[sort]: order})
+    //         .skip(skip)
+    //         .limit(limit)
+    //         .lean()
+    //         .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
+    // } else {
+    //     return Designation.find(query)
+    //         .select('name _id')  // Include _id in the select clause for exclusion
+    //         .sort({[sort]: order})
+    //         .lean()
+    //         .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
+    // }
+    try {
+        let queryObject
+        console.log("query", query)
+        if(limit > 0){
+            queryObject = Designation.find(query)
+                .sort({[sort]: order})
+                .skip(skip)
+                .limit(limit)
+            ;
+        }
+        else{
+            queryObject = Designation.find(query).sort({[sort]: order});
+        }
+
+        if (selectFields) {
+            queryObject = queryObject.select(selectFields);
+        }
+
+        if (populateFields) {
+            const populateFieldsArray = populateFields.split(' ');
+            const validPopulateFields = populateFieldsArray.filter(field => Designation.schema.path(field) != null);
+            queryObject = queryObject.populate({
+                path: validPopulateFields.join(' '), // Convert back to a string
+                select: '_id name permissionGroup',
+                options: {
+                    lean: true, // Ensure the result is in plain JavaScript objects
+                    transform: doc => {
+                        // Rename _id to id within the populated item
+                        const {_id, ...rest} = doc;
+                        return {...rest, id: _id};
+                    },
+                },
+            });
+        }
+
+        const results = await queryObject.lean();
+
+        return results.map(result => {
+            const {_id, ...rest} = result;
+            return {...rest, id: _id};
+        });
+    } catch (error) {
+        console.error('Error in getAllUsers:', error);
+        return null;
     }
 }
 
@@ -63,6 +109,9 @@ async function deleteDesignations(query) {
 
 async function updateDesignation(query, updateObject) {
     return Designation.updateOne(query, {$set: updateObject});
+}
+async function updateDesignations(query, updateObject) {
+    return Designation.updateMany(query, {$set: updateObject});
 }
 
 async function checkExistingDesignation(id, businessUnit, userType) {
@@ -130,6 +179,7 @@ module.exports = {
     deleteDesignation,
     deleteDesignations,
     updateDesignation,
+    updateDesignations,
     checkExistingDesignation,
     checkExistingNameForUserType,
     returnInvalidDesignations

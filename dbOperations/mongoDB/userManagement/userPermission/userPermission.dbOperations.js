@@ -106,6 +106,12 @@ async function countUserPermissions(query) {
 async function updateUserPermission(query, updateObject) {
     return UserPermission.updateOne(query, {$set: updateObject});
 }
+async function updateUserPermissions(bulkUpdateOperations) {
+
+    return await UserPermission.bulkWrite(bulkUpdateOperations);
+
+}
+
 
 async function checkExistingUserPermissionId(id, businessUnit) {
 
@@ -149,6 +155,7 @@ module.exports = {
     countUserPermissions,
     getUserPermission,
     updateUserPermission,
+    updateUserPermissions,
     checkExistingUserPermissionId,
     returnInvalidUserPermissionIds
 };

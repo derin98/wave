@@ -102,6 +102,31 @@ async function updateUserPermission(id, updateObject, businessUnit) {
     return await UserPermissionOperations.updateUserPermission(query, updateObject);
 }
 
+async function updateUserPermissions(req) {
+    const bulkUpdateOperations = [];
+    for (const userPermission of req.body.userPermissions) {
+        const userPermissionReqObj = {
+            positivePermissions: userPermission.positivePermissions || [],
+            negativePermissions: userPermission.negativePermissions || [],
+            updatedBy: req.userId
+        };
+        const query = {
+            _id: userPermission.id
+        };
+        // if(req.businessUnit) {
+        //     query.businessUnit = req.businessUnit;
+        // }
+        bulkUpdateOperations.push({
+            updateOne: {
+                filter: query,
+                update: userPermissionReqObj
+            }
+        });
+    }
+    return await UserPermissionOperations.updateUserPermissions(bulkUpdateOperations);
+
+}
+
 
 module.exports = {
     createUserPermission,
@@ -109,4 +134,5 @@ module.exports = {
     getUserPermission,
     getUserPermissions,
     updateUserPermission,
+    updateUserPermissions
 };
