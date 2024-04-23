@@ -76,30 +76,47 @@ async function getAllUsers(req) {
 
 // If populateFields contains userPermission
     if (populateFields.includes('userPermission')) {
-        for(let i = 0; i < users.length; i++) {
+        for (let i = 0; i < users.length; i++) {
             let user = users[i];
+            
+            // Check if user has userPermission, positivePermissions, and negativePermissions, if not, initialize them as empty arrays
+            if (!user.userPermission) {
+                user.userPermission = { positivePermissions: [], negativePermissions: [] };
+            }
+            if (!user.userPermission.positivePermissions) user.userPermission.positivePermissions = [];
+            if (!user.userPermission.negativePermissions) user.userPermission.negativePermissions = [];
+        
             // Concatenate and filter permissions
             let positivePermissions = [...user.userPermission.positivePermissions];
             const negativePermissionsSet = new Set(user.userPermission.negativePermissions.map(String));
             const negativePermissions = [...negativePermissionsSet];
-// const userPermission = await userPermissionManager.getUserPermissions(filteredPermissions, "", "permissionGroup")
-            const userPositivePermission = await permissionManager.getPermissions(positivePermissions, "", "permissionGroup")
-            //
-            let modifiedPositivePermissions = userPositivePermission.reduce((acc, { id, name: permissionName, permissionGroup: { name: groupName } }) => {
-                acc[groupName] ??= {};
-                acc[groupName][permissionName] = {id};
-                return acc;
-            }, {});
-            const userNegativePermission = await permissionManager.getPermissions(negativePermissions, "", "permissionGroup")
-            let modifiedNegativePermissions = userNegativePermission.reduce((acc, { name: permissionName, permissionGroup: { name: groupName } }) => {
-                acc[groupName] ??= {};
-                acc[groupName][permissionName] = true;
-                return acc;
-            }, {});
-
-            user.userPermission.positivePermissions = modifiedPositivePermissions;
-            user.userPermission.negativePermissions = modifiedNegativePermissions;
+            
+            // Only get permissions if there are positivePermissions or negativePermissions
+            if (positivePermissions.length > 0) {
+                const userPositivePermission = await permissionManager.getPermissions(positivePermissions, "", "permissionGroup");
+        
+                let modifiedPositivePermissions = userPositivePermission.reduce((acc, { id, name: permissionName, permissionGroup: { name: groupName } }) => {
+                    acc[groupName] ??= {};
+                    acc[groupName][permissionName] = { id };
+                    return acc;
+                }, {});
+        
+                user.userPermission.positivePermissions = modifiedPositivePermissions;
+            }
+        
+            if (negativePermissions.length > 0) {
+                const userNegativePermission = await permissionManager.getPermissions(negativePermissions, "", "permissionGroup");
+        
+                let modifiedNegativePermissions = userNegativePermission.reduce((acc, { name: permissionName, permissionGroup: { name: groupName } }) => {
+                    acc[groupName] ??= {};
+                    acc[groupName][permissionName] = true;
+                    return acc;
+                }, {});
+        
+                user.userPermission.negativePermissions = modifiedNegativePermissions;
+            }
         }
+        
     }
 
 

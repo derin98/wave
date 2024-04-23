@@ -55,11 +55,6 @@ module.exports = function (app) {
     // app.put("/api/v1/userPermissions/update", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit,
     //     verifyPermissionReqBody.validatePositivePermissions, verifyPermissionReqBody.validateNegativePermissions,
     // ], userPermissionController.updateUserPermissions);
-
-    app.put("/api/v1/userPermissions/:userPermission", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserPermissionReqBody.validateUserPermission,
-        verifyPermissionReqBody.validatePositivePermissions, verifyPermissionReqBody.validateNegativePermissions,
-    ], userPermissionController.updateUserPermission);
-
     app.put("/api/v1/userPermissions/updateMultiple", [
         authJwt.verifyToken,
         verifyBusinessUnitAfterAuth.verifyBusinessUnit,
@@ -69,6 +64,9 @@ module.exports = function (app) {
         verifyPermissionReqBody.validateNegativePermissionsArray,
     ], userPermissionController.updateMultipleUserPermissions);
 
+    app.put("/api/v1/userPermissions/:userPermission", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyUserPermissionReqBody.validateUserPermission,
+        verifyPermissionReqBody.validatePositivePermissions, verifyPermissionReqBody.validateNegativePermissions,
+    ], userPermissionController.updateUserPermission);
 //     app.get("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin], const userController.findById);
 //
 //     app.put("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin, verifyBusinessUnitRequestBody.validateCreateBusinessUnitRequestBody], constbusinessUnitController.update);

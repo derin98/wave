@@ -113,9 +113,9 @@ async function updateUserPermissions(req) {
         const query = {
             _id: userPermission.id
         };
-        if(req.businessUnit) {
-            query.businessUnit = req.businessUnit;
-        }
+        // if(req.businessUnit) {
+        //     query.businessUnit = req.businessUnit;
+        // }
         bulkUpdateOperations.push({
             updateOne: {
                 filter: query,

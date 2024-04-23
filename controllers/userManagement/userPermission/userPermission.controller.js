@@ -2,7 +2,7 @@
  * This is the controller for the user resource
  */
 
-const userPermissionReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/userManagement//userPermission/userPermission.reqObjExtractor');
+const userPermissionReqObjExtractor = require('../../../utils/objectHandlers/reqObjExtractors/userManagement/userPermission/userPermission.reqObjExtractor');
 const apiResponseHandler = require('../../../utils/objectHandlers/apiResponseHandler');
 const userPermissionManager = require('../../../managers/internalManagers/userManagement/userPermission/userPermission.managers');
 
