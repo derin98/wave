@@ -79,7 +79,40 @@ validateUserRequest = async (req, res, next) => {
 
 };
 
+//check duplicate employeeId
 
+checkDuplicateEmployeeId = async (req, res, next) => {
+    let isValid = true;
+    let message = "";
+    if (!req.businessUnit){
+        isValid = false;
+        message = "Failed! BusinessUnit Id must be a non-empty string";
+    }
+    
+    if (!req.body.employeeId || typeof req.body.employeeId !== 'string'){
+        isValid = false;
+        message = "Failed! EmployeeId must be a non-empty string";
+    }
+
+    // Check if the provided name already exists in the database
+    const existingEmployeeIdUser = await UserDbOperations.checkExistingEmployeeIdForBusinessUnit(req.body.employeeId, req.businessUnit);
+    if (existingEmployeeIdUser) {
+        isValid = false;
+        message = "Failed! User employeeId already exists for the business unit";
+    }
+    if (isValid) {
+        console.log(existingEmployeeIdUser);
+        next();
+    }
+    else {
+        return apiResponseHandler.errorResponse(
+            res,
+            message,
+            400,
+            null
+        );
+    }
+}
 
 
 validateCreateUserRequest = async (req, res, next) => {
@@ -561,6 +594,7 @@ const isValidEmail = (email) => {
 
 const verifyUserRequest = {
     validateUserRequest: validateUserRequest,
+    checkDuplicateEmployeeId: checkDuplicateEmployeeId,
     validateCreateUserRequest: validateCreateUserRequest,
     validatePreUpdateUserRequest: validatePreUpdateUserRequest,
     validateUser: validateUser,
