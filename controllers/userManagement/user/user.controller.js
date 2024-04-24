@@ -92,7 +92,7 @@ exports.enableUser = async (req, res) => {
 
 exports.disableUser = async (req, res) => {
     try {
-        const user = await userManager.disableUser(req.params.user, req.businessUnit);
+        const user = await userManager.disableUser(req);
         const message = "User disabled successfully";
         await teamManager.removeUsersFromTeams(req.params.users);
         return apiResponseHandler.successResponse(res, message, null, 200);

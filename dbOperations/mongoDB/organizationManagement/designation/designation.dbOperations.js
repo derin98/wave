@@ -44,18 +44,20 @@ async function getAllDesignations(query, sort, order, page, limit, skip, selectF
         if (populateFields) {
             const populateFieldsArray = populateFields.split(' ');
             const validPopulateFields = populateFieldsArray.filter(field => Designation.schema.path(field) != null);
-            queryObject = queryObject.populate({
-                path: validPopulateFields.join(' '), // Convert back to a string
-                select: '_id name permissionGroup',
-                options: {
-                    lean: true, // Ensure the result is in plain JavaScript objects
-                    transform: doc => {
-                        // Rename _id to id within the populated item
-                        const {_id, ...rest} = doc;
-                        return {...rest, id: _id};
+            if (validPopulateFields.length > 0)  {
+                queryObject = queryObject.populate({
+                    path: validPopulateFields.join(' '), // Convert back to a string
+                    select: '_id name permissionGroup',
+                    options: {
+                        lean: true, // Ensure the result is in plain JavaScript objects
+                        transform: doc => {
+                            // Rename _id to id within the populated item
+                            const {_id, ...rest} = doc;
+                            return {...rest, id: _id};
+                        },
                     },
-                },
-            });
+                });
+            }
         }
 
         const results = await queryObject.lean();
@@ -74,14 +76,53 @@ async function countDesignations(query) {
     return Designation.countDocuments(query);
 }
 
-async function getDesignation(query) {
-    const result = await Designation.findOne(query).select('name _id').lean();
-    if (result) {
-        const {_id, ...rest} = result;
-        return {...rest, id: _id};
+async function getDesignation(query, selectFields, populateFields) {
+    try {
+        let queryObject = Designation.findOne(query);
+
+        if (selectFields) {
+            queryObject = queryObject.select(selectFields);
+        }
+
+        if (populateFields) {
+            // Convert populateFields string to an array
+            const populateFieldsArray = populateFields.split(' ');
+
+            // Filter out invalid fields
+            const validPopulateFields = populateFieldsArray.filter(field => Designation.schema.path(field) != null);
+
+            if (validPopulateFields.length > 0) {
+                queryObject = queryObject.populate({
+                    path: validPopulateFields.join(' '), // Convert back to a string
+                    select: '_id name',
+                    options: {
+                        lean: true, // Ensure the result is in plain JavaScript objects
+                        transform: doc => {
+                            // Rename _id to id within the populated item
+                            const { _id, ...rest } = doc;
+                            return { ...rest, id: _id };
+                        },
+                    },
+                });
+            } else {
+                console.warn('No valid fields to populate.');
+            }
+        }
+
+        const result = await queryObject.lean();
+
+        if (result) {
+            const { _id, ...rest } = result;
+            return { ...rest, id: _id };
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Error in getUser:', error);
+        return null;
     }
-    return null;
 }
+
 
 async function enableDesignation(query) {
     return Designation.updateOne(query, {$set: {isEnabled: true}});
