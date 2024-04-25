@@ -75,7 +75,7 @@ async function getAllDesignations(req) {
     return paginationHandler.paginationResObj(page, totalPages, countDesignations, designations);
 }
 
-async function getDesignation(id, businessUnit) {
+async function getDesignation(id, selectFields, populateFields, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
@@ -84,7 +84,31 @@ async function getDesignation(id, businessUnit) {
     if(businessUnit) {
         query.businessUnit = businessUnit;
     }
-    return await DesignationOperations.getDesignation(query);
+
+    populateFields = populateFields
+    ? [...new Set(populateFields.split(','))].join(' ')
+    : "";
+
+    selectFields = selectFields
+    ? [...new Set(selectFields.split(',')), 'name', '_id'].join(' ')
+    : ['name', '_id'];
+        let designation = await DesignationOperations.getDesignation(query, selectFields, populateFields);
+
+    if (populateFields.includes('permissions')) {
+            // Concatenate and filter permissions
+            let permissions = [...designation.permissions];
+            let permissionIds = permissions.map(permission => permission.id);
+
+            const userPermission = await permissionManager.getPermissions(permissionIds, "", "permissionGroup")
+            //
+            let modifiedPermissions = userPermission.reduce((acc, { id, name: permissionName, permissionGroup: { name: groupName } }) => {
+                acc[groupName] ??= {};
+                acc[groupName][permissionName] = {id};
+                return acc;
+            }, {});
+            designation.permissions = modifiedPermissions;
+    }
+    return designation
 }
 
 async function getDesignationByName(name, businessUnit) {

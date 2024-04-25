@@ -47,18 +47,20 @@ async function getAllTeams(query, sort, order, page, limit, skip, selectFields, 
         if (populateFields) {
             const populateFieldsArray = populateFields.split(' ');
             const validPopulateFields = populateFieldsArray.filter(field => Team.schema.path(field) != null);
-            queryObject = queryObject.populate({
-                path: validPopulateFields.join(' '), // Convert back to a string
-                select: '_id name shortName',
-                options: {
-                    lean: true, // Ensure the result is in plain JavaScript objects
-                    transform: doc => {
-                        if (!doc) return null; // Add this line to handle null doc
-                        const {_id, ...rest} = doc;
-                        return {...rest, id: _id};
-                    },
-                },
-            });
+           if (validPopulateFields.length > 0) {
+             queryObject = queryObject.populate({
+                 path: validPopulateFields.join(' '), // Convert back to a string
+                 select: '_id name shortName',
+                 options: {
+                     lean: true, // Ensure the result is in plain JavaScript objects
+                     transform: doc => {
+                         if (!doc) return null; // Add this line to handle null doc
+                         const {_id, ...rest} = doc;
+                         return {...rest, id: _id};
+                     },
+                 },
+             });
+           }
         }
 
         const results = await queryObject.lean();
@@ -156,18 +158,20 @@ async function getTeam(query, selectFields, populateFields) {
             const validPopulateFields = populateFieldsArray.filter(field => Team.schema.path(field) != null);
 
 
-            queryObject = queryObject.populate({
-                path: validPopulateFields.join(' '), // Convert back to a string
-                select: '_id name shortName',
-                options: {
-                    lean: true, // Ensure the result is in plain JavaScript objects
-                    transform: doc => {
-                        // Rename _id to id within the populated item
-                        const { _id, ...rest } = doc;
-                        return { ...rest, id: _id };
+            if (validPopulateFields.length > 0) {
+                queryObject = queryObject.populate({
+                    path: validPopulateFields.join(' '), // Convert back to a string
+                    select: '_id name shortName',
+                    options: {
+                        lean: true, // Ensure the result is in plain JavaScript objects
+                        transform: doc => {
+                            // Rename _id to id within the populated item
+                            const { _id, ...rest } = doc;
+                            return { ...rest, id: _id };
+                        },
                     },
-                },
-            });
+                });
+            }
         }
 
         const result = await queryObject.lean();

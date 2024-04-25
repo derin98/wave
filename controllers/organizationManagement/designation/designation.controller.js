@@ -46,7 +46,11 @@ exports.getAllDesignations = async (req, res) => {
 
 exports.getDesignation = async (req, res) => {
     try {
-        const designation = await designationManager.getDesignation(req.params.designation);
+
+        let populateFields = req.query.populateFields || undefined;
+        let selectFields = req.query.selectFields || undefined;
+
+        const designation = await designationManager.getDesignation(req.params.designation, selectFields, populateFields, req.businessUnit);
 
         if (!designation) {
             return apiResponseHandler.errorResponse(res, "Designation not found", 404, null);

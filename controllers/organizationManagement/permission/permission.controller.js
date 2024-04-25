@@ -46,7 +46,10 @@ exports.getAllPermissions = async (req, res) => {
 
 exports.getPermission = async (req, res) => {
     try {
-        const permission = await permissionManager.getPermission(req.params.permission);
+        let populateFields = req.query.populateFields || undefined;
+        let selectFields = req.query.selectFields || undefined;
+
+        const permission = await permissionManager.getPermission(req.params.permission, selectFields, populateFields, req.businessUnit);
 
         if (!permission) {
             return apiResponseHandler.errorResponse(res, "Permission not found", 404, null);
