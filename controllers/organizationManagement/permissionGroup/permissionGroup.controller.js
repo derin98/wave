@@ -46,7 +46,10 @@ exports.getAllPermissionGroups = async (req, res) => {
 
 exports.getPermissionGroup = async (req, res) => {
     try {
-        const permissionGroup = await permissionGroupManager.getPermissionGroup(req.params.permissionGroup, req.businessUnit);
+        let populateFields = req.query.populateFields || undefined;
+        let selectFields = req.query.selectFields || undefined;
+
+        const permissionGroup = await permissionGroupManager.getPermissionGroup(req.params.permissionGroup, selectFields, populateFields, req.businessUnit);
 
         if (!permissionGroup) {
             return apiResponseHandler.errorResponse(res, "PermissionGroup not found", 404, null);

@@ -7,21 +7,68 @@ async function createPermission(permissionObject) {
     return Permission.create(permissionObject);
 }
 
-async function getAllPermissions(query, sort, order, page, limit, skip) {
-    if (limit > 0) {
-        return Permission.find(query)
-            .select('name _id')  // Include _id in the select clause for exclusion
-            .sort({[sort]: order})
-            .skip(skip)
-            .limit(limit)
-            .lean()
-            .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
-    } else {
-        return Permission.find(query)
-            .select('name _id')  // Include _id in the select clause for exclusion
-            .sort({[sort]: order})
-            .lean()
-            .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
+async function getAllPermissions(query, sort, order, page, limit, skip, selectFields, populateFields) {
+    // if (limit > 0) {
+    //     return Permission.find(query)
+    //         .select('name _id')  // Include _id in the select clause for exclusion
+    //         .sort({[sort]: order})
+    //         .skip(skip)
+    //         .limit(limit)
+    //         .lean()
+    //         .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
+    // } else {
+    //     return Permission.find(query)
+    //         .select('name _id')  // Include _id in the select clause for exclusion
+    //         .sort({[sort]: order})
+    //         .lean()
+    //         .then(results => results.map(({_id, ...rest}) => ({...rest, id: _id})));
+    // }
+    try {
+        let queryObject
+        console.log("query", query)
+        if(limit > 0){
+            queryObject = Permission.find(query)
+                .sort({[sort]: order})
+                .skip(skip)
+                .limit(limit)
+            ;
+        }
+        else{
+            queryObject = Permission.find(query).sort({[sort]: order});
+        }
+
+        if (selectFields) {
+            queryObject = queryObject.select(selectFields);
+        }
+
+        if (populateFields) {
+            const populateFieldsArray = populateFields.split(' ');
+            const validPopulateFields = populateFieldsArray.filter(field => Permission.schema.path(field) != null);
+            if (validPopulateFields.length > 0)  {
+                queryObject = queryObject.populate({
+                    path: validPopulateFields.join(' '), // Convert back to a string
+                    select: '_id name permissionGroup',
+                    options: {
+                        lean: true, // Ensure the result is in plain JavaScript objects
+                        transform: doc => {
+                            // Rename _id to id within the populated item
+                            const {_id, ...rest} = doc;
+                            return {...rest, id: _id};
+                        },
+                    },
+                });
+            }
+        }
+
+        const results = await queryObject.lean();
+
+        return results.map(result => {
+            const {_id, ...rest} = result;
+            return {...rest, id: _id};
+        });
+    } catch (error) {
+        console.error('Error in getAllPermissions:', error);
+        return null;
     }
 }
 
@@ -29,14 +76,6 @@ async function countPermissions(query) {
     return Permission.countDocuments(query);
 }
 
-// async function getPermission(query) {
-//     const result = await Permission.findOne(query).select('name _id').lean();
-//     if (result) {
-//         const {_id, ...rest} = result;
-//         return {...rest, id: _id};
-//     }
-//     return null;
-// }
 async function getPermission(query, selectFields, populateFields) {
     try {
         let queryObject = Permission.findOne(query);
