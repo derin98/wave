@@ -22,6 +22,17 @@ async function getAllPermissionGroups(req) {
         query.name = {$regex: req.query.name, $options: 'i'};
     }
 
+    let populateFields = req.query.populateFields;
+    let selectFields = req.query.selectFields;
+
+    populateFields = populateFields
+        ? [...new Set(populateFields.split(','))].filter(field => field !== 'userPassword').join(' ')
+        : "";
+
+    selectFields = selectFields
+        ? [...new Set(selectFields.split(',')), 'name', '_id'].filter(field => field !== 'userPassword').join(' ')
+        : ['name', '_id'];
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 0;
     const skip = (page - 1) * limit;
@@ -34,13 +45,13 @@ async function getAllPermissionGroups(req) {
     if (limit === 0 && page > 1) {
         return paginationHandler.paginationResObj(page, 1, countPermissionGroups, []);
     }
-    const permissionGroups = await PermissionGroupOperations.getAllPermissionGroups(query, sort, order, page, limit, skip);
+    const permissionGroups = await PermissionGroupOperations.getAllPermissionGroups(query, sort, order, page, limit, skip, selectFields, populateFields);
     const totalPages = countPermissionGroups === 0 ? 0 : (limit === 0 ? 1 : Math.ceil(countPermissionGroups / limit));
 
     return paginationHandler.paginationResObj(page, totalPages, countPermissionGroups, permissionGroups);
 }
 
-async function getPermissionGroup(id, businessUnit) {
+async function getPermissionGroup(id, selectFields, populateFields, businessUnit) {
     let query = {
         _id: id,
         // isEnabled: true,
@@ -49,7 +60,15 @@ async function getPermissionGroup(id, businessUnit) {
     if(businessUnit) {
         query.businessUnit = businessUnit;
     }
-    return await PermissionGroupOperations.getPermissionGroup(query);
+    populateFields = populateFields
+    ? [...new Set(populateFields.split(','))].join(' ')
+    : "";
+
+    selectFields = selectFields
+    ? [...new Set(selectFields.split(',')), 'name', '_id'].join(' ')
+    : ['name', '_id'];
+  
+    return await PermissionGroupOperations.getPermissionGroup(query, selectFields, populateFields);
 }
 
 async function getPermissionGroupByName(name, businessUnit) {

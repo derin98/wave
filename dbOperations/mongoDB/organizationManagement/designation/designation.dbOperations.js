@@ -67,7 +67,7 @@ async function getAllDesignations(query, sort, order, page, limit, skip, selectF
             return {...rest, id: _id};
         });
     } catch (error) {
-        console.error('Error in getAllUsers:', error);
+        console.error('Error in getAllDesignations:', error);
         return null;
     }
 }
@@ -118,7 +118,7 @@ async function getDesignation(query, selectFields, populateFields) {
 
         return null;
     } catch (error) {
-        console.error('Error in getUser:', error);
+        console.error('Error in getDesignation:', error);
         return null;
     }
 }
