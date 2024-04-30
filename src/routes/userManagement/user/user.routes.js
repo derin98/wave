@@ -11,6 +11,7 @@ module.exports = function (app) {
 
     // app.post("/api/v1/users", [
     //     // authJwt.verifyToken,
+
     //     verifyBusinessUnitAfterAuth.verifyBusinessUnit,
     //     verifyDepartmentReqBody.validateDepartment, verifyUserTypeReqBody.validateUserType,
     //     verifyDesignationReqBody.validateDesignation, verifyTeamReqBody.validateTeam,

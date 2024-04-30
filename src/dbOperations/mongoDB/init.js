@@ -1,54 +1,21 @@
-/**
- * This file will be the start point of the application.
- */
-const serverConfig = require('./configs/server/server.config');
-const {MONGO_DB_URL} = require('./configs/db/mongoDb.config');
-const mongoose = require('mongoose');
-const express = require('express');
-const bodyParser = require("body-parser");
-const app = express();
-const cors = require('cors');
-const authController = require('./controllers/userManagement/auth/auth.controller');
-const userManagers = require('./managers/internalManagers/userManagement/user/user.managers');
-const businessUnitManagers = require('./managers/internalManagers/organizationManagement/businessUnit/businessUnit.managers');
-const departmentManagers = require('./managers/internalManagers/organizationManagement/department/department.managers');
-const userTypeManagers = require('./managers/internalManagers/organizationManagement/userType/userType.managers');
-const designationManagers = require('./managers/internalManagers/organizationManagement/designation/designation.managers');
-const permissionGroupManagers = require('./managers/internalManagers/organizationManagement/permissionGroup/permissionGroup.managers');
-const permissionManagers = require('./managers/internalManagers/organizationManagement/permission/permission.managers');
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended :true}));
+const authController = require('../../../src/controllers/userManagement/auth/auth.controller');
+const userManagers = require('../../../src/managers/internalManagers/userManagement/user/user.managers');
+const businessUnitManagers = require('../../../src/managers/internalManagers/organizationManagement/businessUnit/businessUnit.managers');
+const departmentManagers = require('../../../src/managers/internalManagers/organizationManagement/department/department.managers');
+const userTypeManagers = require('../../../src/managers/internalManagers/organizationManagement/userType/userType.managers');
+const designationManagers = require('../../../src/managers/internalManagers/organizationManagement/designation/designation.managers');
+const permissionGroupManagers = require('../../../src/managers/internalManagers/organizationManagement/permissionGroup/permissionGroup.managers');
+const permissionManagers = require('../../../src/managers/internalManagers/organizationManagement/permission/permission.managers');
 
 
-/**
- * Configuring CORS
- * Current configuration ensures access from everywhere
- * Think twice, while doing the same in the Production.
- *
- */
-app.use(cors());
 
-/**
- * DB Connection initialization
- */
-
-mongoose.connect(MONGO_DB_URL);
-const db = mongoose.connection;
-db.on("error", ()=>{
-    console.log("error while connecting to DB");
-});
-db.once("open",async () => {
-    console.log("connected to Mongo DB ")
-    await init();
-});
 
 /**
  *
  * @returns
  * ideally one ADMIN userManagement should have been created in the backend
  */
-async function init() {
+async function dbInit() {
 
     let user;
     let businessUnit;
@@ -246,22 +213,6 @@ async function init() {
 
 }
 
-
-
-/**
- * importing the routes
- */
-require('./routes/organizationManagement/team/team.routes')(app);
-require('./routes/organizationManagement/permission/permission.routes')(app);
-require('./routes/organizationManagement/permissionGroup/permissionGroup.routes')(app);
-require('./routes/organizationManagement/designation/designation.routes')(app);
-require('./routes/organizationManagement/userType/userType.routes')(app);
-require('./routes/organizationManagement/department/department.routes')(app);
-require('./routes/organizationManagement/businessUnit/businessUnit.routes')(app);
-require('./routes/userManagement/auth/auth.routes')(app);
-require('./routes/userManagement/user/user.routes')(app);
-require('./routes/userManagement/userPermission/userPermission.routes')(app);
-
-app.listen(serverConfig.PORT, () => {
-    console.log(`Application started on the port num : ${serverConfig.PORT}`);
-})
+module.exports = {
+    dbInit
+}

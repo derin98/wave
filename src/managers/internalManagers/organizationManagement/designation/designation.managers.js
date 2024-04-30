@@ -1,7 +1,7 @@
 const DesignationOperations = require('../../../../dbOperations/mongoDB/organizationManagement/designation/designation.dbOperations');
 const paginationHandler = require('../../../../utils/objectHandlers/paginationHandler');
 const designationResObjConverter = require('../../../../utils/objectHandlers/resObjConverters/organizationManagement/designation/designation.resObjConverter');
-const permissionManager = require("../../organizationManagement/permission/permission.managers");
+const permissionManager = require("../permission/permission.managers");
 
 
 async function createDesignation(designationObject) {
