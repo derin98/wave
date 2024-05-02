@@ -107,13 +107,43 @@ async function getAllUsers(req) {
             if (negativePermissions.length > 0) {
                 const userNegativePermission = await permissionManager.getPermissions(negativePermissions, "", "permissionGroup");
         
-                let modifiedNegativePermissions = userNegativePermission.reduce((acc, { name: permissionName, permissionGroup: { name: groupName } }) => {
+                let modifiedNegativePermissions = userNegativePermission.reduce((acc, { id, name: permissionName, permissionGroup: { name: groupName } }) => {
                     acc[groupName] ??= {};
-                    acc[groupName][permissionName] = true;
+                    acc[groupName][permissionName] = { id };
                     return acc;
                 }, {});
         
                 user.userPermission.negativePermissions = modifiedNegativePermissions;
+            }
+        }
+        
+    }
+    if (populateFields.includes('designation')) {
+        for (let i = 0; i < users.length; i++) {
+            let user = users[i];
+            
+            // Check if user has userPermission, positivePermissions, and negativePermissions, if not, initialize them as empty arrays
+            if (!user.designation) {
+                user.designation = { id: "", name: "",  permissions: [] };
+            }
+            if (!user.designation.permissions) user.designation.permissions = [];
+        
+
+            const designationPermissionsSet = new Set(user.designation.permissions.map(String));
+            const designationPermissions = [...designationPermissionsSet];
+            
+
+        
+            if (designationPermissions.length > 0) {
+                const userNegativePermission = await permissionManager.getPermissions(designationPermissions, "", "permissionGroup");
+        
+                let modifiedDesignationPermissions = userNegativePermission.reduce((acc, { id, name: permissionName, permissionGroup: { name: groupName } }) => {
+                    acc[groupName] ??= {};
+                    acc[groupName][permissionName] = { id };
+                    return acc;
+                }, {});
+        
+                user.designation.permissions = modifiedDesignationPermissions;
             }
         }
         

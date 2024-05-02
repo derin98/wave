@@ -52,7 +52,7 @@ async function getAllUsers(query, sort, order, page, limit, skip, selectFields, 
             if (validPopulateFields.length > 0) {
                 queryObject = queryObject.populate({
                     path: validPopulateFields.join(' '), // Convert back to a string
-                    select: '_id name email employeeId buUserId password expiredAt shortName usersCount userPermission negativePermissions positivePermissions',
+                    select: '_id name email employeeId buUserId password expiredAt shortName usersCount userPermission negativePermissions positivePermissions permissions',
                     options: {
                         lean: true, // Ensure the result is in plain JavaScript objects
                         transform: doc => {
