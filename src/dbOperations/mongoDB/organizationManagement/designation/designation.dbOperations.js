@@ -154,6 +154,9 @@ async function updateDesignation(query, updateObject) {
 async function updateDesignations(query, updateObject) {
     return Designation.updateMany(query, {$set: updateObject});
 }
+async function updateBulkDesignations(bulkUpdateOperations) {
+    return await Designation.bulkWrite(bulkUpdateOperations);
+}
 
 async function checkExistingDesignation(id, businessUnit, userType) {
 
@@ -223,5 +226,6 @@ module.exports = {
     updateDesignations,
     checkExistingDesignation,
     checkExistingNameForUserType,
-    returnInvalidDesignations
+    returnInvalidDesignations,
+    updateBulkDesignations
 };

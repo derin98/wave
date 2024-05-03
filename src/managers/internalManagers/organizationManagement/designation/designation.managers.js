@@ -207,15 +207,39 @@ async function updateDesignation(id, updateObject, businessUnit) {
 
 //updateDesignations
 
-async function updateDesignations( updateObject, businessUnit) {
-    let query = {
-        _id: {$in: ids},
-        isDeleted: false
-    };
-    if(businessUnit) {
-        query.businessUnit = businessUnit;
+// async function updateDesignations( updateObject, businessUnit) {
+//     let query = {
+//         _id: {$in: ids},
+//         isDeleted: false
+//     };
+//     if(businessUnit) {
+//         query.businessUnit = businessUnit;
+//     }
+//     return await DesignationOperations.updateDesignation(query, updateObject);
+// }
+
+async function updateDesignations(req) {
+    const bulkUpdateOperations = [];
+    for (const designation of req.body.designations) {
+        const designationReqObj = {
+            permissions: designation.permissions || [],
+            updatedBy: req.userId
+        };
+        const query = {
+            _id: designation.id
+        };
+        // if(req.businessUnit) {
+        //     query.businessUnit = req.businessUnit;
+        // }
+        bulkUpdateOperations.push({
+            updateOne: {
+                filter: query,
+                update: designationReqObj
+            }
+        });
     }
-    return await DesignationOperations.updateDesignation(query, updateObject);
+    return await DesignationOperations.updateBulkDesignations(bulkUpdateOperations);
+
 }
 
 module.exports = {
@@ -229,6 +253,7 @@ module.exports = {
     deleteDesignation,
     deleteDesignations,
     updateDesignation,
-    getDesignationByName
+    getDesignationByName,
+    updateDesignations
 
 };

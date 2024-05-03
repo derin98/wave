@@ -185,12 +185,59 @@ validateDesignationsFromQuery = async (req, res, next) => {
     next();
 }
 
+checkDesignationsUpdateIsArray = async (req, res, next) => {
+    if(req.body.designations && Array.isArray(req.body.designations) && req.body.designations.length > 0) {
+        next();
+    }
+    else {
+        return apiResponseHandler.errorResponse(
+            res,
+            "Designations must be a non-empty array of objects",
+            400,
+            null
+        );
+    }
+}
+
+
+validateDesignationsUpdateArray = async (req, res, next) => {
+    try {
+        for (const designation of req.body.designations) {
+            if (!designation.id || typeof designation.id !== 'string') {
+                return apiResponseHandler.errorResponse(
+                    res,
+                    "designationId must be a non-empty string in each permission object",
+                    400,
+                    null
+                );
+            }
+
+            const existingUserPermission = await UserPermissionDbOperations.checkExistingUserPermissionId(designation.id);
+            if (!existingUserPermission) {
+                return apiResponseHandler.errorResponse(
+                    res,
+                    `Failed! Designation ${designation.id} does not exist`,
+                    400,
+                    null
+                );
+            }
+        }
+        next();
+    } catch (error) {
+        console.log("Error validating user permissions:", error);
+        return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
+    }
+};
+
+
 const verifyDesignationReqBody = {
     validateCreateDesignationRequestBody: validateCreateDesignationRequestBody,
     validateUpdateDesignationRequestBody: validateUpdateDesignationRequestBody,
     validateDesignation: validateDesignation,
     validateDesignations: validateDesignations,
-    validateDesignationsFromQuery: validateDesignationsFromQuery
+    validateDesignationsFromQuery: validateDesignationsFromQuery,
+    checkDesignationsUpdateIsArray: checkDesignationsUpdateIsArray,
+    validateDesignationsUpdateArray: validateDesignationsUpdateArray
 };
 
 
