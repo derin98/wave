@@ -23,7 +23,18 @@ module.exports = function (app) {
 
     app.put("/api/v1/designations/update", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyDesignationReqBody.validateDesignation, verifyPermissionReqBody.validatePermissions, verifyDesignationReqBody.validateUpdateDesignationRequestBody], designationController.updateDesignation);
 
+  
+    app.put("/api/v1/designations/updateMultiple", [
+        authJwt.verifyToken,
+        verifyBusinessUnitAfterAuth.verifyBusinessUnit,
+        verifyDesignationReqBody.checkDesignationsUpdateIsArray,
+        verifyDesignationReqBody.validateDesignationsUpdateArray,
+        verifyPermissionReqBody.validateMultiplePermissionsForDesignationsUpdateArray,
+    ], designationController.updateMultipleDesignations);
+
+
     app.put("/api/v1/designations/:designation", [ authJwt.verifyToken, verifyBusinessUnitAfterAuth.verifyBusinessUnit, verifyDesignationReqBody.validateDesignation, verifyPermissionReqBody.validatePermissions, verifyDesignationReqBody.validateUpdateDesignationRequestBody], designationController.updateDesignation);
+
 
 //     app.get("/api/v1/users/:userId", [authJwt.verifyToken, authJwt.isAdmin], const designationController.findById);
 //
