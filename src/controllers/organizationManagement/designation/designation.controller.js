@@ -200,3 +200,19 @@ exports.updateDesignations = async (req, res) => {
         return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
     }
 }
+
+exports.updateMultipleDesignations = async (req, res) => {
+    try {
+
+        const designations = await designationManager.updateDesignations(req);
+        if (designations.modifiedCount === req.body.designations.length) {
+            const message = "Designations updated successfully";
+            return apiResponseHandler.successResponse(res, message, null, 200);
+        } else {
+            return apiResponseHandler.errorResponse(res, "Some user permissions failed to update", 500, null);
+        }
+    } catch (err) {
+        console.log("Error while updating designations", err.message);
+        return apiResponseHandler.errorResponse(res, "Some internal server error", 500, null);
+    }
+}

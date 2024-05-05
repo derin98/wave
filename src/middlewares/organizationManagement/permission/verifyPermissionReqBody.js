@@ -176,6 +176,30 @@ validatePermissions = async (req, res, next) => {
     next();
 }
 
+validateMultiplePermissionsForDesignationsUpdateArray = async (req, res, next) => {
+
+    if (req.body.designations) {
+        const pemissions = req.body.designations.map(designation => designation.permissions);
+
+        // keep only distinct permissions from pemissions by using set and keep it in an array
+        if (pemissions.length > 0) {
+            const uniquePermissions = [...new Set(pemissions.flat())];
+
+            let invalidPermissions = await PermissionDbOperations.returnInvalidPermissions(Array.from(uniquePermissions), req.businessUnit);
+
+            if (invalidPermissions.length > 0) {
+                return apiResponseHandler.errorResponse(
+                    res,
+                    "Failed! Invalid Permission ids",
+                    400,
+                    { invalidPermissions }
+                );
+            }
+        }
+    }
+    next();
+}
+
 validatePositivePermissions = async (req, res, next) => {
     if (req.body.positivePermissions) {
         if (!req.body.positivePermissions || !Array.isArray(req.body.positivePermissions) || req.body.positivePermissions.length === 0) {
@@ -365,7 +389,8 @@ const verifyPermissionReqBody = {
     validatePositivePermissions: validatePositivePermissions,
     validateNegativePermissions: validateNegativePermissions,
     validatePositivePermissionsArray: validatePositivePermissionsArray,
-    validateNegativePermissionsArray: validateNegativePermissionsArray
+    validateNegativePermissionsArray: validateNegativePermissionsArray,
+    validateMultiplePermissionsForDesignationsUpdateArray: validateMultiplePermissionsForDesignationsUpdateArray
 };
 
 
