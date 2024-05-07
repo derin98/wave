@@ -210,6 +210,7 @@ async function getUser(_id, selectFields, populateFields, businessUnit) {
         // isEnabled: true,
         isDeleted: false
     };
+    let originalPopulateFields = populateFields;
     console.log("query", query, selectFields, populateFields)
     if(businessUnit) {
         query.businessUnit = businessUnit;
@@ -217,12 +218,125 @@ async function getUser(_id, selectFields, populateFields, businessUnit) {
     populateFields = populateFields
         ? [...new Set(populateFields.split(','))].filter(field => field !== 'userPassword').join(' ')
         : "";
-
+        if (populateFields.includes('permissions')){
+            //add userPermission, designations if its not present
+            if (!populateFields.includes('userPermissions')) {
+                populateFields += ' userPermission';
+            }
+            if (!populateFields.includes('designations')) {
+                populateFields += ' designation';
+            }
+            }
     selectFields = selectFields
         ? [...new Set(selectFields.split(',')), 'name', '_id'].filter(field => field !== 'userPassword').join(' ')
         : ['name', '_id'];
 
-    return await UserOperations.getUser(query, selectFields, populateFields);
+    const user = await UserOperations.getUser(query, selectFields, populateFields);
+    console.log("user", user);
+    if (populateFields.includes('permissions')) {
+    // Concatenate and filter permissions
+    const allPermissions = [...user.designation.permissions, ...user.userPermission.positivePermissions];
+    const negativePermissionsSet = new Set(user.userPermission.negativePermissions.map(String));
+
+    const filteredPermissions = allPermissions.filter(permission => !negativePermissionsSet.has(String(permission)));
+
+    // Extract unique elements
+    const uniquePermissions = [...new Set(filteredPermissions)];
+
+    // const userPermission = await userPermissionManager.getUserPermissions(filteredPermissions, "", "permissionGroup")
+    const userPermission = await permissionManager.getPermissions(uniquePermissions, "", "permissionGroup")
+    //
+    const permission = userPermission.reduce((acc, { id,name: permissionName, permissionGroup: { name: groupName } }) => {
+    acc[groupName] ??= {};
+    acc[groupName][permissionName] = { id };
+    return acc;
+    }, {});
+    user.permissions = permission
+    console.log("permission", permission);
+
+        if(!originalPopulateFields.split(',').includes('userPermission')) {
+            delete user.userPermission
+        }
+        if(!originalPopulateFields.split(',').includes('designationPermissions')) {
+            delete user.designation.permissions;
+        }
+    }
+    if (populateFields.includes('userPermission')) {
+
+            
+            // Check if user has userPermission, positivePermissions, and negativePermissions, if not, initialize them as empty arrays
+            if (!user.userPermission) {
+                user.userPermission = { positivePermissions: [], negativePermissions: [] };
+            }
+            if (!user.userPermission.positivePermissions) user.userPermission.positivePermissions = [];
+            if (!user.userPermission.negativePermissions) user.userPermission.negativePermissions = [];
+        
+            // Concatenate and filter permissions
+            let positivePermissions = [...user.userPermission.positivePermissions];
+            const negativePermissionsSet = new Set(user.userPermission.negativePermissions.map(String));
+            const negativePermissions = [...negativePermissionsSet];
+            
+            // Only get permissions if there are positivePermissions or negativePermissions
+            if (positivePermissions.length > 0) {
+                const userPositivePermission = await permissionManager.getPermissions(positivePermissions, "", "permissionGroup");
+        
+                let modifiedPositivePermissions = userPositivePermission.reduce((acc, { id, name: permissionName, permissionGroup: { name: groupName } }) => {
+                    acc[groupName] ??= {};
+                    acc[groupName][permissionName] = { id };
+                    return acc;
+                }, {});
+        
+                user.userPermission.positivePermissions = modifiedPositivePermissions;
+            }
+        
+            if (negativePermissions.length > 0) {
+                const userNegativePermission = await permissionManager.getPermissions(negativePermissions, "", "permissionGroup");
+        
+                let modifiedNegativePermissions = userNegativePermission.reduce((acc, { id, name: permissionName, permissionGroup: { name: groupName } }) => {
+                    acc[groupName] ??= {};
+                    acc[groupName][permissionName] = { id };
+                    return acc;
+                }, {});
+        
+                user.userPermission.negativePermissions = modifiedNegativePermissions;
+            }
+
+    }
+    if (populateFields.includes('designation')) {
+       
+        if (populateFields.includes('designationPermissions')) {
+
+                // Check if user has userPermission, positivePermissions, and negativePermissions, if not, initialize them as empty arrays
+                if (!user.designation) {
+                    user.designation = { id: "", name: "",  permissions: [] };
+                }
+                if (!user.designation.permissions) user.designation.permissions = [];
+            
+    
+                const designationPermissionsSet = new Set(user.designation.permissions.map(String));
+                const designationPermissions = [...designationPermissionsSet];
+                
+    
+            
+                if (designationPermissions.length > 0) {
+                    const userNegativePermission = await permissionManager.getPermissions(designationPermissions, "", "permissionGroup");
+            
+                    let modifiedDesignationPermissions = userNegativePermission.reduce((acc, { id, name: permissionName, permissionGroup: { name: groupName } }) => {
+                        acc[groupName] ??= {};
+                        acc[groupName][permissionName] = { id };
+                        return acc;
+                    }, {});
+            
+                    user.designation.permissions = modifiedDesignationPermissions;
+                }
+            
+        }
+        else {
+                delete user.designation.permissions;
+        }
+        
+    }
+    return user;
 }
 
 
