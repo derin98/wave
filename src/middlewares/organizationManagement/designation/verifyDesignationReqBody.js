@@ -201,7 +201,9 @@ checkDesignationsUpdateIsArray = async (req, res, next) => {
 
 
 validateDesignationsUpdateArray = async (req, res, next) => {
+
     try {
+        const designationIds = req.body.designations.map(designation => designation.id);
         for (const designation of req.body.designations) {
             if (!designation.id || typeof designation.id !== 'string') {
                 return apiResponseHandler.errorResponse(
@@ -212,15 +214,24 @@ validateDesignationsUpdateArray = async (req, res, next) => {
                 );
             }
 
-            const existingUserPermission = await UserPermissionDbOperations.checkExistingUserPermissionId(designation.id);
-            if (!existingUserPermission) {
-                return apiResponseHandler.errorResponse(
-                    res,
-                    `Failed! Designation ${designation.id} does not exist`,
-                    400,
-                    null
-                );
-            }
+            // const existingUserPermission = await DesignationDbOperations.checkExistingUserPermissionId(designation.id);
+            // if (!existingUserPermission) {
+            //     return apiResponseHandler.errorResponse(
+            //         res,
+            //         `Failed! Designation ${designation.id} does not exist`,
+            //         400,
+            //         null
+            //     );
+            // }
+        }
+        let invalidDesignations = await DesignationDbOperations.returnInvalidDesignations(designationIds, req.businessUnit);
+        if (invalidDesignations.length > 0) {
+            return apiResponseHandler.errorResponse(
+                res,
+                "Failed! Invalid Designation ids",
+                400,
+                { invalidDesignations }
+            );
         }
         next();
     } catch (error) {
