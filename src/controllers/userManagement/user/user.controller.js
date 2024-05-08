@@ -51,7 +51,6 @@ exports.getUser = async (req, res) => {
     try {
         let populateFields = req.query.populateFields || undefined;
         let selectFields = req.query.selectFields || undefined;
-
         const user = await userManager.getUser(req.params.user, selectFields, populateFields, req.businessUnit);
 
         if (!user) {
